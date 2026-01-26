@@ -20,7 +20,7 @@ import {
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
-  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List
+  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List, Pencil, RotateCcw
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE (GANTI BAGIAN INI) ---
@@ -59,7 +59,10 @@ export default function App() {
   // --- Display State (Mobile) ---
   const [isMobileGrid, setIsMobileGrid] = useState(false);
 
-  // --- Form State ---
+  // --- Form & Edit State ---
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentEditId, setCurrentEditId] = useState(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     nickname: '',
@@ -113,10 +116,10 @@ export default function App() {
           ...doc.data()
         }));
         
-        // Urutkan dari yang terbaru
+        // Urutkan dari yang terbaru (berdasarkan updatedAt jika ada, atau createdAt)
         fetchedFriends.sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
+          const timeA = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+          const timeB = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
           return timeB - timeA;
         });
 
@@ -216,9 +219,35 @@ export default function App() {
     setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'robot' }));
   };
 
+  // --- LOGIKA EDIT & BATAL EDIT ---
+  const handleEdit = (friend) => {
+    setFormData({
+      name: friend.name,
+      nickname: friend.nickname,
+      dream: friend.dream,
+      hobby: friend.hobby,
+      food: friend.food,
+      message: friend.message,
+      avatar: friend.avatar,
+      photoUrl: friend.photoUrl || null,
+      usePhoto: friend.usePhoto || false
+    });
+    setIsEditing(true);
+    setCurrentEditId(friend.id);
+    setActiveTab('form');
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({
+      name: '', nickname: '', dream: '', hobby: '', food: '', message: '',
+      avatar: 'robot', photoUrl: null, usePhoto: false
+    });
+    setIsEditing(false);
+    setCurrentEditId(null);
+  };
+
   // --- LOGIKA LOVE / LIKE ---
   const handleLove = async (id) => {
-    // Cek apakah user sudah memberikan love di browser ini
     const storageKey = `loved_${id}`;
     if (localStorage.getItem(storageKey)) {
       alert("Kamu sudah memberikan Love ❤️ untuk teman ini!");
@@ -230,8 +259,6 @@ export default function App() {
       await updateDoc(docRef, {
         loves: increment(1)
       });
-      
-      // Simpan status love di localStorage
       localStorage.setItem(storageKey, 'true');
     } catch (error) {
       console.error("Error giving love:", error);
@@ -240,7 +267,6 @@ export default function App() {
 
   // --- LOGIKA SIMPAN DENGAN POP-UP ---
   
-  // 1. Tombol simpan diklik -> Munculkan Pop-up
   const handlePreSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.message) {
@@ -250,37 +276,49 @@ export default function App() {
     setShowConfirmModal(true);
   };
 
-  // 2. Tombol "Ya" di Pop-up diklik -> Simpan ke Database
   const handleConfirmSave = async () => {
     setShowConfirmModal(false);
     setIsSubmitting(true);
-    try {
-      const dataRef = collection(db, COLLECTION_NAME);
-      
-      const dataToSend = {
-        name: formData.name,
-        nickname: formData.nickname,
-        dream: formData.dream,
-        hobby: formData.hobby,
-        food: formData.food,
-        message: formData.message,
-        avatar: formData.avatar,
-        photoUrl: formData.usePhoto ? formData.photoUrl : null, 
-        usePhoto: formData.usePhoto,
-        loves: 0, // Inisialisasi jumlah love
-        createdAt: serverTimestamp(),
-        creatorId: user.uid
-      };
+    
+    // Data dasar yang akan disimpan/diupdate
+    const baseData = {
+      name: formData.name,
+      nickname: formData.nickname,
+      dream: formData.dream,
+      hobby: formData.hobby,
+      food: formData.food,
+      message: formData.message,
+      avatar: formData.avatar,
+      photoUrl: formData.usePhoto ? formData.photoUrl : null, 
+      usePhoto: formData.usePhoto,
+    };
 
-      await addDoc(dataRef, dataToSend);
+    try {
+      if (isEditing && currentEditId) {
+        // --- MODE UPDATE ---
+        const docRef = doc(db, COLLECTION_NAME, currentEditId);
+        await updateDoc(docRef, {
+          ...baseData,
+          updatedAt: serverTimestamp()
+        });
+        alert("Biodata berhasil diperbarui!");
+      } else {
+        // --- MODE TAMBAH BARU ---
+        const dataRef = collection(db, COLLECTION_NAME);
+        await addDoc(dataRef, {
+          ...baseData,
+          loves: 0, 
+          createdAt: serverTimestamp(),
+          creatorId: user.uid
+        });
+        alert("Hore! Biodata berhasil disimpan.");
+      }
       
-      setFormData({
-        name: '', nickname: '', dream: '', hobby: '', food: '', message: '',
-        avatar: 'robot', photoUrl: null, usePhoto: false
-      });
+      // Reset Form
+      handleCancelEdit(); // Fungsi ini juga mereset form & state edit
       setActiveTab('gallery');
     } catch (error) {
-      console.error("Error adding document: ", error);
+      console.error("Error saving document: ", error);
       alert("Yah, gagal menyimpan. Coba lagi ya!");
     } finally {
       setIsSubmitting(false);
@@ -386,7 +424,7 @@ export default function App() {
               <CheckCircle size={40} className="text-pink-500" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">Sudah Yakin?</h3>
-            <p className="text-gray-500 mb-6">Apakah biodata kamu sudah diisi dengan benar?</p>
+            <p className="text-gray-500 mb-6">Pastikan data yang kamu isi sudah benar ya.</p>
             <div className="flex gap-3 justify-center">
               <button 
                 onClick={() => setShowConfirmModal(false)}
@@ -398,7 +436,7 @@ export default function App() {
                 onClick={handleConfirmSave}
                 className="px-6 py-2 rounded-xl bg-pink-500 text-white font-bold hover:bg-pink-600 shadow-lg transform active:scale-95 transition"
               >
-                Ya, Simpan!
+                {isEditing ? 'Ya, Update!' : 'Ya, Simpan!'}
               </button>
             </div>
           </div>
@@ -424,13 +462,13 @@ export default function App() {
 
       <main className="max-w-4xl mx-auto px-3 md:px-4">
         <div className="flex justify-center mb-6 md:mb-8 gap-2 md:gap-4">
-          <button onClick={() => setActiveTab('gallery')}
+          <button onClick={() => { setActiveTab('gallery'); handleCancelEdit(); }}
             className={`flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg transition-all transform hover:scale-105 shadow-md ${
               activeTab === 'gallery' ? 'bg-blue-500 text-white ring-2 md:ring-4 ring-blue-200' : 'bg-white text-blue-500 hover:bg-blue-50'
             }`}>
             <BookOpen size={18} className="md:w-6 md:h-6" /> <span>Lihat Teman</span>
           </button>
-          <button onClick={() => setActiveTab('form')}
+          <button onClick={() => { setActiveTab('form'); handleCancelEdit(); }}
             className={`flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg transition-all transform hover:scale-105 shadow-md ${
               activeTab === 'form' ? 'bg-pink-500 text-white ring-2 md:ring-4 ring-pink-200' : 'bg-white text-pink-500 hover:bg-pink-50'
             }`}>
@@ -439,9 +477,19 @@ export default function App() {
         </div>
 
         {activeTab === 'form' && (
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-8 max-w-2xl mx-auto border-2 md:border-4 border-pink-200">
-            <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-4 md:mb-6 text-center">✏️ Isi Biodatamu Yuk!</h2>
-            {/* Form sekarang memanggil handlePreSubmit untuk memicu pop-up */}
+          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-8 max-w-2xl mx-auto border-2 md:border-4 border-pink-200 relative">
+            
+            {/* Indikator Mode Edit */}
+            {isEditing && (
+               <div className="absolute top-4 right-4 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-200">
+                 <Pencil size={12} /> Mode Edit
+               </div>
+            )}
+
+            <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-4 md:mb-6 text-center">
+              {isEditing ? '✏️ Update Biodatamu' : '✏️ Isi Biodatamu Yuk!'}
+            </h2>
+            
             <form onSubmit={handlePreSubmit} className="space-y-4 md:space-y-6">
               <div className="bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-gray-100">
                 <label className="block text-gray-700 font-bold mb-3 text-center text-sm md:text-base">Pilih Foto Profilmu:</label>
@@ -506,16 +554,33 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Fav</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
                 <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Hai teman-teman, senang berkenalan dengan kalian!..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
               </div>
-              <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 mt-4">
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Biodata'}
-              </button>
+              
+              <div className="flex gap-2 mt-4">
+                {isEditing && (
+                  <button 
+                    type="button" 
+                    onClick={handleCancelEdit}
+                    className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <RotateCcw size={20} /> Batal
+                  </button>
+                )}
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className={`flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 ${isEditing ? 'w-2/3' : 'w-full'}`}
+                >
+                  {isSubmitting ? 'Menyimpan...' : (isEditing ? 'Update Biodata' : 'Simpan Biodata')}
+                </button>
+              </div>
+
             </form>
           </div>
         )}
@@ -546,8 +611,11 @@ export default function App() {
                   {friends.map((friend) => {
                     const avatarData = getAvatar(friend.avatar);
                     const hasPhoto = friend.usePhoto && friend.photoUrl;
-                    // Cek apakah user ini sudah di-love oleh browser ini
                     const isLoved = localStorage.getItem(`loved_${friend.id}`);
+                    
+                    // Logic Permission Edit
+                    const isOwner = user && user.uid === friend.creatorId;
+                    const canEdit = userRole === 'admin' || isOwner;
                     
                     return (
                       <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 border-b-4 md:border-b-8 border-blue-200">
@@ -566,12 +634,30 @@ export default function App() {
                             <span className="text-xs font-bold">{friend.loves || 0}</span>
                           </button>
                           
-                          {/* TOMBOL HAPUS HANYA MUNCUL JIKA ROLE ADALAH ADMIN */}
-                          {userRole === 'admin' && (
-                            <button onClick={() => handleDelete(friend.id)} className="absolute top-2 right-2 md:top-3 md:right-3 text-red-300 hover:text-red-500 bg-white/50 p-1 rounded-full hover:bg-white transition" title="Hapus (Admin Only)">
-                              <Trash2 size={14} className="md:w-4 md:h-4" />
-                            </button>
-                          )}
+                          {/* TOMBOL EDIT & HAPUS (POJOK KANAN ATAS) */}
+                          <div className="absolute top-2 right-2 md:top-3 md:right-3 flex gap-1">
+                            {/* Edit: Untuk Admin ATAU Pemilik Data */}
+                            {canEdit && (
+                              <button 
+                                onClick={() => handleEdit(friend)} 
+                                className="text-blue-400 hover:text-blue-600 bg-white/70 hover:bg-white p-1.5 rounded-full transition shadow-sm"
+                                title="Edit Biodata"
+                              >
+                                <Pencil size={14} className="md:w-4 md:h-4" />
+                              </button>
+                            )}
+                            
+                            {/* Hapus: HANYA Admin (Guru) */}
+                            {userRole === 'admin' && (
+                              <button 
+                                onClick={() => handleDelete(friend.id)} 
+                                className="text-red-300 hover:text-red-500 bg-white/70 hover:bg-white p-1.5 rounded-full transition shadow-sm" 
+                                title="Hapus (Guru Only)"
+                              >
+                                <Trash2 size={14} className="md:w-4 md:h-4" />
+                              </button>
+                            )}
+                          </div>
 
                         </div>
                         <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
