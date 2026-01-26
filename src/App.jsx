@@ -18,7 +18,7 @@ import {
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
-  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle
+  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE (GANTI BAGIAN INI) ---
@@ -53,6 +53,9 @@ export default function App() {
   
   // --- Modal State (Pop-up) ---
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // --- Display State (Mobile) ---
+  const [isMobileGrid, setIsMobileGrid] = useState(false);
 
   // --- Form State ---
   const [formData, setFormData] = useState({
@@ -502,41 +505,54 @@ export default function App() {
                 <button onClick={() => setActiveTab('form')} className="mt-4 md:mt-6 text-pink-500 font-bold hover:underline text-sm md:text-base">Isi biodata sekarang →</button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {friends.map((friend) => {
-                  const avatarData = getAvatar(friend.avatar);
-                  const hasPhoto = friend.usePhoto && friend.photoUrl;
-                  return (
-                    <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 border-b-4 md:border-b-8 border-blue-200">
-                      <div className={`h-20 md:h-24 ${hasPhoto ? 'bg-gray-200' : avatarData.color.split(' ')[0]} relative flex justify-center items-end pb-0`}>
-                        <div className="bg-white p-1 rounded-full shadow-md -mb-6 md:-mb-8 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-                           {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color.split(' ')[0]}`}>{React.cloneElement(avatarData.icon, { size: 28, className: `md:w-8 md:h-8 ${avatarData.color.split(' ')[1]}` })}</div> )}
-                        </div>
-                        
-                        {/* TOMBOL HAPUS HANYA MUNCUL JIKA ROLE ADALAH ADMIN */}
-                        {userRole === 'admin' && (
-                          <button onClick={() => handleDelete(friend.id)} className="absolute top-2 right-2 md:top-3 md:right-3 text-red-300 hover:text-red-500 bg-white/50 p-1 rounded-full hover:bg-white transition" title="Hapus (Admin Only)">
-                            <Trash2 size={14} className="md:w-4 md:h-4" />
-                          </button>
-                        )}
+              <div>
+                {/* Mobile View Toggle */}
+                <div className="flex justify-end mb-4 md:hidden">
+                  <button
+                    onClick={() => setIsMobileGrid(!isMobileGrid)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm text-sm font-medium text-gray-600 border border-gray-200"
+                  >
+                    {isMobileGrid ? <List size={16} /> : <LayoutGrid size={16} />}
+                    {isMobileGrid ? 'Tampilan List' : 'Tampilan Grid'}
+                  </button>
+                </div>
+                
+                <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4'} md:grid-cols-2 lg:grid-cols-3 md:gap-6`}>
+                  {friends.map((friend) => {
+                    const avatarData = getAvatar(friend.avatar);
+                    const hasPhoto = friend.usePhoto && friend.photoUrl;
+                    return (
+                      <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 border-b-4 md:border-b-8 border-blue-200">
+                        <div className={`h-20 md:h-24 ${hasPhoto ? 'bg-gray-200' : avatarData.color.split(' ')[0]} relative flex justify-center items-end pb-0`}>
+                          <div className="bg-white p-1 rounded-full shadow-md -mb-6 md:-mb-8 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                             {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color.split(' ')[0]}`}>{React.cloneElement(avatarData.icon, { size: 28, className: `md:w-8 md:h-8 ${avatarData.color.split(' ')[1]}` })}</div> )}
+                          </div>
+                          
+                          {/* TOMBOL HAPUS HANYA MUNCUL JIKA ROLE ADALAH ADMIN */}
+                          {userRole === 'admin' && (
+                            <button onClick={() => handleDelete(friend.id)} className="absolute top-2 right-2 md:top-3 md:right-3 text-red-300 hover:text-red-500 bg-white/50 p-1 rounded-full hover:bg-white transition" title="Hapus (Admin Only)">
+                              <Trash2 size={14} className="md:w-4 md:h-4" />
+                            </button>
+                          )}
 
-                      </div>
-                      <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-0.5">{friend.name}</h3>
-                        <p className="text-blue-500 font-medium text-xs md:text-sm uppercase tracking-wide mb-3 md:mb-4">"{friend.nickname || friend.name}"</p>
-                        <div className="space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm">
-                          <div className="flex items-center gap-2"><Rocket className="text-blue-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Cita-cita:</span><span className="text-gray-800 truncate">{friend.dream || '-'}</span></div>
-                          <div className="flex items-center gap-2"><Gamepad2 className="text-green-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Hobi:</span><span className="text-gray-800 truncate">{friend.hobby || '-'}</span></div>
-                          <div className="flex items-center gap-2"><Utensils className="text-orange-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Makanan:</span><span className="text-gray-800 truncate">{friend.food || '-'}</span></div>
                         </div>
-                        <div className="mt-3 md:mt-4 relative">
-                          <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan</div>
-                          <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-2 md:p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-3 md:pt-4">"{friend.message}"</div>
+                        <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
+                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-0.5">{friend.name}</h3>
+                          <p className="text-blue-500 font-medium text-xs md:text-sm uppercase tracking-wide mb-3 md:mb-4">"{friend.nickname || friend.name}"</p>
+                          <div className="space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm">
+                            <div className="flex items-center gap-2"><Rocket className="text-blue-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Cita-cita:</span><span className="text-gray-800 truncate">{friend.dream || '-'}</span></div>
+                            <div className="flex items-center gap-2"><Gamepad2 className="text-green-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Hobi:</span><span className="text-gray-800 truncate">{friend.hobby || '-'}</span></div>
+                            <div className="flex items-center gap-2"><Utensils className="text-orange-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Makanan:</span><span className="text-gray-800 truncate">{friend.food || '-'}</span></div>
+                          </div>
+                          <div className="mt-3 md:mt-4 relative">
+                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan</div>
+                            <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-2 md:p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-3 md:pt-4">"{friend.message}"</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
