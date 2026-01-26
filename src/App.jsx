@@ -478,6 +478,7 @@ export default function App() {
         </div>
       )}
 
+      {/* HEADER: Ganti max-w-4xl menjadi max-w-7xl agar lebih lebar di Desktop */}
       <header className="bg-orange-400 text-white p-4 md:p-6 shadow-lg rounded-b-[30px] md:rounded-b-[40px] mb-6 md:mb-8 relative overflow-hidden">
         
         {/* TOMBOL KELUAR (LOGOUT) */}
@@ -494,9 +495,10 @@ export default function App() {
           <Heart className="absolute bottom-2 right-10" size={30} />
           <Smile className="absolute top-10 right-20" size={25} />
         </div>
-        <div className="max-w-4xl mx-auto text-center relative z-10 pt-2">
+        {/* HEADER CONTAINER: max-w-7xl */}
+        <div className="max-w-7xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
-          <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kita Semua</p>
+          <p className="text-orange-100 text-sm md:text-lg mb-2">Kelas 3A Insan Karima</p>
           {userRole === 'admin' && (
             <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
               Mode Admin
@@ -527,7 +529,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-3 md:px-4">
+      {/* MAIN CONTAINER: Ganti max-w-4xl menjadi max-w-7xl */}
+      <main className="max-w-7xl mx-auto px-3 md:px-4">
         <div className="flex justify-center mb-6 md:mb-8 gap-2 md:gap-4">
           <button onClick={() => { setActiveTab('gallery'); handleCancelEdit(); }}
             className={`flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg transition-all transform hover:scale-105 shadow-md ${
@@ -736,10 +739,23 @@ export default function App() {
                           </p>
                           
                           {/* LIST VIEW BIASA (Desktop / Mobile List) */}
+                          {/* FIX WRAPPING: Hapus 'items-center', ubah jadi 'items-start'. Hapus 'truncate', ganti 'break-words' */}
                           <div className={`space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm ${isMobileGrid ? 'hidden md:block' : ''}`}>
-                            <div className="flex items-center gap-2"><Rocket className="text-blue-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Cita-cita:</span><span className="text-gray-800 truncate">{friend.dream || '-'}</span></div>
-                            <div className="flex items-center gap-2"><Gamepad2 className="text-green-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Hobi:</span><span className="text-gray-800 truncate">{friend.hobby || '-'}</span></div>
-                            <div className="flex items-center gap-2"><Utensils className="text-orange-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Makanan:</span><span className="text-gray-800 truncate">{friend.food || '-'}</span></div>
+                            <div className="flex items-start gap-2">
+                              <Rocket className="text-blue-400 mt-0.5" size={14} />
+                              <span className="text-gray-600 font-bold min-w-[4rem] md:min-w-[5rem]">Cita-cita:</span>
+                              <span className="text-gray-800 break-words flex-1">{friend.dream || '-'}</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Gamepad2 className="text-green-400 mt-0.5" size={14} />
+                              <span className="text-gray-600 font-bold min-w-[4rem] md:min-w-[5rem]">Hobi:</span>
+                              <span className="text-gray-800 break-words flex-1">{friend.hobby || '-'}</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Utensils className="text-orange-400 mt-0.5" size={14} />
+                              <span className="text-gray-600 font-bold min-w-[4rem] md:min-w-[5rem]">Makanan:</span>
+                              <span className="text-gray-800 break-words flex-1">{friend.food || '-'}</span>
+                            </div>
                           </div>
 
                           {/* GRID VIEW MOBILE (Ikon + Teks di Bawah) */}
