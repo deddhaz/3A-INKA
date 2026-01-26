@@ -395,30 +395,30 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Budi Santoso" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Bilal Achyar" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Budi" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Bilal" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Contoh : Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Contoh : Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Fav</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Contoh : Seblak" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Hai teman-teman, senang berkenalan dengan kalian!..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Isi pesan untuk temanmu di sini" rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 mt-4">
                 {isSubmitting ? 'Menyimpan...' : '💾 Simpan Biodata!'}
@@ -470,7 +470,7 @@ export default function App() {
           </div>
         )}
       </main>
-      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3 SD - Dibuat dengan ❤️</p></footer>
+      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3 SD - Dibuat oleh Bilal dan Abinya</p></footer>
     </div>
   );
 }
