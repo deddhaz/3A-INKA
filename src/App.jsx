@@ -143,7 +143,7 @@ export default function App() {
     
     // DAFTAR KODE AKSES
     const userCodes = ["insan karima", "inka", "sd insan karima"];
-    const adminCodes = ["admin", "guru", "wali kelas"]; // Kode Guru
+    const adminCodes = ["ustazah", "ustadzah", "ustadz", "ustad"]; // Kode Guru
 
     if (adminCodes.includes(input)) {
       setIsAuthenticated(true);
@@ -163,7 +163,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    if(confirm("Yakin ingin keluar dari gerbang sekolah?")) {
+    if(confirm("Yakin ingin keluar ?")) {
       setIsAuthenticated(false);
       setUserRole('user');
       setAccessCode('');
@@ -336,7 +336,7 @@ export default function App() {
   };
 
   const handleDelete = async (docId) => {
-    if (confirm("Apakah Bapak/Ibu Guru yakin ingin menghapus data ini?")) {
+    if (confirm("Apakah ustadz / ustadzah yakin ingin menghapus data ini?")) {
       try {
         const docRef = doc(db, COLLECTION_NAME, docId);
         await deleteDoc(docRef);
@@ -388,7 +388,7 @@ export default function App() {
               </div>
               <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-xs md:text-sm font-bold shadow whitespace-nowrap flex items-center gap-2">
                 <School size={14} />
-                SD Insan Karima
+                SD Islam Insan Karima
               </div>
             </div>
 
@@ -427,7 +427,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center font-comic">
-        <div className="text-xl md:text-2xl font-bold text-orange-500 animate-bounce">Sedang memuat...</div>
+        <div className="text-xl md:text-2xl font-bold text-orange-500 animate-bounce">Sabar ya...</div>
       </div>
     );
   }
@@ -468,7 +468,7 @@ export default function App() {
         <button 
           onClick={handleLogout}
           className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition z-50 backdrop-blur-sm"
-          title="Keluar dari Gerbang Sekolah"
+          title="Kembali ke gerbang sekolah"
         >
           <LogOut size={20} />
         </button>
@@ -480,10 +480,10 @@ export default function App() {
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🌟 Sahabat Kelas 3 🌟</h1>
-          <p className="text-orange-100 text-sm md:text-lg mb-2">Buku Biodata Digital Kita Semua!</p>
+          <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kelas 3A</p>
           {userRole === 'admin' && (
             <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
-              Mode Guru (Admin)
+              Mode Admin
             </span>
           )}
         </div>
@@ -565,30 +565,30 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Budi Santoso" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Bilal Achyar" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Budi" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Bilal" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Contoh : Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Contoh : Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Fav</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Favorit</label>
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Contoh : Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Hai teman-teman, senang berkenalan dengan kalian!..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Isi pesan untuk semua teman-teman..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
               </div>
               
               <div className="flex gap-2 mt-4">
@@ -632,7 +632,7 @@ export default function App() {
                     className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm text-sm font-medium text-gray-600 border border-gray-200"
                   >
                     {isMobileGrid ? <List size={16} /> : <LayoutGrid size={16} />}
-                    {isMobileGrid ? 'Tampilan List' : 'Tampilan Grid'}
+                    {isMobileGrid ? 'List' : 'Grid'}
                   </button>
                 </div>
                 
@@ -681,7 +681,7 @@ export default function App() {
                               <button 
                                 onClick={() => handleDelete(friend.id)} 
                                 className="text-red-300 hover:text-red-500 bg-white/70 hover:bg-white p-1.5 rounded-full transition shadow-sm" 
-                                title="Hapus (Guru Only)"
+                                title="Hapus (Admin Only)"
                               >
                                 <Trash2 size={14} className="md:w-4 md:h-4" />
                               </button>
@@ -711,7 +711,7 @@ export default function App() {
           </div>
         )}
       </main>
-      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3 SD - Dibuat dengan ❤️</p></footer>
+      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3A SDI Insan Karima - Dibuat oleh Bilal dan Abinya</p></footer>
     </div>
   );
 }
