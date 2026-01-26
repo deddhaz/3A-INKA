@@ -52,13 +52,13 @@ export default function App() {
     waliKelas: {
       name: "Ustazah Najwa",
       // Ganti URL ini dengan URL foto asli
-      photoUrl: "[https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg](https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg)", 
+      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
       role: "Wali Kelas"
     },
     asisten: {
       name: "Ustazah Dea",
       // Ganti URL ini dengan URL foto asli
-      photoUrl: "[https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg](https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg)", 
+      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
       role: "Asisten Wali Kelas"
     }
   };
