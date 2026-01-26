@@ -18,7 +18,7 @@ import {
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
-  Lock, Key, School, ArrowRight
+  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE (GANTI BAGIAN INI) ---
@@ -45,11 +45,16 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('gallery');
   
-  // --- Auth State for School Gate ---
+  // --- Auth & Role State ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState('user'); // 'user' atau 'admin'
   const [accessCode, setAccessCode] = useState('');
   const [loginError, setLoginError] = useState(false);
   
+  // --- Modal State (Pop-up) ---
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // --- Form State ---
   const [formData, setFormData] = useState({
     name: '',
     nickname: '',
@@ -64,6 +69,7 @@ export default function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- Auth & Data Fetching ---
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -78,9 +84,12 @@ export default function App() {
       setUser(currentUser);
     });
     
+    // Cek sesi login agar tidak perlu login ulang saat refresh (opsional)
     const sessionAuth = sessionStorage.getItem('school_auth');
+    const sessionRole = sessionStorage.getItem('user_role');
     if (sessionAuth === 'true') {
       setIsAuthenticated(true);
+      if (sessionRole) setUserRole(sessionRole);
     }
 
     return () => unsubscribe();
@@ -89,7 +98,7 @@ export default function App() {
   useEffect(() => {
     if (!user || !isAuthenticated) return;
 
-    // Menggunakan koleksi standar Firestore
+    // Mengambil data dari Firestore
     const dataRef = collection(db, COLLECTION_NAME);
     
     const unsubscribeData = onSnapshot(dataRef, 
@@ -99,6 +108,7 @@ export default function App() {
           ...doc.data()
         }));
         
+        // Urutkan dari yang terbaru
         fetchedFriends.sort((a, b) => {
           const timeA = a.createdAt?.seconds || 0;
           const timeB = b.createdAt?.seconds || 0;
@@ -117,15 +127,28 @@ export default function App() {
     return () => unsubscribeData();
   }, [user, isAuthenticated]);
 
+  // --- Handlers ---
+
   const handleLogin = (e) => {
     e.preventDefault();
-    const validCodes = ["insan karima", "inka", "sd insan karima"];
     const input = accessCode.toLowerCase().trim();
+    
+    // DAFTAR KODE AKSES
+    const userCodes = ["insan karima", "inka", "sd insan karima"];
+    const adminCodes = ["admin", "guru", "wali kelas"]; // Kode Guru
 
-    if (validCodes.includes(input)) {
+    if (adminCodes.includes(input)) {
       setIsAuthenticated(true);
+      setUserRole('admin'); // Set jadi Admin
       setLoginError(false);
       sessionStorage.setItem('school_auth', 'true');
+      sessionStorage.setItem('user_role', 'admin');
+    } else if (userCodes.includes(input)) {
+      setIsAuthenticated(true);
+      setUserRole('user'); // Set jadi User biasa
+      setLoginError(false);
+      sessionStorage.setItem('school_auth', 'true');
+      sessionStorage.setItem('user_role', 'user');
     } else {
       setLoginError(true);
     }
@@ -188,13 +211,21 @@ export default function App() {
     setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'robot' }));
   };
 
-  const handleSubmit = async (e) => {
+  // --- LOGIKA SIMPAN DENGAN POP-UP ---
+  
+  // 1. Tombol simpan diklik -> Munculkan Pop-up
+  const handlePreSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.message) {
       alert("Isi nama dan pesan dulu ya!");
       return;
     }
+    setShowConfirmModal(true);
+  };
 
+  // 2. Tombol "Ya" di Pop-up diklik -> Simpan ke Database
+  const handleConfirmSave = async () => {
+    setShowConfirmModal(false);
     setIsSubmitting(true);
     try {
       const dataRef = collection(db, COLLECTION_NAME);
@@ -229,7 +260,7 @@ export default function App() {
   };
 
   const handleDelete = async (docId) => {
-    if (confirm("Apakah kamu yakin ingin menghapus biodata ini?")) {
+    if (confirm("Apakah Bapak/Ibu Guru yakin ingin menghapus data ini?")) {
       try {
         const docRef = doc(db, COLLECTION_NAME, docId);
         await deleteDoc(docRef);
@@ -253,7 +284,7 @@ export default function App() {
 
   const getAvatar = (key) => { return avatars[key] || avatars['robot']; };
 
-  // --- Render Login Screen (School Gate) ---
+  // --- TAMPILAN LOGIN (GERBANG SEKOLAH) ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-sky-200 flex items-center justify-center p-4 font-sans relative overflow-hidden">
@@ -280,7 +311,7 @@ export default function App() {
               </div>
             </div>
             <h2 className="text-2xl font-bold text-gray-700 mb-2 text-center">Gerbang Sekolah Terkunci!</h2>
-            <p className="text-gray-500 text-center mb-6">Masukkan kode rahasia kelas kita untuk masuk.</p>
+            <p className="text-gray-500 text-center mb-6">Masukkan kode rahasia untuk masuk.</p>
             <form onSubmit={handleLogin} className="w-full">
               <div className="relative mb-4">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -293,7 +324,7 @@ export default function App() {
               </div>
               {loginError && (
                 <div className="text-red-500 text-sm font-bold text-center mb-4 animate-bounce">
-                  Ups! Kodenya salah. Coba lagi ya!
+                  Ups! Kodenya salah.
                 </div>
               )}
               <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
@@ -307,7 +338,7 @@ export default function App() {
     );
   }
 
-  // --- Render Main App ---
+  // --- TAMPILAN UTAMA APLIKASI ---
   if (loading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center font-comic">
@@ -317,7 +348,35 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-yellow-50 font-sans pb-10">
+    <div className="min-h-screen bg-yellow-50 font-sans pb-10 relative">
+      
+      {/* --- POP-UP KONFIRMASI (MODAL) --- */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200 transform scale-100 transition-transform">
+            <div className="mx-auto bg-pink-100 w-20 h-20 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle size={40} className="text-pink-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Sudah Yakin?</h3>
+            <p className="text-gray-500 mb-6">Apakah biodata kamu sudah diisi dengan benar?</p>
+            <div className="flex gap-3 justify-center">
+              <button 
+                onClick={() => setShowConfirmModal(false)}
+                className="px-6 py-2 rounded-xl border-2 border-gray-200 font-bold text-gray-500 hover:bg-gray-50 transition"
+              >
+                Cek Lagi
+              </button>
+              <button 
+                onClick={handleConfirmSave}
+                className="px-6 py-2 rounded-xl bg-pink-500 text-white font-bold hover:bg-pink-600 shadow-lg transform active:scale-95 transition"
+              >
+                Ya, Simpan!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="bg-orange-400 text-white p-4 md:p-6 shadow-lg rounded-b-[30px] md:rounded-b-[40px] mb-6 md:mb-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <Star className="absolute top-2 left-10" size={40} />
@@ -326,7 +385,12 @@ export default function App() {
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🌟 Sahabat Kelas 3 🌟</h1>
-          <p className="text-orange-100 text-sm md:text-lg">Buku Biodata Digital Kita Semua!</p>
+          <p className="text-orange-100 text-sm md:text-lg mb-2">Buku Biodata Digital Kita Semua!</p>
+          {userRole === 'admin' && (
+            <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
+              Mode Guru (Admin)
+            </span>
+          )}
         </div>
       </header>
 
@@ -349,7 +413,8 @@ export default function App() {
         {activeTab === 'form' && (
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-8 max-w-2xl mx-auto border-2 md:border-4 border-pink-200">
             <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-4 md:mb-6 text-center">✏️ Isi Biodatamu Yuk!</h2>
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+            {/* Form sekarang memanggil handlePreSubmit untuk memicu pop-up */}
+            <form onSubmit={handlePreSubmit} className="space-y-4 md:space-y-6">
               <div className="bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-gray-100">
                 <label className="block text-gray-700 font-bold mb-3 text-center text-sm md:text-base">Pilih Foto Profilmu:</label>
                 <div className="flex justify-center gap-2 md:gap-4 mb-4">
@@ -395,33 +460,33 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Bilal Achyar" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Budi Santoso" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Bilal" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Budi" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Contoh : Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Jadi Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Contoh : Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Fav</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Contoh : Seblak" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Isi pesan untuk temanmu di sini" rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Hai teman-teman, senang berkenalan dengan kalian!..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 mt-4">
-                {isSubmitting ? 'Menyimpan...' : '💾 Simpan Biodata!'}
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Biodata'}
               </button>
             </form>
           </div>
@@ -447,7 +512,14 @@ export default function App() {
                         <div className="bg-white p-1 rounded-full shadow-md -mb-6 md:-mb-8 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
                            {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color.split(' ')[0]}`}>{React.cloneElement(avatarData.icon, { size: 28, className: `md:w-8 md:h-8 ${avatarData.color.split(' ')[1]}` })}</div> )}
                         </div>
-                        <button onClick={() => handleDelete(friend.id)} className="absolute top-2 right-2 md:top-3 md:right-3 text-red-300 hover:text-red-500 bg-white/50 p-1 rounded-full hover:bg-white transition" title="Hapus"><Trash2 size={14} className="md:w-4 md:h-4" /></button>
+                        
+                        {/* TOMBOL HAPUS HANYA MUNCUL JIKA ROLE ADALAH ADMIN */}
+                        {userRole === 'admin' && (
+                          <button onClick={() => handleDelete(friend.id)} className="absolute top-2 right-2 md:top-3 md:right-3 text-red-300 hover:text-red-500 bg-white/50 p-1 rounded-full hover:bg-white transition" title="Hapus (Admin Only)">
+                            <Trash2 size={14} className="md:w-4 md:h-4" />
+                          </button>
+                        )}
+
                       </div>
                       <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
                         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-0.5">{friend.name}</h3>
@@ -470,7 +542,7 @@ export default function App() {
           </div>
         )}
       </main>
-      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3 SD - Dibuat oleh Bilal dan Abinya</p></footer>
+      <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3 SD - Dibuat dengan ❤️</p></footer>
     </div>
   );
 }
