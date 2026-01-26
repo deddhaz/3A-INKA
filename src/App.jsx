@@ -563,7 +563,7 @@ export default function App() {
                 <div className="flex justify-center gap-2 md:gap-4 mb-4">
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: false }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
-                    <Smile size={16} className="md:w-5 md:h-5" /> Pilih Kartun
+                    <Smile size={16} className="md:w-5 md:h-5" /> Pilih Avatar
                   </button>
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: true }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
