@@ -20,7 +20,7 @@ import {
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
-  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List, Pencil, RotateCcw
+  Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List, Pencil, RotateCcw, LogOut
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE (GANTI BAGIAN INI) ---
@@ -159,6 +159,16 @@ export default function App() {
       sessionStorage.setItem('user_role', 'user');
     } else {
       setLoginError(true);
+    }
+  };
+
+  const handleLogout = () => {
+    if(confirm("Yakin ingin keluar dari gerbang sekolah?")) {
+      setIsAuthenticated(false);
+      setUserRole('user');
+      setAccessCode('');
+      sessionStorage.removeItem('school_auth');
+      sessionStorage.removeItem('user_role');
     }
   };
 
@@ -353,53 +363,62 @@ export default function App() {
   // --- TAMPILAN LOGIN (GERBANG SEKOLAH) ---
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-sky-200 flex items-center justify-center p-4 font-sans relative overflow-hidden">
+      // FIX LAYOUT: Gunakan h-screen dan overflow-hidden agar tidak perlu scroll di mobile
+      <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
+        {/* Dekorasi Background */}
         <div className="absolute top-10 left-10 text-white/40"><Smile size={80} /></div>
         <div className="absolute top-20 right-20 text-white/30"><Star size={60} /></div>
         <div className="absolute bottom-10 left-1/4 text-white/40"><Heart size={100} /></div>
 
-        <div className="bg-white rounded-[40px] shadow-2xl p-8 max-w-md w-full relative z-10 border-8 border-orange-200">
+        {/* Card Login */}
+        <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
           <div className="flex flex-col items-center">
-            <div className="relative mb-8 mt-4">
-              <div className="flex gap-2 h-32 items-end mb-2">
-                 <div className="w-3 h-32 bg-gray-300 rounded-t-full"></div>
-                 <div className="w-3 h-28 bg-gray-300 rounded-t-full"></div>
-                 <div className="w-3 h-32 bg-gray-300 rounded-t-full"></div>
-                 <div className="w-3 h-28 bg-gray-300 rounded-t-full"></div>
-                 <div className="w-3 h-32 bg-gray-300 rounded-t-full"></div>
+            
+            {/* Visual Sekolah - Dikecilkan sedikit untuk mobile */}
+            <div className="relative mb-6 mt-2 transform scale-90 md:scale-100">
+              <div className="flex gap-2 h-24 md:h-32 items-end mb-2">
+                 <div className="w-3 h-24 md:h-32 bg-gray-300 rounded-t-full"></div>
+                 <div className="w-3 h-20 md:h-28 bg-gray-300 rounded-t-full"></div>
+                 <div className="w-3 h-24 md:h-32 bg-gray-300 rounded-t-full"></div>
+                 <div className="w-3 h-20 md:h-28 bg-gray-300 rounded-t-full"></div>
+                 <div className="w-3 h-24 md:h-32 bg-gray-300 rounded-t-full"></div>
               </div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-400 p-4 rounded-full border-4 border-white shadow-lg">
-                <Lock size={40} className="text-white" />
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-400 p-3 md:p-4 rounded-full border-4 border-white shadow-lg">
+                <Lock size={32} className="text-white md:w-10 md:h-10" />
               </div>
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow whitespace-nowrap flex items-center gap-2">
-                <School size={16} />
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-xs md:text-sm font-bold shadow whitespace-nowrap flex items-center gap-2">
+                <School size={14} />
                 SD Insan Karima
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-2 text-center">Gerbang Sekolah Terkunci!</h2>
-            <p className="text-gray-500 text-center mb-6">Masukkan kode rahasia untuk masuk.</p>
+
+            <h2 className="text-xl md:text-2xl font-bold text-gray-700 mb-2 text-center">Gerbang Terkunci!</h2>
+            <p className="text-sm md:text-base text-gray-500 text-center mb-4 md:mb-6">Masukkan kode rahasia untuk masuk.</p>
+            
             <form onSubmit={handleLogin} className="w-full">
-              <div className="relative mb-4">
+              <div className="relative mb-3 md:mb-4">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Key size={20} className="text-gray-400" />
+                  <Key size={18} className="text-gray-400" />
                 </div>
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)}
                   placeholder="Kode Sekolah..."
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'} focus:outline-none focus:border-blue-400 transition-colors text-lg text-center tracking-widest`}
+                  className={`w-full pl-9 pr-4 py-2.5 md:py-3 rounded-xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'} focus:outline-none focus:border-blue-400 transition-colors text-base md:text-lg text-center tracking-widest`}
                 />
               </div>
               {loginError && (
-                <div className="text-red-500 text-sm font-bold text-center mb-4 animate-bounce">
+                <div className="text-red-500 text-xs md:text-sm font-bold text-center mb-3 animate-bounce">
                   Ups! Kodenya salah.
                 </div>
               )}
-              <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
-                Buka Gerbang <ArrowRight size={20} />
+              <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-2.5 md:py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
+                Buka Gerbang <ArrowRight size={18} />
               </button>
             </form>
           </div>
         </div>
-        <div className="absolute bottom-0 w-full h-16 bg-green-400 rounded-t-[50%] scale-150"></div>
+        
+        {/* Bukit Hijau di Bawah */}
+        <div className="absolute -bottom-10 w-full h-20 bg-green-400 rounded-t-[50%] scale-150"></div>
       </div>
     );
   }
@@ -444,12 +463,22 @@ export default function App() {
       )}
 
       <header className="bg-orange-400 text-white p-4 md:p-6 shadow-lg rounded-b-[30px] md:rounded-b-[40px] mb-6 md:mb-8 relative overflow-hidden">
+        
+        {/* TOMBOL KELUAR (LOGOUT) */}
+        <button 
+          onClick={handleLogout}
+          className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition z-50 backdrop-blur-sm"
+          title="Keluar dari Gerbang Sekolah"
+        >
+          <LogOut size={20} />
+        </button>
+
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <Star className="absolute top-2 left-10" size={40} />
           <Heart className="absolute bottom-2 right-10" size={30} />
           <Smile className="absolute top-10 right-20" size={25} />
         </div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🌟 Sahabat Kelas 3 🌟</h1>
           <p className="text-orange-100 text-sm md:text-lg mb-2">Buku Biodata Digital Kita Semua!</p>
           {userRole === 'admin' && (
@@ -550,7 +579,7 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Fav</label>
@@ -686,3 +715,4 @@ export default function App() {
     </div>
   );
 }
+
