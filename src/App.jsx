@@ -86,7 +86,7 @@ export default function App() {
     hobby: '',
     food: '',
     message: '',
-    avatar: 'robot',
+    avatar: 'super_boy', // Default avatar
     photoUrl: null,
     usePhoto: false
   });
@@ -242,7 +242,7 @@ export default function App() {
   };
 
   const removePhoto = () => {
-    setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'robot' }));
+    setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'super_boy' }));
   };
 
   // --- LOGIKA EDIT & BATAL EDIT ---
@@ -266,7 +266,7 @@ export default function App() {
   const handleCancelEdit = () => {
     setFormData({
       name: '', nickname: '', dream: '', hobby: '', food: '', message: '',
-      avatar: 'robot', photoUrl: null, usePhoto: false
+      avatar: 'super_boy', photoUrl: null, usePhoto: false
     });
     setIsEditing(false);
     setCurrentEditId(null);
@@ -362,19 +362,19 @@ export default function App() {
     }
   };
 
-  // --- Helpers ---
+  // --- Helpers: SUPERHERO AVATARS (Pakai Emoji) ---
   const avatars = {
-    robot: { icon: <Rocket />, color: 'bg-blue-100 text-blue-600', label: 'Robot' },
-    princess: { icon: <Heart />, color: 'bg-pink-100 text-pink-600', label: 'Hati' },
-    gamer: { icon: <Gamepad2 />, color: 'bg-purple-100 text-purple-600', label: 'Gamer' },
-    artist: { icon: <Palette />, color: 'bg-orange-100 text-orange-600', label: 'Seniman' },
-    musician: { icon: <Music />, color: 'bg-green-100 text-green-600', label: 'Musik' },
-    cool: { icon: <Star />, color: 'bg-yellow-100 text-yellow-600', label: 'Bintang' },
-    happy: { icon: <Smile />, color: 'bg-teal-100 text-teal-600', label: 'Senyum' },
-    eater: { icon: <Utensils />, color: 'bg-red-100 text-red-600', label: 'Makan' },
+    super_boy: { emoji: '🦸‍♂️', color: 'bg-blue-100', label: 'Super Boy' },
+    super_girl: { emoji: '🦸‍♀️', color: 'bg-pink-100', label: 'Super Girl' },
+    ninja: { emoji: '🥷', color: 'bg-gray-800 text-white', label: 'Ninja' },
+    robot: { emoji: '🤖', color: 'bg-red-100', label: 'Cyborg' },
+    spider: { emoji: '🕷️', color: 'bg-red-50', label: 'Spidey' },
+    bat: { emoji: '🦇', color: 'bg-gray-200', label: 'Bat Hero' },
+    alien: { emoji: '👽', color: 'bg-green-100', label: 'Alien' },
+    wizard: { emoji: '🧙‍♂️', color: 'bg-purple-100', label: 'Penyihir' },
   };
 
-  const getAvatar = (key) => { return avatars[key] || avatars['robot']; };
+  const getAvatar = (key) => { return avatars[key] || avatars['super_boy']; };
 
   // --- TAMPILAN LOGIN (GERBANG SEKOLAH) ---
   if (!isAuthenticated) {
@@ -499,7 +499,7 @@ export default function App() {
           <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kita Semua</p>
           {userRole === 'admin' && (
             <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
-              Mode Guru (Admin)
+              Mode Admin
             </span>
           )}
 
@@ -563,7 +563,7 @@ export default function App() {
                 <div className="flex justify-center gap-2 md:gap-4 mb-4">
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: false }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
-                    <Smile size={16} className="md:w-5 md:h-5" /> Pilih Avatar
+                    <Smile size={16} className="md:w-5 md:h-5" /> Pilih Kartun
                   </button>
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: true }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
@@ -575,7 +575,7 @@ export default function App() {
                     {Object.entries(avatars).map(([key, data]) => (
                       <button key={key} type="button" onClick={() => handleAvatarSelect(key)}
                         className={`flex flex-col items-center justify-center p-2 md:p-3 rounded-xl transition-all ${formData.avatar === key ? 'ring-2 md:ring-4 ring-pink-400 bg-pink-50 transform scale-105' : 'bg-white hover:bg-gray-100 border border-gray-200'}`}>
-                        <div className={`${data.color} p-2 rounded-full mb-1`}>{React.cloneElement(data.icon, { size: 20, className: "md:w-6 md:h-6" })}</div>
+                        <div className={`${data.color} w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full mb-1 text-xl md:text-2xl`}>{data.emoji}</div>
                         <span className="text-[10px] md:text-xs font-medium text-gray-500">{data.label}</span>
                       </button>
                     ))}
@@ -688,7 +688,7 @@ export default function App() {
                       <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 border-b-4 md:border-b-8 border-blue-200">
                         <div className={`h-20 md:h-24 ${hasPhoto ? 'bg-gray-200' : avatarData.color.split(' ')[0]} relative flex justify-center items-end pb-0`}>
                           <div className="bg-white p-1 rounded-full shadow-md -mb-6 md:-mb-8 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-                             {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color.split(' ')[0]}`}>{React.cloneElement(avatarData.icon, { size: 28, className: `md:w-8 md:h-8 ${avatarData.color.split(' ')[1]}` })}</div> )}
+                             {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color} text-3xl md:text-4xl shadow-inner`}>{avatarData.emoji}</div> )}
                           </div>
                           
                           {/* TOMBOL LOVE */}
@@ -760,7 +760,7 @@ export default function App() {
 
                           {/* Pesan - Hilangkan di Mobile Grid */}
                           <div className={`mt-3 md:mt-4 relative ${isMobileGrid ? 'hidden md:block' : ''}`}>
-                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan untuk teman</div>
+                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan</div>
                             <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-2 md:p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-3 md:pt-4">"{friend.message}"</div>
                           </div>
 
