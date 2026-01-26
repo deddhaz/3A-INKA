@@ -47,6 +47,22 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('gallery');
   
+  // --- DATA WALI KELAS & ASISTEN (GANTI FOTO DISINI) ---
+  const TEACHER_DATA = {
+    waliKelas: {
+      name: "Ustazah Najwa",
+      // Ganti URL ini dengan URL foto asli
+      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
+      role: "Wali Kelas"
+    },
+    asisten: {
+      name: "Ustazah Dea",
+      // Ganti URL ini dengan URL foto asli
+      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
+      role: "Asisten Wali Kelas"
+    }
+  };
+
   // --- Auth & Role State ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState('user'); // 'user' atau 'admin'
@@ -141,7 +157,7 @@ export default function App() {
     e.preventDefault();
     const input = accessCode.toLowerCase().trim();
     
-    // DAFTAR KODE AKSES
+   // DAFTAR KODE AKSES
     const userCodes = ["insan karima", "inka", "sd insan karima"];
     const adminCodes = ["ustazah", "ustadzah", "ustadz", "ustad"]; // Kode Guru
 
@@ -388,7 +404,7 @@ export default function App() {
               </div>
               <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-xs md:text-sm font-bold shadow whitespace-nowrap flex items-center gap-2">
                 <School size={14} />
-                SD Islam Insan Karima
+                SD Insan Karima
               </div>
             </div>
 
@@ -468,7 +484,7 @@ export default function App() {
         <button 
           onClick={handleLogout}
           className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition z-50 backdrop-blur-sm"
-          title="Kembali ke gerbang sekolah"
+          title="Keluar dari Gerbang Sekolah"
         >
           <LogOut size={20} />
         </button>
@@ -480,12 +496,34 @@ export default function App() {
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
-          <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kelas 3A</p>
+          <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kita Semua</p>
           {userRole === 'admin' && (
             <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
-              Mode Admin
+              Mode Guru (Admin)
             </span>
           )}
+
+          {/* --- TAMPILAN GURU & ASISTEN (NEW ROW) --- */}
+          <div className="flex justify-center gap-6 md:gap-12 mt-6">
+             {/* Wali Kelas */}
+             <div className="flex flex-col items-center group">
+               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
+                 <img src={TEACHER_DATA.waliKelas.photoUrl} alt={TEACHER_DATA.waliKelas.name} className="w-full h-full object-cover" />
+               </div>
+               <span className="font-bold text-sm md:text-base mt-2 drop-shadow-sm">{TEACHER_DATA.waliKelas.name}</span>
+               <span className="text-[10px] md:text-xs text-orange-100 bg-white/10 px-2 rounded-full">{TEACHER_DATA.waliKelas.role}</span>
+             </div>
+             
+             {/* Asisten */}
+             <div className="flex flex-col items-center group">
+               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
+                 <img src={TEACHER_DATA.asisten.photoUrl} alt={TEACHER_DATA.asisten.name} className="w-full h-full object-cover" />
+               </div>
+               <span className="font-bold text-sm md:text-base mt-2 drop-shadow-sm">{TEACHER_DATA.asisten.name}</span>
+               <span className="text-[10px] md:text-xs text-orange-100 bg-white/10 px-2 rounded-full">{TEACHER_DATA.asisten.role}</span>
+             </div>
+          </div>
+
         </div>
       </header>
 
@@ -588,7 +626,7 @@ export default function App() {
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Isi pesan untuk semua teman-teman..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Pesan untuk semua teman-teman..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
               </div>
               
               <div className="flex gap-2 mt-4">
@@ -632,7 +670,7 @@ export default function App() {
                     className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm text-sm font-medium text-gray-600 border border-gray-200"
                   >
                     {isMobileGrid ? <List size={16} /> : <LayoutGrid size={16} />}
-                    {isMobileGrid ? 'List' : 'Grid'}
+                    {isMobileGrid ? 'Tampilan List' : 'Tampilan Grid'}
                   </button>
                 </div>
                 
@@ -681,7 +719,7 @@ export default function App() {
                               <button 
                                 onClick={() => handleDelete(friend.id)} 
                                 className="text-red-300 hover:text-red-500 bg-white/70 hover:bg-white p-1.5 rounded-full transition shadow-sm" 
-                                title="Hapus (Admin Only)"
+                                title="Hapus (Guru Only)"
                               >
                                 <Trash2 size={14} className="md:w-4 md:h-4" />
                               </button>
@@ -715,4 +753,3 @@ export default function App() {
     </div>
   );
 }
-
