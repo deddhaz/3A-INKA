@@ -58,7 +58,7 @@ export default function App() {
     asisten: {
       name: "Ustazah Dea",
       // Ganti URL ini dengan URL foto asli
-      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
+      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
       role: "Asisten Wali Kelas"
     }
   };
@@ -670,7 +670,7 @@ export default function App() {
                     className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm text-sm font-medium text-gray-600 border border-gray-200"
                   >
                     {isMobileGrid ? <List size={16} /> : <LayoutGrid size={16} />}
-                    {isMobileGrid ? 'Tampilan List' : 'Tampilan Grid'}
+                    {isMobileGrid ? 'List' : 'Grid'}
                   </button>
                 </div>
                 
