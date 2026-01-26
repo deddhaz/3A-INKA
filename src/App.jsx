@@ -52,13 +52,13 @@ export default function App() {
     waliKelas: {
       name: "Ustazah Najwa",
       // Ganti URL ini dengan URL foto asli
-      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
+      photoUrl: "[https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg](https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg)", 
       role: "Wali Kelas"
     },
     asisten: {
       name: "Ustazah Dea",
       // Ganti URL ini dengan URL foto asli
-      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
+      photoUrl: "[https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg](https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg)", 
       role: "Asisten Wali Kelas"
     }
   };
@@ -729,16 +729,41 @@ export default function App() {
                         </div>
                         <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
                           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-0.5">{friend.name}</h3>
-                          <p className="text-blue-500 font-medium text-xs md:text-sm uppercase tracking-wide mb-3 md:mb-4">"{friend.nickname || friend.name}"</p>
-                          <div className="space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm">
+                          
+                          {/* Nama Panggilan - Hilangkan di Mobile Grid */}
+                          <p className={`text-blue-500 font-medium text-xs md:text-sm uppercase tracking-wide mb-3 md:mb-4 ${isMobileGrid ? 'hidden md:block' : ''}`}>
+                            "{friend.nickname || friend.name}"
+                          </p>
+                          
+                          {/* LIST VIEW BIASA (Desktop / Mobile List) */}
+                          <div className={`space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm ${isMobileGrid ? 'hidden md:block' : ''}`}>
                             <div className="flex items-center gap-2"><Rocket className="text-blue-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Cita-cita:</span><span className="text-gray-800 truncate">{friend.dream || '-'}</span></div>
                             <div className="flex items-center gap-2"><Gamepad2 className="text-green-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Hobi:</span><span className="text-gray-800 truncate">{friend.hobby || '-'}</span></div>
                             <div className="flex items-center gap-2"><Utensils className="text-orange-400" size={14} /><span className="text-gray-600 font-bold w-16 md:w-20">Makanan:</span><span className="text-gray-800 truncate">{friend.food || '-'}</span></div>
                           </div>
-                          <div className="mt-3 md:mt-4 relative">
-                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan</div>
+
+                          {/* GRID VIEW MOBILE (Ikon + Teks di Bawah) */}
+                          <div className={`${isMobileGrid ? 'grid md:hidden' : 'hidden'} grid-cols-3 gap-2 mt-2 bg-gray-50 p-2 rounded-xl`}>
+                             <div className="flex flex-col items-center justify-center">
+                               <Rocket className="text-blue-400 mb-1" size={16} />
+                               <span className="text-[10px] text-gray-700 leading-tight text-center line-clamp-2">{friend.dream || '-'}</span>
+                             </div>
+                             <div className="flex flex-col items-center justify-center">
+                               <Gamepad2 className="text-green-400 mb-1" size={16} />
+                               <span className="text-[10px] text-gray-700 leading-tight text-center line-clamp-2">{friend.hobby || '-'}</span>
+                             </div>
+                             <div className="flex flex-col items-center justify-center">
+                               <Utensils className="text-orange-400 mb-1" size={16} />
+                               <span className="text-[10px] text-gray-700 leading-tight text-center line-clamp-2">{friend.food || '-'}</span>
+                             </div>
+                          </div>
+
+                          {/* Pesan - Hilangkan di Mobile Grid */}
+                          <div className={`mt-3 md:mt-4 relative ${isMobileGrid ? 'hidden md:block' : ''}`}>
+                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan untuk teman</div>
                             <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-2 md:p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-3 md:pt-4">"{friend.message}"</div>
                           </div>
+
                         </div>
                       </div>
                     );
