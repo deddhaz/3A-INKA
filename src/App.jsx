@@ -479,7 +479,7 @@ export default function App() {
           <Smile className="absolute top-10 right-20" size={25} />
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10 pt-2">
-          <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🌟 Sahabat Kelas 3 🌟</h1>
+          <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
           <p className="text-orange-100 text-sm md:text-lg mb-2">Biodata Digital Kelas 3A</p>
           {userRole === 'admin' && (
             <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">
