@@ -13,7 +13,9 @@ import {
   onSnapshot, 
   deleteDoc, 
   doc, 
-  serverTimestamp
+  serverTimestamp,
+  updateDoc,
+  increment
 } from 'firebase/firestore';
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
@@ -214,6 +216,28 @@ export default function App() {
     setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'robot' }));
   };
 
+  // --- LOGIKA LOVE / LIKE ---
+  const handleLove = async (id) => {
+    // Cek apakah user sudah memberikan love di browser ini
+    const storageKey = `loved_${id}`;
+    if (localStorage.getItem(storageKey)) {
+      alert("Kamu sudah memberikan Love ❤️ untuk teman ini!");
+      return;
+    }
+
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+      await updateDoc(docRef, {
+        loves: increment(1)
+      });
+      
+      // Simpan status love di localStorage
+      localStorage.setItem(storageKey, 'true');
+    } catch (error) {
+      console.error("Error giving love:", error);
+    }
+  };
+
   // --- LOGIKA SIMPAN DENGAN POP-UP ---
   
   // 1. Tombol simpan diklik -> Munculkan Pop-up
@@ -243,6 +267,7 @@ export default function App() {
         avatar: formData.avatar,
         photoUrl: formData.usePhoto ? formData.photoUrl : null, 
         usePhoto: formData.usePhoto,
+        loves: 0, // Inisialisasi jumlah love
         createdAt: serverTimestamp(),
         creatorId: user.uid
       };
@@ -521,12 +546,25 @@ export default function App() {
                   {friends.map((friend) => {
                     const avatarData = getAvatar(friend.avatar);
                     const hasPhoto = friend.usePhoto && friend.photoUrl;
+                    // Cek apakah user ini sudah di-love oleh browser ini
+                    const isLoved = localStorage.getItem(`loved_${friend.id}`);
+                    
                     return (
                       <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 border-b-4 md:border-b-8 border-blue-200">
                         <div className={`h-20 md:h-24 ${hasPhoto ? 'bg-gray-200' : avatarData.color.split(' ')[0]} relative flex justify-center items-end pb-0`}>
                           <div className="bg-white p-1 rounded-full shadow-md -mb-6 md:-mb-8 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
                              {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color.split(' ')[0]}`}>{React.cloneElement(avatarData.icon, { size: 28, className: `md:w-8 md:h-8 ${avatarData.color.split(' ')[1]}` })}</div> )}
                           </div>
+                          
+                          {/* TOMBOL LOVE */}
+                          <button 
+                            onClick={() => handleLove(friend.id)}
+                            className={`absolute top-2 left-2 md:top-3 md:left-3 p-1.5 rounded-full shadow-sm transition flex items-center gap-1 ${isLoved ? 'bg-pink-100 text-pink-600' : 'bg-white/70 text-gray-500 hover:bg-pink-50 hover:text-pink-500'}`}
+                            title="Love"
+                          >
+                            <Heart size={16} className={`md:w-5 md:h-5 ${isLoved ? 'fill-current' : ''}`} />
+                            <span className="text-xs font-bold">{friend.loves || 0}</span>
+                          </button>
                           
                           {/* TOMBOL HAPUS HANYA MUNCUL JIKA ROLE ADALAH ADMIN */}
                           {userRole === 'admin' && (
