@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
-// UPDATE VERSI: v7 (Setiap kali deploy ulang, ganti angka ini agar HP user mau update)
-const CACHE_NAME = 'kelas3-biodata-v7-anti-error';
+// UPDATE VERSI: v8 (Versi dengan Dynamic Caching agar file JS tersimpan)
+const CACHE_NAME = 'kelas3-biodata-v8-dynamic';
 
 const urlsToCache = [
   '/',
@@ -9,7 +9,7 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// 1. INSTALL: Cache file inti
+// 1. INSTALL: Cache file inti (index.html & manifest)
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -18,49 +18,67 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
   );
-  // PENTING: Paksa SW baru untuk segera mengambil alih tanpa menunggu browser restart
   self.skipWaiting();
 });
 
-// 2. FETCH: Strategi Cerdas untuk Mencegah Error Layar Putih
+// 2. FETCH: Strategi Network First untuk HTML, Dynamic Cache untuk Aset
 self.addEventListener('fetch', (event) => {
-  // Abaikan request ke API eksternal (Firestore, Google, dll)
+  const requestUrl = new URL(event.request.url);
+
+  // A. Abaikan request ke API eksternal (Firestore, Google, dll)
   if (
-      event.request.url.includes('firestore') || 
-      event.request.url.includes('googleapis') ||
-      event.request.url.includes('githubusercontent')
+      requestUrl.protocol.startsWith('http') === false || // Abaikan chrome-extension:// dll
+      requestUrl.href.includes('firestore') || 
+      requestUrl.href.includes('googleapis') ||
+      requestUrl.href.includes('githubusercontent')
   ) {
     return;
   }
 
-  // KHUSUS NAVIGASI HALAMAN (HTML):
-  // Gunakan "Network First" -> Coba ambil dari internet dulu.
-  // Ini mencegah aplikasi memuat file HTML basi yang menunjuk ke JS yang sudah hilang.
+  // B. KHUSUS NAVIGASI HALAMAN (HTML): Network First
+  // Coba ambil HTML terbaru dari internet. Kalau gagal, baru pakai cache lama.
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
-          // Jika internet mati total, baru ambil dari cache
           return caches.match('/index.html');
         })
     );
     return;
   }
 
-  // UNTUK ASET LAIN (Gambar, JS, CSS):
-  // Gunakan "Cache First" -> Ambil dari cache dulu biar cepat.
+  // C. UNTUK ASET (JS, CSS, Gambar): Stale-While-Revalidate / Dynamic Cache
+  // Cek cache dulu. Kalau gak ada, ambil internet LALU SIMPAN ke cache (PENTING!)
   event.respondWith(
     caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          // Jika ada di cache, kembalikan langsung (cepat)
+          return cachedResponse;
         }
-        return fetch(event.request);
+
+        // Jika tidak ada di cache, ambil dari internet
+        return fetch(event.request).then((networkResponse) => {
+          // Pastikan respon valid sebelum disimpan
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+            return networkResponse;
+          }
+
+          // Kloning respon karena stream hanya bisa dibaca sekali
+          const responseToCache = networkResponse.clone();
+
+          // Simpan file JS/CSS yang baru didownload ke dalam cache
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return networkResponse;
+        });
       })
   );
 });
 
-// 3. ACTIVATE: Hapus Cache Versi Lama (v4, v5, v6, dll)
+// 3. ACTIVATE: Hapus Cache Versi Lama
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
