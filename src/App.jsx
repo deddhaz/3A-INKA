@@ -409,7 +409,7 @@ export default function App() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm:w-full max-w-sm w-full text-center border-4 border-pink-200">
             <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
             <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
@@ -456,7 +456,6 @@ export default function App() {
                     {Object.entries(avatars).map(([key, data]) => (
                       <button key={key} type="button" onClick={() => setFormData(p => ({ ...p, avatar: key }))} className={`p-2 rounded-xl border-4 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 scale-105' : 'border-transparent bg-white shadow-sm'}`}>
                         <div className={`${data.color} w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full mx-auto text-xl mb-1`}>{data.emoji}</div>
-                        {/* Nama avatar disembunyikan di mobile agar lebih elegan */}
                         <span className="hidden md:block text-[10px] text-gray-400 font-bold">{data.label}</span>
                       </button>
                     ))}
@@ -467,7 +466,6 @@ export default function App() {
                       <div className="relative"><img src={formData.photoUrl} className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-pink-400 shadow-lg" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full"><X size={14} /></button></div>
                     ) : (
                       <div className="border-2 border-dashed border-pink-200 rounded-2xl p-8 bg-pink-50 cursor-pointer relative"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                        {/* Ikon upload tanpa opacity transparan */}
                         <Upload size={32} className="text-pink-500 mx-auto" />
                         <p className="text-pink-500 font-bold text-xs mt-1">Upload Foto</p>
                       </div>
@@ -495,7 +493,18 @@ export default function App() {
           </div>
         )}
 
-        
+        {activeTab === 'gallery' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-widest"><List className="text-blue-500" /> Galeri Teman 3A</h3>
+              <button 
+                onClick={() => setIsMobileGrid(!isMobileGrid)} 
+                className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100"
+              >
+                {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
+                {isMobileGrid ? 'List' : 'Grid'}
+              </button>
+            </div>
             
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4'} md:grid-cols-2 lg:grid-cols-3 md:gap-6`}>
               {friends.map(friend => {
@@ -520,21 +529,33 @@ export default function App() {
                          {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-2 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={16} /></button>}
                       </div>
                     </div>
-                    <div className="pt-12 md:pt-16 pb-6 px-6 text-center flex-1">
-                       <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
-                       <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>
-                       <div className="space-y-1.5 text-left bg-gray-50 p-4 rounded-3xl text-xs md:text-sm mb-4">
-                          <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita:</b> {friend.dream || '-'}</p>
-                          <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi:</b> {friend.hobby || '-'}</p>
-                          <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makan:</b> {friend.food || '-'}</p>
-                       </div>
-                       
-                       <div className="mt-auto relative">
-                         <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 z-10">Pesan Untuk Teman</div>
-                         <div className="border-2 border-dashed border-yellow-200 rounded-2xl p-4 bg-yellow-50 text-gray-600 italic text-xs md:text-sm pt-4 leading-relaxed">"{friend.message}"</div>
-                       </div>
-                       
-                       <button onClick={() => handleThankYou(friend)} className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs transition-all border ${isT ? 'bg-green-500 text-white' : 'bg-green-50 text-green-700 border-green-200'}`}><MessageSquareQuote size={14} /> {isT ? 'Sudah Bilang Terima Kasih!' : 'Bilang Terima Kasih!'}</button>
+                    
+                    {/* Bagian Body Kartu dengan Kondisional Grid */}
+                    <div className={`pt-12 md:pt-16 pb-6 px-4 text-center flex-1 flex flex-col items-center justify-center`}>
+                       {isMobileGrid ? (
+                         /* TAMPILAN GRID: Hanya Nama Panggilan */
+                         <h4 className="text-base md:text-xl font-bold text-gray-800 truncate w-full">
+                           {friend.nickname || friend.name}
+                         </h4>
+                       ) : (
+                         /* TAMPILAN LIST: Full Detail */
+                         <>
+                           <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
+                           <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>
+                           <div className="space-y-1.5 text-left bg-gray-50 p-4 rounded-3xl text-xs md:text-sm mb-4 w-full">
+                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita:</b> {friend.dream || '-'}</p>
+                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi:</b> {friend.hobby || '-'}</p>
+                              <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makan:</b> {friend.food || '-'}</p>
+                           </div>
+                           
+                           <div className="mt-auto relative w-full mb-3">
+                             <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 z-10 whitespace-nowrap">Pesan Untuk Teman</div>
+                             <div className="border-2 border-dashed border-yellow-200 rounded-2xl p-4 bg-yellow-50 text-gray-600 italic text-xs md:text-sm pt-4 leading-relaxed">"{friend.message}"</div>
+                           </div>
+                           
+                           <button onClick={() => handleThankYou(friend)} className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs transition-all border ${isT ? 'bg-green-500 text-white' : 'bg-green-50 text-green-700 border-green-200'}`}><MessageSquareQuote size={14} /> {isT ? 'Sudah Bilang Terima Kasih!' : 'Bilang Terima Kasih!'}</button>
+                         </>
+                       )}
                     </div>
                   </div>
                 );
