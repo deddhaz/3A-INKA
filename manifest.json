@@ -1,0 +1,25 @@
+{
+  "short_name": "KELASKITA",
+  "name": "Biodata Kelas 6C Insan Karima",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/friends_ico.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/friends_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/friends_512s.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#fb923c",
+  "background_color": "#ffffff"
+}
