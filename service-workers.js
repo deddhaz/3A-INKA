@@ -1,12 +1,12 @@
 /* eslint-disable no-restricted-globals */
 
-// Nama cache aplikasi Anda
-const CACHE_NAME = 'kelaskita-biodata-v1';
+// Versi Cache (Ganti nama jika update kode)
+const CACHE_NAME = 'kelas6c-biodata-v5-final';
+
 const urlsToCache = [
   '/',
   '/index.html',
-  '/static/js/bundle.js',
-  // Tambahkan aset lain jika perlu (seperti logo)
+  '/manifest.json'
 ];
 
 // Install Service Worker
@@ -14,23 +14,27 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
+        console.log('Service Worker: Caching files');
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
 // Cache and return requests
 self.addEventListener('fetch', (event) => {
-  // Untuk request Firestore/API, kita bypass cache agar data selalu update
-  if (event.request.url.includes('firestore') || event.request.url.includes('googleapis')) {
+  // Bypass cache untuk request Firestore/API
+  if (
+      event.request.url.includes('firestore') || 
+      event.request.url.includes('googleapis') ||
+      event.request.url.includes('githubusercontent')
+  ) {
     return;
   }
 
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return response
         if (response) {
           return response;
         }
@@ -39,7 +43,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Update Service Worker
+// Update Service Worker & Hapus Cache Lama
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -51,6 +55,6 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
