@@ -517,30 +517,37 @@ export default function App() {
                 const owner = user && user.uid === friend.creatorId;
 
                 return (
-                  <div key={friend.id} className="bg-white rounded-[40px] shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all">
+                  <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-[40px]'}`}>
                     {/* Header kartu dengan ukuran kondisional untuk mode grid */}
-                    <div className={`${isMobileGrid ? 'h-16' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
+                    <div className={`${isMobileGrid ? 'h-20' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
                       {/* Container foto profil dengan ukuran diperkecil 50% di mode grid */}
-                      <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-10 h-10 -mb-5' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
+                      <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-12 h-12 -mb-6' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
                          {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-xl' : 'text-3xl'} md:text-5xl`}>{av.emoji}</div>}
                       </div>
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <button onClick={() => handleStar(friend)} className={`p-2 rounded-full shadow-md transition flex items-center gap-1.5 ${isS ? 'bg-yellow-400 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-yellow-500'}`}><Star size={14} className={isS ? 'fill-current' : ''} /><span className="text-[10px] font-bold">{friend.stars || 0}</span></button>
-                        <button onClick={() => handleThankYou(friend)} className={`p-2 rounded-full shadow-md transition flex items-center gap-1.5 ${isT ? 'bg-green-500 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-green-500'}`}><HeartHandshake size={14} /><span className="text-[10px] font-bold">{friend.thanks || 0}</span></button>
+                      <div className="absolute top-2 left-2 flex gap-1.5">
+                        <button onClick={() => handleStar(friend)} className={`p-1.5 rounded-full shadow-md transition flex items-center gap-1 ${isS ? 'bg-yellow-400 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-yellow-500'}`}><Star size={12} className={isS ? 'fill-current' : ''} /><span className="text-[9px] font-bold">{friend.stars || 0}</span></button>
+                        <button onClick={() => handleThankYou(friend)} className={`p-1.5 rounded-full shadow-md transition flex items-center gap-1 ${isT ? 'bg-green-500 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-green-500'}`}><HeartHandshake size={12} /><span className="text-[9px] font-bold">{friend.thanks || 0}</span></button>
                       </div>
-                      <div className="absolute top-3 right-3 flex flex-col gap-2">
-                         {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-2 rounded-full text-blue-500 shadow hover:bg-blue-500 hover:text-white transition"><Pencil size={16} /></button>}
-                         {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-2 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={16} /></button>}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                         {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow hover:bg-blue-500 hover:text-white transition"><Pencil size={14} /></button>}
+                         {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={14} /></button>}
                       </div>
                     </div>
                     
                     {/* Bagian Body Kartu dengan padding kondisional */}
-                    <div className={`${isMobileGrid ? 'pt-7 pb-4' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center justify-center transition-all`}>
+                    <div className={`${isMobileGrid ? 'pt-8 pb-5' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center justify-center transition-all`}>
                        {isMobileGrid ? (
-                         /* TAMPILAN GRID: Ringkas */
-                         <h4 className="text-xs md:text-xl font-bold text-gray-800 truncate w-full px-2">
-                           {friend.nickname || friend.name}
-                         </h4>
+                         /* TAMPILAN GRID: Ringkas & Cantik */
+                         <div className="flex flex-col items-center w-full space-y-2">
+                           <h4 className="text-sm md:text-xl font-bold text-gray-800 truncate w-full px-2">
+                             {friend.nickname || friend.name}
+                           </h4>
+                           <div className="flex justify-center gap-3">
+                              <Rocket size={16} className={friend.dream ? "text-blue-400" : "text-gray-200"} />
+                              <Gamepad2 size={16} className={friend.hobby ? "text-green-400" : "text-gray-200"} />
+                              <Utensils size={16} className={friend.food ? "text-orange-400" : "text-gray-200"} />
+                           </div>
+                         </div>
                        ) : (
                          /* TAMPILAN LIST: Full Detail */
                          <>
