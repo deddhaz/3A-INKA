@@ -104,6 +104,7 @@ export default function App() {
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [testimonyInput, setTestimonyInput] = useState('');
+  const [testimonyAuthor, setTestimonyAuthor] = useState(''); // State untuk nama pengirim
   const [allTestimonies, setAllTestimonies] = useState([]);
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
 
@@ -309,7 +310,7 @@ export default function App() {
 
   const handleSaveTestimony = async (e) => {
     e.preventDefault();
-    if (!user || !selectedFriend || !testimonyInput.trim()) return;
+    if (!user || !selectedFriend || !testimonyInput.trim() || !testimonyAuthor.trim()) return;
     
     setIsSavingTestimony(true);
     try {
@@ -319,9 +320,10 @@ export default function App() {
         message: testimonyInput.trim(),
         createdAt: serverTimestamp(),
         authorId: user.uid,
-        authorName: 'Seseorang' // Bisa dikembangkan untuk mengambil nama user
+        authorName: testimonyAuthor.trim()
       });
       setTestimonyInput('');
+      // Kita simpan nama pengirim di state agar tidak perlu mengetik ulang jika ingin memberi testimoni lagi
     } catch (error) {
       console.error("Error saving testimony:", error);
     } finally {
@@ -469,7 +471,7 @@ export default function App() {
       {/* Modal Testimoni */}
       {showTestimonyModal && selectedFriend && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col border-4 border-purple-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col border-4 border-purple-200">
             <div className="p-4 border-b flex justify-between items-center bg-purple-50 rounded-t-2xl">
               <div className="flex items-center gap-3">
                 <div className="bg-white p-1 rounded-full w-10 h-10 overflow-hidden shadow-sm">
@@ -489,7 +491,7 @@ export default function App() {
               <button onClick={() => setShowTestimonyModal(false)} className="text-gray-400 hover:text-red-500 transition"><X size={20} /></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 min-h-[150px]">
               {allTestimonies.filter(t => t.friendId === selectedFriend.id).length === 0 ? (
                 <div className="text-center py-10 opacity-40">
                   <MessageSquare size={40} className="mx-auto mb-2" />
@@ -500,12 +502,12 @@ export default function App() {
                   .filter(t => t.friendId === selectedFriend.id)
                   .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
                   .map(t => (
-                    <div key={t.id} className="bg-white p-3 rounded-2xl shadow-sm border border-purple-50 relative group">
+                    <div key={t.id} className="bg-white p-3 rounded-2xl shadow-sm border border-purple-50 relative group animate-fade-in">
                       <p className="text-sm text-gray-700 italic">"{t.message}"</p>
                       <div className="flex justify-between items-center mt-2">
-                         <span className="text-[9px] text-gray-400 font-bold uppercase">{t.authorName}</span>
+                         <span className="text-[10px] text-purple-600 font-extrabold uppercase tracking-tight">~ {t.authorName}</span>
                          {userRole === 'admin' && (
-                           <button onClick={() => handleDeleteTestimony(t.id)} className="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
+                           <button onClick={() => handleDeleteTestimony(t.id)} className="text-red-300 hover:text-red-500 transition">
                              <Trash2 size={12} />
                            </button>
                          )}
@@ -516,20 +518,32 @@ export default function App() {
             </div>
 
             <div className="p-4 border-t bg-white rounded-b-2xl">
-              <form onSubmit={handleSaveTestimony} className="flex gap-2">
+              <form onSubmit={handleSaveTestimony} className="space-y-3">
                 <input 
-                  value={testimonyInput}
-                  onChange={(e) => setTestimonyInput(e.target.value)}
-                  placeholder="Tulis pesan singkat..."
-                  className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition"
-                  maxLength={100}
+                  required
+                  value={testimonyAuthor}
+                  onChange={(e) => setTestimonyAuthor(e.target.value)}
+                  placeholder="Nama Kamu..."
+                  className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 focus:border-purple-400 transition font-bold"
+                  maxLength={20}
                 />
-                <button 
-                  disabled={isSavingTestimony || !testimonyInput.trim()}
-                  className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 active:scale-95 disabled:opacity-50 transition"
-                >
-                  <Send size={18} />
-                </button>
+                <div className="flex gap-2">
+                  <input 
+                    required
+                    value={testimonyInput}
+                    onChange={(e) => setTestimonyInput(e.target.value)}
+                    placeholder="Tulis kesan singkat..."
+                    className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition"
+                    maxLength={80}
+                  />
+                  <button 
+                    type="submit"
+                    disabled={isSavingTestimony || !testimonyInput.trim() || !testimonyAuthor.trim()}
+                    className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 active:scale-95 disabled:opacity-50 transition"
+                  >
+                    <Send size={18} />
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -627,7 +641,7 @@ export default function App() {
             <div className="flex justify-end items-center mb-6">
               <button 
                 onClick={() => setIsMobileGrid(!isMobileGrid)} 
-                className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100"
+                className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95"
               >
                 {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
                 {isMobileGrid ? 'List' : 'Grid'}
@@ -641,6 +655,7 @@ export default function App() {
                 const isS = localStorage.getItem(`starred_${friend.id}`);
                 const isT = localStorage.getItem(`thanked_${friend.id}`);
                 const owner = user && user.uid === friend.creatorId;
+                const testimonyCount = allTestimonies.filter(t => t.friendId === friend.id).length;
 
                 return (
                   <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
@@ -662,9 +677,9 @@ export default function App() {
                              {friend.nickname || friend.name}
                            </h4>
                            <div className="flex justify-center gap-3">
-                              <Rocket size={16} className={friend.dream ? "text-blue-400" : "text-gray-200"} />
-                              <Gamepad2 size={16} className={friend.hobby ? "text-green-400" : "text-gray-200"} />
-                              <Utensils size={16} className={friend.food ? "text-orange-400" : "text-gray-200"} />
+                              <Rocket size={14} className={friend.dream ? "text-blue-400" : "text-gray-200"} />
+                              <Gamepad2 size={14} className={friend.hobby ? "text-green-400" : "text-gray-200"} />
+                              <Utensils size={14} className={friend.food ? "text-orange-400" : "text-gray-200"} />
                            </div>
                          </div>
                        ) : (
@@ -672,9 +687,9 @@ export default function App() {
                            <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
                            <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>
                            <div className="space-y-1.5 text-left bg-gray-50 p-4 rounded-3xl text-xs md:text-sm mb-4 w-full">
-                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita:</b> {friend.dream || '-'}</p>
-                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi:</b> {friend.hobby || '-'}</p>
-                              <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makan:</b> {friend.food || '-'}</p>
+                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita-cita :</b> {friend.dream || '-'}</p>
+                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi :</b> {friend.hobby || '-'}</p>
+                              <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makanan favorit :</b> {friend.food || '-'}</p>
                            </div>
                            
                            <div className="mt-auto relative w-full mb-3">
@@ -684,31 +699,28 @@ export default function App() {
                          </>
                        )}
 
-                       {/* Interaksi Row (Bintang, Love, & Testimoni) */}
-                       <div className="flex justify-center gap-3 mt-4 w-full flex-wrap">
+                       {/* Interaksi Row (Bintang, Love, & Testimoni) - Dibuat kompak dalam satu baris */}
+                       <div className={`flex justify-center items-center w-full mt-4 ${isMobileGrid ? 'gap-1' : 'gap-3 flex-wrap'}`}>
                          <button 
                             onClick={() => handleStar(friend)} 
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md transition-all ${isS ? 'bg-yellow-400 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-yellow-500'}`}
+                            className={`flex items-center justify-center gap-1 rounded-full shadow-sm transition-all border ${isMobileGrid ? 'px-2 py-1' : 'px-3 py-1.5'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500'}`}
                          >
-                           <Star size={14} className={isS ? 'fill-current' : ''} />
-                           <span className="text-[10px] font-bold">{friend.stars || 0}</span>
+                           <Star size={isMobileGrid ? 12 : 14} className={isS ? 'fill-current' : ''} />
+                           <span className={`${isMobileGrid ? 'text-[9px]' : 'text-[10px]'} font-bold`}>{friend.stars || 0}</span>
                          </button>
                          <button 
                             onClick={() => handleThankYou(friend)} 
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md transition-all ${isT ? 'bg-green-500 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-green-500'}`}
+                            className={`flex items-center justify-center gap-1 rounded-full shadow-sm transition-all border ${isMobileGrid ? 'px-2 py-1' : 'px-3 py-1.5'} ${isT ? 'bg-green-500 text-white border-green-500 scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500'}`}
                          >
-                           <HeartHandshake size={14} />
-                           <span className="text-[10px] font-bold">{friend.thanks || 0}</span>
+                           <HeartHandshake size={isMobileGrid ? 12 : 14} />
+                           <span className={`${isMobileGrid ? 'text-[9px]' : 'text-[10px]'} font-bold`}>{friend.thanks || 0}</span>
                          </button>
-                         {/* Button Testimoni Ungu */}
                          <button 
                             onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md bg-purple-500 text-white hover:bg-purple-600 active:scale-105 transition-all"
+                            className={`flex items-center justify-center gap-1 rounded-full shadow-sm bg-purple-500 text-white hover:bg-purple-600 active:scale-105 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-3 py-1.5'}`}
                          >
-                           <MessageSquare size={14} />
-                           <span className="text-[10px] font-bold">
-                             {allTestimonies.filter(t => t.friendId === friend.id).length}
-                           </span>
+                           <MessageSquare size={isMobileGrid ? 12 : 14} />
+                           <span className={`${isMobileGrid ? 'text-[9px]' : 'text-[10px]'} font-bold`}>{testimonyCount}</span>
                          </button>
                        </div>
                     </div>
@@ -720,7 +732,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
+      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Dibuat oleh Bilal dan Abinya</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
