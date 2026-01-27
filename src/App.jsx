@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 // Import Konfigurasi dan Komponen yang sudah dipisah
-import { auth, db, appId } from './firebase';
+import { auth, db, appId } from './src/firebase';
 import InstallPrompt from './components/InstallPrompt';
 import TestimonyModal from './components/TestimonyModal';
 
