@@ -726,15 +726,15 @@ export default function App() {
                              {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color} text-3xl md:text-5xl shadow-inner`}>{avatarData.emoji}</div> )}
                           </div>
                           
-                          {/* Interaction Buttons (Loves/Thanks) */}
-                          <div className="absolute top-2 left-2 flex flex-col gap-2">
+                          {/* Interaction Buttons (Loves/Thanks) - FIXED TO FLEX ROW */}
+                          <div className="absolute top-2 left-2 flex flex-row gap-2">
                             <button 
                               onClick={() => handleLove(friend.id)}
                               className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isLoved ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-500 hover:bg-pink-100 hover:text-pink-600'}`}
                               title="Kirim Love"
                             >
-                              <Heart size={16} className={`${isLoved ? 'fill-current' : ''}`} />
-                              <span className="text-xs font-bold">{friend.loves || 0}</span>
+                              <Heart size={14} className={`${isLoved ? 'fill-current' : ''} md:w-4 md:h-4`} />
+                              <span className="text-[10px] md:text-xs font-bold">{friend.loves || 0}</span>
                             </button>
 
                             <button 
@@ -742,8 +742,8 @@ export default function App() {
                               className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isThanked ? 'bg-green-500 text-white' : 'bg-white/90 text-gray-500 hover:bg-green-100 hover:text-green-600'}`}
                               title="Say Thank You"
                             >
-                              <HeartHandshake size={16} />
-                              <span className="text-xs font-bold">{friend.thanks || 0}</span>
+                              <HeartHandshake size={14} className="md:w-4 md:h-4" />
+                              <span className="text-[10px] md:text-xs font-bold">{friend.thanks || 0}</span>
                             </button>
                           </div>
                           
