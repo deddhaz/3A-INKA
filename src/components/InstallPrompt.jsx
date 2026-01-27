@@ -7,28 +7,20 @@ export default function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Cek apakah device adalah iOS (iPhone/iPad) karena cara installnya beda
     const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     setIsIOS(isIosDevice);
 
-    // Cek apakah sudah berjalan dalam mode standalone (sudah diinstall)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     if (isStandalone) return; 
 
-    // Jika iOS, kita tampilkan instruksi manual (karena iOS tidak support prompt otomatis)
     if (isIosDevice) {
-      // Tampilkan prompt setelah 3 detik agar tidak mengagetkan
       const timer = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(timer);
     }
 
-    // Untuk Android / Desktop (Chrome)
     const handleBeforeInstallPrompt = (e) => {
-      // Mencegah browser menampilkan prompt default yang membosankan
       e.preventDefault();
-      // Simpan event untuk dipanggil nanti
       setDeferredPrompt(e);
-      // Tampilkan UI custom kita
       setShowPrompt(true);
     };
 
@@ -41,20 +33,11 @@ export default function InstallPrompt() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-
-    // Panggil prompt bawaan browser
     deferredPrompt.prompt();
-
-    // Tunggu hasil pilihan user
     const { outcome } = await deferredPrompt.userChoice;
-    
     if (outcome === 'accepted') {
-      console.log('User menerima instalasi');
-    } else {
-      console.log('User menolak instalasi');
+      console.log('User accepted');
     }
-
-    // Reset
     setDeferredPrompt(null);
     setShowPrompt(false);
   };
@@ -78,17 +61,15 @@ export default function InstallPrompt() {
           <div>
             <h3 className="font-bold text-gray-800 text-lg">Install Aplikasi?</h3>
             <p className="text-gray-500 text-sm leading-tight mb-3">
-              Pasang aplikasi <b>KelasKita</b> di HP-mu agar lebih mudah.
+              Pasang aplikasi <b>Biodata 6C</b> agar lebih mudah dibuka!
             </p>
             
             {isIOS ? (
-              // Instruksi Khusus iOS
               <div className="bg-gray-100 p-2 rounded-lg text-xs text-gray-600 space-y-1">
                 <p className="flex items-center gap-1">1. Klik tombol Share <Share size={12} className="inline" /></p>
                 <p className="flex items-center gap-1">2. Pilih "Add to Home Screen" <PlusSquare size={12} className="inline" /></p>
               </div>
             ) : (
-              // Tombol Install Android/Desktop
               <button 
                 onClick={handleInstallClick}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2"
