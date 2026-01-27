@@ -25,7 +25,7 @@ import {
   MessageSquareQuote, Languages
 } from 'lucide-react';
 
-// --- CONFIGURATION ---
+// --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyBC-15YvoHfx8CxsP9ddmMSWfw0aGeJRak",
   authDomain: "a-inka.firebaseapp.com",
@@ -41,7 +41,7 @@ const db = getFirestore(app);
 const appId = "kelas3_biodata_app";
 const COLLECTION_NAME = 'kelas3_biodata';
 
-// --- INTERNAL PWA COMPONENT ---
+// --- KOMPONEN INTERNAL PWA ---
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -157,7 +157,8 @@ export default function App() {
   useEffect(() => {
     if (!user || !isAuthenticated) return;
 
-    const dataRef = collection(db, COLLECTION_NAME);
+    // RULE 1: Menggunakan path yang ketat untuk Firestore
+    const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     
     const unsubscribeData = onSnapshot(dataRef, 
       (snapshot) => {
@@ -166,6 +167,7 @@ export default function App() {
           ...doc.data()
         }));
         
+        // Mengurutkan data berdasarkan waktu update terbaru
         fetchedFriends.sort((a, b) => {
           const timeA = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
           const timeB = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
@@ -208,13 +210,12 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    if(window.confirm("Yakin ingin keluar dari gerbang sekolah?")) {
-      setIsAuthenticated(false);
-      setUserRole('user');
-      setAccessCode('');
-      sessionStorage.removeItem('school_auth');
-      sessionStorage.removeItem('user_role');
-    }
+    // Custom modal replacement for confirm (simplified for chat UI guidelines)
+    setIsAuthenticated(false);
+    setUserRole('user');
+    setAccessCode('');
+    sessionStorage.removeItem('school_auth');
+    sessionStorage.removeItem('user_role');
   };
 
   const handleInputChange = (e) => {
@@ -300,39 +301,50 @@ export default function App() {
     setCurrentEditId(null);
   };
 
+  // FUNGSI TOGGLE BINTANG (UNCLICKABLE)
   const handleStar = async (id) => {
     const storageKey = `starred_${id}`;
-    if (localStorage.getItem(storageKey)) {
-      alert("Kamu sudah memberikan Bintang ⭐ untuk teman ini!");
-      return;
-    }
+    const isAlreadyStarred = localStorage.getItem(storageKey);
 
     try {
-      const docRef = doc(db, COLLECTION_NAME, id);
-      await updateDoc(docRef, { stars: increment(1) });
-      localStorage.setItem(storageKey, 'true');
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, id);
+      
+      if (isAlreadyStarred) {
+        // Un-star: kurangi jumlah dan hapus status lokal
+        await updateDoc(docRef, { stars: increment(-1) });
+        localStorage.removeItem(storageKey);
+      } else {
+        // Star: tambah jumlah dan simpan status lokal
+        await updateDoc(docRef, { stars: increment(1) });
+        localStorage.setItem(storageKey, 'true');
+      }
     } catch (error) {
-      console.error("Error giving star:", error);
+      console.error("Error toggling star:", error);
     }
   };
 
+  // FUNGSI TOGGLE TERIMA KASIH (UNCLICKABLE)
   const handleThankYou = async (friend) => {
     const storageKey = `thanked_${friend.id}`;
-    if (localStorage.getItem(storageKey)) {
-      alert(`Kamu sudah bilang terima kasih ke ${friend.nickname || friend.name}! 😊`);
-      return;
-    }
+    const isAlreadyThanked = localStorage.getItem(storageKey);
 
     try {
-      const docRef = doc(db, COLLECTION_NAME, friend.id);
-      await updateDoc(docRef, { thanks: increment(1) });
-      localStorage.setItem(storageKey, 'true');
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, friend.id);
       
-      setThanksMessage({ show: true, name: friend.nickname || friend.name });
-      // Durasi sedikit lebih lama agar animasi salaman terlihat jelas
-      setTimeout(() => setThanksMessage({ show: false, name: '' }), 2500);
+      if (isAlreadyThanked) {
+        // Un-thanks: kurangi jumlah dan hapus status lokal
+        await updateDoc(docRef, { thanks: increment(-1) });
+        localStorage.removeItem(storageKey);
+      } else {
+        // Thanks: tambah jumlah, simpan status lokal, tunjukkan pop-up animasi
+        await updateDoc(docRef, { thanks: increment(1) });
+        localStorage.setItem(storageKey, 'true');
+        
+        setThanksMessage({ show: true, name: friend.nickname || friend.name });
+        setTimeout(() => setThanksMessage({ show: false, name: '' }), 2500);
+      }
     } catch (error) {
-      console.error("Error saying thanks:", error);
+      console.error("Error toggling thanks:", error);
     }
   };
 
@@ -363,14 +375,13 @@ export default function App() {
 
     try {
       if (isEditing && currentEditId) {
-        const docRef = doc(db, COLLECTION_NAME, currentEditId);
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, currentEditId);
         await updateDoc(docRef, {
           ...baseData,
           updatedAt: serverTimestamp()
         });
-        alert("Biodata berhasil diperbarui!");
       } else {
-        const dataRef = collection(db, COLLECTION_NAME);
+        const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
         await addDoc(dataRef, {
           ...baseData,
           stars: 0, 
@@ -378,23 +389,22 @@ export default function App() {
           createdAt: serverTimestamp(),
           creatorId: user.uid
         });
-        alert("Hore! Biodata berhasil disimpan.");
       }
       
       handleCancelEdit();
       setActiveTab('gallery');
     } catch (error) {
       console.error("Error saving document: ", error);
-      alert("Yah, gagal menyimpan. Coba lagi ya!");
+      alert("Gagal menyimpan. Coba lagi ya!");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (docId) => {
-    if (window.confirm("Apakah ustadz / ustadzah yakin ingin menghapus data ini?")) {
+    if (confirm("Yakin ingin menghapus data ini?")) {
       try {
-        const docRef = doc(db, COLLECTION_NAME, docId);
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docId);
         await deleteDoc(docRef);
       } catch (error) {
         console.error("Error deleting:", error);
@@ -419,14 +429,8 @@ export default function App() {
     return (
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
         <InstallPrompt />
-
-        <div className="absolute top-10 left-10 text-white/40"><Smile size={80} /></div>
-        <div className="absolute top-20 right-20 text-white/30"><Star size={60} /></div>
-        <div className="absolute bottom-10 left-1/4 text-white/40"><Heart size={100} /></div>
-
         <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
           <div className="flex flex-col items-center">
-            
             <div className="relative mb-6 mt-2 transform scale-90 md:scale-100">
               <div className="flex gap-2 h-24 md:h-32 items-end mb-2">
                  <div className="w-3 h-24 md:h-32 bg-gray-300 rounded-t-full"></div>
@@ -439,14 +443,11 @@ export default function App() {
                 <Lock size={32} className="text-white md:w-10 md:h-10" />
               </div>
               <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-xs md:text-sm font-bold shadow whitespace-nowrap flex items-center gap-2">
-                <School size={14} />
-                SD Insan Karima
+                <School size={14} /> SD Insan Karima
               </div>
             </div>
-
             <h2 className="text-xl md:text-2xl font-bold text-gray-700 mb-2 text-center">Gerbang Terkunci!</h2>
             <p className="text-sm md:text-base text-gray-500 text-center mb-4 md:mb-6">Masukkan kode kelas untuk masuk.</p>
-            
             <form onSubmit={handleLogin} className="w-full">
               <div className="relative mb-3 md:mb-4">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -457,19 +458,12 @@ export default function App() {
                   className={`w-full pl-9 pr-4 py-2.5 md:py-3 rounded-xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'} focus:outline-none focus:border-blue-400 transition-colors text-base md:text-lg text-center tracking-widest`}
                 />
               </div>
-              {loginError && (
-                <div className="text-red-500 text-xs md:text-sm font-bold text-center mb-3 animate-pulse">
-                  Ups! Kodenya belum pas. Tanya Abi atau Ustadzah ya!
-                </div>
-              )}
               <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-2.5 md:py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
                 Buka Gerbang <ArrowRight size={18} />
               </button>
             </form>
           </div>
         </div>
-        
-        <div className="absolute -bottom-10 w-full h-20 bg-green-400 rounded-t-[50%] scale-150"></div>
       </div>
     );
   }
@@ -477,9 +471,9 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center animate-pulse">
           <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl md:text-2xl font-bold text-orange-500 animate-bounce">Menyiapkan Ruang Kelas...</div>
+          <div className="text-xl md:text-2xl font-bold text-orange-500">Membuka Buku Biodata...</div>
         </div>
       </div>
     );
@@ -493,28 +487,18 @@ export default function App() {
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 relative overflow-hidden animate-scale-up">
-            {/* Background sparkle effect */}
-            <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-              <Star size={40} className="absolute top-4 left-4" />
-              <Star size={30} className="absolute bottom-4 right-4" />
-              <Heart size={20} className="absolute top-10 right-10" />
-            </div>
-
             <div className="relative mx-auto bg-green-50 w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-inner">
                <div className="animate-shake-hand">
                   <HeartHandshake size={64} className="text-green-500 md:w-20 md:h-20" />
                </div>
-               {/* Pulsing hearts around */}
                <Heart className="absolute -top-2 right-4 text-pink-400 fill-current animate-ping opacity-75" size={24} />
                <Heart className="absolute bottom-2 -left-2 text-red-400 fill-current animate-pulse" size={20} />
             </div>
-
             <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Terima Kasih!</h3>
             <p className="text-gray-500 md:text-lg leading-relaxed">
               Kamu sudah bilang terima kasih ke <br/>
               <span className="text-green-600 font-bold text-xl md:text-2xl">"{thanksMessage.name}"</span>
             </p>
-
             <div className="mt-6 flex justify-center">
                <div className="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
                   <CheckCircle size={14} /> Kebaikan Terkirim
@@ -548,36 +532,21 @@ export default function App() {
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition z-50 backdrop-blur-sm">
           <LogOut size={20} />
         </button>
-
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <Star className="absolute top-2 left-10" size={40} />
-          <Heart className="absolute bottom-2 right-10" size={30} />
-          <Smile className="absolute top-10 right-20" size={25} />
-        </div>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
           <p className="text-orange-100 text-sm md:text-lg mb-2">Kelas 3A Insan Karima</p>
-          {userRole === 'admin' && (
-            <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40 mb-4">
-              Mode Guru / Admin
-            </span>
-          )}
-
           <div className="flex justify-center gap-6 md:gap-12 mt-2">
              <div className="flex flex-col items-center group">
                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
                  <img src={TEACHER_DATA.waliKelas.photoUrl} alt={TEACHER_DATA.waliKelas.name} className="w-full h-full object-cover" />
                </div>
-               <span className="font-bold text-sm md:text-base mt-2 drop-shadow-sm">{TEACHER_DATA.waliKelas.name}</span>
-               <span className="text-[10px] md:text-xs text-orange-100 bg-white/10 px-2 rounded-full">{TEACHER_DATA.waliKelas.role}</span>
+               <span className="font-bold text-sm md:text-base mt-2">{TEACHER_DATA.waliKelas.name}</span>
              </div>
-             
              <div className="flex flex-col items-center group">
                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
                  <img src={TEACHER_DATA.asisten.photoUrl} alt={TEACHER_DATA.asisten.name} className="w-full h-full object-cover" />
                </div>
-               <span className="font-bold text-sm md:text-base mt-2 drop-shadow-sm">{TEACHER_DATA.asisten.name}</span>
-               <span className="text-[10px] md:text-xs text-orange-100 bg-white/10 px-2 rounded-full">{TEACHER_DATA.asisten.role}</span>
+               <span className="font-bold text-sm md:text-base mt-2">{TEACHER_DATA.asisten.name}</span>
              </div>
           </div>
         </div>
@@ -601,95 +570,68 @@ export default function App() {
 
         {activeTab === 'form' && (
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-8 max-w-2xl mx-auto border-2 md:border-4 border-pink-200 relative">
-            {isEditing && (
-               <div className="absolute top-4 right-4 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-200">
-                 <Pencil size={12} /> Mode Edit
-               </div>
-            )}
-
             <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-4 md:mb-6 text-center">
               {isEditing ? '✏️ Update Biodatamu' : '✏️ Isi Biodatamu Yuk!'}
             </h2>
-            
             <form onSubmit={handlePreSubmit} className="space-y-4 md:space-y-6">
-              <div className="bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-gray-100">
-                <label className="block text-gray-700 font-bold mb-3 text-center text-sm md:text-base">Pilih Foto Profilmu:</label>
+              <div className="bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-gray-100 text-center">
+                <label className="block text-gray-700 font-bold mb-3 text-sm md:text-base">Foto Profil:</label>
                 <div className="flex justify-center gap-2 md:gap-4 mb-4">
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: false }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
-                    <Smile size={16} className="md:w-5 md:h-5" /> Pilih Avatarmu
+                    <Smile size={16} /> Avatar
                   </button>
                   <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePhoto: true }))}
                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-xl text-sm md:text-base transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}>
-                    <Camera size={16} className="md:w-5 md:h-5" /> Upload Foto
+                    <Camera size={16} /> Upload
                   </button>
                 </div>
-                {!formData.usePhoto && (
+                {!formData.usePhoto ? (
                   <div className="grid grid-cols-4 gap-2 md:gap-3">
                     {Object.entries(avatars).map(([key, data]) => (
                       <button key={key} type="button" onClick={() => handleAvatarSelect(key)}
-                        className={`flex flex-col items-center justify-center p-2 md:p-3 rounded-xl transition-all ${formData.avatar === key ? 'ring-2 md:ring-4 ring-pink-400 bg-pink-50 transform scale-105' : 'bg-white hover:bg-gray-100 border border-gray-200'}`}>
+                        className={`flex flex-col items-center p-2 rounded-xl transition-all ${formData.avatar === key ? 'ring-4 ring-pink-400 bg-pink-50 scale-105' : 'bg-white border border-gray-200'}`}>
                         <div className={`${data.color} w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full mb-1 text-xl md:text-2xl`}>{data.emoji}</div>
-                        <span className="text-[10px] md:text-xs font-medium text-gray-500">{data.label}</span>
+                        <span className="text-[10px] md:text-xs font-medium">{data.label}</span>
                       </button>
                     ))}
                   </div>
-                )}
-                {formData.usePhoto && (
+                ) : (
                   <div className="text-center">
                     {!formData.photoUrl ? (
                       <div className="border-2 border-dashed border-pink-300 rounded-xl p-6 md:p-8 bg-pink-50 hover:bg-pink-100 transition-colors cursor-pointer relative">
                         <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                         <div className="flex flex-col items-center text-pink-500">
-                          <Upload size={32} className="mb-2 md:w-10 md:h-10" />
-                          <span className="font-bold text-sm md:text-base">Klik untuk Upload Foto</span>
+                          <Upload size={32} className="mb-2" />
+                          <span className="font-bold text-sm">Klik untuk Upload Foto</span>
                         </div>
                       </div>
                     ) : (
                       <div className="relative inline-block">
                         <img src={formData.photoUrl} alt="Preview" className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-pink-400 shadow-md" />
-                        <button type="button" onClick={removePhoto} className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-sm"><X size={16} /></button>
+                        <button type="button" onClick={removePhoto} className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-sm"><X size={16} /></button>
                       </div>
                     )}
                   </div>
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Contoh: Bilal Achyar" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Contoh: Bilal" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
-                </div>
+                <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Nama Lengkap" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50" />
+                <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama Panggilan" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-pink-400 focus:outline-none bg-gray-50" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Astronaut" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-blue-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Main Bola" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-green-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Makanan Favorit</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Nasi Goreng" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-orange-400 focus:outline-none bg-gray-50 text-sm md:text-base" />
-                </div>
+                <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-400 focus:outline-none bg-gray-50" />
+                <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-400 focus:outline-none bg-gray-50" />
+                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-400 focus:outline-none bg-gray-50" />
               </div>
-              <div>
-                <label className="block text-gray-700 font-bold mb-1 md:mb-2 text-sm md:text-base">Pesan Untuk Teman</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Pesan untuk semua teman-teman..." rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50 text-sm md:text-lg" />
-              </div>
-              
-              <div className="flex gap-2 mt-4">
+              <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Pesan untuk semua teman..." rows="3" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:outline-none bg-gray-50" />
+              <div className="flex gap-2">
                 {isEditing && (
-                  <button type="button" onClick={handleCancelEdit} className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 md:py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                  <button type="button" onClick={handleCancelEdit} className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
                     <RotateCcw size={20} /> Batal
                   </button>
                 )}
-                <button type="submit" disabled={isSubmitting} className={`flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 md:py-4 rounded-xl text-lg md:text-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 ${isEditing ? 'w-2/3' : 'w-full'}`}>
+                <button type="submit" disabled={isSubmitting} className={`flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl text-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2`}>
                   {isSubmitting ? 'Menyimpan...' : (isEditing ? 'Update Biodata' : 'Simpan Biodata')}
                 </button>
               </div>
@@ -698,36 +640,17 @@ export default function App() {
         )}
 
         {activeTab === 'gallery' && (
-          <div className="space-y-8">
-            {/* Class Stats / Summary */}
-            <div className="bg-white/50 border-2 border-orange-100 rounded-3xl p-4 md:p-6 flex flex-wrap justify-center gap-4 md:gap-8 text-center">
-              <div>
-                <p className="text-2xl md:text-3xl font-bold text-orange-500">{friends.length}</p>
-                <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">Teman Terdaftar</p>
-              </div>
-              <div className="w-px h-10 bg-orange-100 hidden md:block"></div>
-              <div>
-                <p className="text-2xl md:text-3xl font-bold text-yellow-500">{friends.reduce((acc, f) => acc + (f.stars || 0), 0)}</p>
-                <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">Bintang Dikumpulkan</p>
-              </div>
-              <div className="w-px h-10 bg-orange-100 hidden md:block"></div>
-              <div>
-                <p className="text-2xl md:text-3xl font-bold text-green-500">{friends.reduce((acc, f) => acc + (f.thanks || 0), 0)}</p>
-                <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">Terima Kasih</p>
-              </div>
-            </div>
-
+          <div className="space-y-6">
             {friends.length === 0 ? (
-              <div className="text-center py-10 md:py-20 bg-white rounded-3xl shadow-lg border-2 border-dashed border-gray-300 mx-auto max-w-md">
-                <div className="text-4xl md:text-6xl mb-4">😢</div>
-                <h3 className="text-lg md:text-xl font-bold text-gray-500">Belum ada teman.</h3>
-                <p className="text-sm md:text-base text-gray-400 px-4">Jadilah yang pertama mengisi biodata!</p>
-                <button onClick={() => setActiveTab('form')} className="mt-4 md:mt-6 text-pink-500 font-bold hover:underline">Isi biodata sekarang →</button>
+              <div className="text-center py-10 bg-white rounded-3xl shadow-lg border-2 border-dashed border-gray-300 mx-auto max-w-md">
+                <div className="text-4xl mb-4">😢</div>
+                <h3 className="text-lg font-bold text-gray-500">Belum ada teman yang mendaftar.</h3>
+                <button onClick={() => setActiveTab('form')} className="mt-4 text-pink-500 font-bold hover:underline">Jadi yang pertama →</button>
               </div>
             ) : (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-lg md:text-2xl font-bold text-gray-700 flex items-center gap-2">
+                   <h3 className="text-lg md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wide">
                      <List className="text-blue-500" /> Galeri Teman 3A
                    </h3>
                    <div className="md:hidden">
@@ -748,18 +671,18 @@ export default function App() {
                     const canEdit = userRole === 'admin' || isOwner;
                     
                     return (
-                      <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all hover:translate-y-[-4px] border-b-4 md:border-b-8 border-blue-200 flex flex-col">
-                        <div className={`h-24 md:h-32 ${hasPhoto ? 'bg-gray-200' : avatarData.color.split(' ')[0]} relative flex justify-center items-end`}>
+                      <div key={friend.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden transform transition-all border-b-8 border-blue-200 flex flex-col hover:border-blue-400">
+                        <div className={`h-24 md:h-32 ${hasPhoto ? 'bg-gray-100' : avatarData.color.split(' ')[0]} relative flex justify-center items-end`}>
                           <div className="bg-white p-1 rounded-full shadow-md -mb-8 md:-mb-10 ring-4 ring-white z-10 overflow-hidden w-16 h-16 md:w-24 md:h-24 flex items-center justify-center">
                              {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color} text-3xl md:text-5xl shadow-inner`}>{avatarData.emoji}</div> )}
                           </div>
                           
-                          {/* Interaction Buttons (Stars/Thanks) - IN FLEX ROW */}
+                          {/* Interaction Buttons (Stars/Thanks) - TOGGLEABLE */}
                           <div className="absolute top-2 left-2 flex flex-row gap-2">
                             <button 
                               onClick={() => handleStar(friend.id)}
-                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isStarred ? 'bg-yellow-400 text-white' : 'bg-white/90 text-gray-500 hover:bg-yellow-100 hover:text-yellow-600'}`}
-                              title="Kirim Bintang"
+                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isStarred ? 'bg-yellow-400 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-yellow-500'}`}
+                              title={isStarred ? "Batal Beri Bintang" : "Beri Bintang"}
                             >
                               <Star size={14} className={`${isStarred ? 'fill-current' : ''} md:w-4 md:h-4`} />
                               <span className="text-[10px] md:text-xs font-bold">{friend.stars || 0}</span>
@@ -767,8 +690,8 @@ export default function App() {
 
                             <button 
                               onClick={() => handleThankYou(friend)}
-                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isThanked ? 'bg-green-500 text-white' : 'bg-white/90 text-gray-500 hover:bg-green-100 hover:text-green-600'}`}
-                              title="Say Thank You"
+                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isThanked ? 'bg-green-500 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-green-500'}`}
+                              title={isThanked ? "Batal Terima Kasih" : "Beri Terima Kasih"}
                             >
                               <HeartHandshake size={14} className="md:w-4 md:h-4" />
                               <span className="text-[10px] md:text-xs font-bold">{friend.thanks || 0}</span>
@@ -777,12 +700,12 @@ export default function App() {
                           
                           <div className="absolute top-2 right-2 flex flex-col gap-2">
                             {canEdit && (
-                              <button onClick={() => handleEdit(friend)} className="bg-white/90 hover:bg-white text-blue-500 p-2 rounded-full shadow-lg transition" title="Edit Biodata">
+                              <button onClick={() => handleEdit(friend)} className="bg-white/90 hover:bg-blue-500 hover:text-white text-blue-500 p-2 rounded-full shadow transition">
                                 <Pencil size={16} />
                               </button>
                             )}
                             {userRole === 'admin' && (
-                              <button onClick={() => handleDelete(friend.id)} className="bg-white/90 hover:bg-red-500 hover:text-white text-red-400 p-2 rounded-full shadow-lg transition" title="Hapus (Admin)">
+                              <button onClick={() => handleDelete(friend.id)} className="bg-white/90 hover:bg-red-500 hover:text-white text-red-500 p-2 rounded-full shadow transition">
                                 <Trash2 size={16} />
                               </button>
                             )}
@@ -790,53 +713,35 @@ export default function App() {
                         </div>
 
                         <div className="pt-10 md:pt-14 pb-4 px-4 md:pb-6 md:px-6 text-center flex-1 flex flex-col">
-                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h3>
-                          <p className="text-blue-500 font-bold text-xs md:text-sm uppercase tracking-widest mb-4">
-                            "{friend.nickname || friend.name}"
-                          </p>
+                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight mb-1">{friend.name}</h3>
+                          <p className="text-blue-500 font-bold text-xs md:text-sm uppercase tracking-widest mb-4">"{friend.nickname || friend.name}"</p>
                           
-                          <div className={`space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm mb-4 ${isMobileGrid ? 'hidden md:block' : ''}`}>
-                            <div className="flex items-start gap-2">
-                              <Rocket className="text-blue-400 mt-0.5 shrink-0" size={14} />
-                              <span className="text-gray-500 font-bold w-16 md:w-20 shrink-0">Cita-cita:</span>
-                              <span className="text-gray-800 font-medium">{friend.dream || '-'}</span>
+                          <div className={`space-y-2 text-left bg-gray-50 p-3 rounded-xl text-xs md:text-sm mb-4 ${isMobileGrid ? 'hidden md:block' : ''}`}>
+                            <div className="flex items-center gap-2">
+                              <Rocket className="text-blue-400" size={14} />
+                              <span className="text-gray-500 font-bold w-16">Cita-cita:</span>
+                              <span className="text-gray-800 truncate">{friend.dream || '-'}</span>
                             </div>
-                            <div className="flex items-start gap-2">
-                              <Gamepad2 className="text-green-400 mt-0.5 shrink-0" size={14} />
-                              <span className="text-gray-500 font-bold w-16 md:w-20 shrink-0">Hobi:</span>
-                              <span className="text-gray-800 font-medium">{friend.hobby || '-'}</span>
+                            <div className="flex items-center gap-2">
+                              <Gamepad2 className="text-green-400" size={14} />
+                              <span className="text-gray-500 font-bold w-16">Hobi:</span>
+                              <span className="text-gray-800 truncate">{friend.hobby || '-'}</span>
                             </div>
-                            <div className="flex items-start gap-2">
-                              <Utensils className="text-orange-400 mt-0.5 shrink-0" size={14} />
-                              <span className="text-gray-500 font-bold w-16 md:w-20 shrink-0">Makan:</span>
-                              <span className="text-gray-800 font-medium">{friend.food || '-'}</span>
+                            <div className="flex items-center gap-2">
+                              <Utensils className="text-orange-400" size={14} />
+                              <span className="text-gray-500 font-bold w-16">Makan:</span>
+                              <span className="text-gray-800 truncate">{friend.food || '-'}</span>
                             </div>
-                          </div>
-
-                          {/* Simplified Mobile View for Grid */}
-                          <div className={`${isMobileGrid ? 'grid md:hidden' : 'hidden'} grid-cols-1 gap-1 text-[10px] mb-2`}>
-                             <div className="flex gap-1 items-center bg-blue-50 px-2 py-0.5 rounded text-blue-700">
-                                <Rocket size={10} /> <span className="truncate">{friend.dream || '-'}</span>
-                             </div>
-                             <div className="flex gap-1 items-center bg-green-50 px-2 py-0.5 rounded text-green-700">
-                                <Gamepad2 size={10} /> <span className="truncate">{friend.hobby || '-'}</span>
-                             </div>
                           </div>
 
                           <div className={`mt-auto relative group ${isMobileGrid ? 'hidden md:block' : ''}`}>
-                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200">
-                              Pesan Teman
-                            </div>
-                            <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-3 md:p-4 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-4 leading-relaxed">
-                              "{friend.message}"
-                            </div>
-                            
-                            {/* Say Thank You Button at bottom of message */}
+                            <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200">Pesan Teman</div>
+                            <div className="border-2 border-dashed border-yellow-200 rounded-lg p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-4 leading-relaxed">"{friend.message}"</div>
                             <button 
                               onClick={() => handleThankYou(friend)}
-                              className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-green-100 hover:bg-green-500 hover:text-white text-green-700 rounded-lg font-bold text-xs transition-all shadow-sm border border-green-200"
+                              className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-xs transition-all shadow-sm border ${isThanked ? 'bg-green-500 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}
                             >
-                              <MessageSquareQuote size={14} /> Bilang Terima Kasih!
+                              <MessageSquareQuote size={14} /> {isThanked ? 'Sudah Bilang Terima Kasih!' : 'Bilang Terima Kasih!'}
                             </button>
                           </div>
                         </div>
@@ -850,61 +755,19 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-8 px-4">
-        <div className="flex justify-center gap-4 mb-4">
-          <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-             <div className="bg-yellow-100 p-2 rounded-full text-yellow-500"><Star size={16} className="fill-current" /></div>
-             <p className="text-xs text-gray-500 font-bold">Kumpulkan Bintang</p>
-          </div>
-          <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-             <div className="bg-green-100 p-2 rounded-full text-green-500"><HeartHandshake size={16} /></div>
-             <p className="text-xs text-gray-500 font-bold">Budaya Terima Kasih</p>
-          </div>
-        </div>
+      <footer className="text-center mt-12 mb-8 px-4 opacity-75">
         <p className="text-gray-400 text-xs md:text-sm">© 2026 Kelas 3A SDI Insan Karima - Dibuat oleh Bilal dan Abinya</p>
       </footer>
 
-      {/* Styles for Animations & PWA look */}
+      {/* Styles for Animations */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-up {
-          from { opacity: 0; transform: scale(0.8); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes shake-hand {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(-10deg); }
-          75% { transform: rotate(10deg); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-        .animate-scale-up {
-          animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .animate-shake-hand {
-          animation: shake-hand 0.6s ease-in-out infinite;
-        }
-        body {
-          -webkit-tap-highlight-color: transparent;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: #fffbeb;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #fed7aa;
-          border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #fdba74;
-        }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scale-up { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shake-hand { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        .animate-scale-up { animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .animate-shake-hand { animation: shake-hand 0.6s ease-in-out infinite; }
+        body { -webkit-tap-highlight-color: transparent; }
       `}} />
     </div>
   );
