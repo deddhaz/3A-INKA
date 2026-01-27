@@ -300,19 +300,19 @@ export default function App() {
     setCurrentEditId(null);
   };
 
-  const handleLove = async (id) => {
-    const storageKey = `loved_${id}`;
+  const handleStar = async (id) => {
+    const storageKey = `starred_${id}`;
     if (localStorage.getItem(storageKey)) {
-      alert("Kamu sudah memberikan Love ❤️ untuk teman ini!");
+      alert("Kamu sudah memberikan Bintang ⭐ untuk teman ini!");
       return;
     }
 
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
-      await updateDoc(docRef, { loves: increment(1) });
+      await updateDoc(docRef, { stars: increment(1) });
       localStorage.setItem(storageKey, 'true');
     } catch (error) {
-      console.error("Error giving love:", error);
+      console.error("Error giving star:", error);
     }
   };
 
@@ -372,7 +372,7 @@ export default function App() {
         const dataRef = collection(db, COLLECTION_NAME);
         await addDoc(dataRef, {
           ...baseData,
-          loves: 0, 
+          stars: 0, 
           thanks: 0,
           createdAt: serverTimestamp(),
           creatorId: user.uid
@@ -679,8 +679,8 @@ export default function App() {
               </div>
               <div className="w-px h-10 bg-orange-100 hidden md:block"></div>
               <div>
-                <p className="text-2xl md:text-3xl font-bold text-pink-500">{friends.reduce((acc, f) => acc + (f.loves || 0), 0)}</p>
-                <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">Love Disebarkan</p>
+                <p className="text-2xl md:text-3xl font-bold text-yellow-500">{friends.reduce((acc, f) => acc + (f.stars || 0), 0)}</p>
+                <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">Bintang Dikumpulkan</p>
               </div>
               <div className="w-px h-10 bg-orange-100 hidden md:block"></div>
               <div>
@@ -714,7 +714,7 @@ export default function App() {
                   {friends.map((friend) => {
                     const avatarData = getAvatar(friend.avatar);
                     const hasPhoto = friend.usePhoto && friend.photoUrl;
-                    const isLoved = localStorage.getItem(`loved_${friend.id}`);
+                    const isStarred = localStorage.getItem(`starred_${friend.id}`);
                     const isThanked = localStorage.getItem(`thanked_${friend.id}`);
                     const isOwner = user && user.uid === friend.creatorId;
                     const canEdit = userRole === 'admin' || isOwner;
@@ -726,15 +726,15 @@ export default function App() {
                              {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color} text-3xl md:text-5xl shadow-inner`}>{avatarData.emoji}</div> )}
                           </div>
                           
-                          {/* Interaction Buttons (Loves/Thanks) - FIXED TO FLEX ROW */}
+                          {/* Interaction Buttons (Stars/Thanks) - IN FLEX ROW */}
                           <div className="absolute top-2 left-2 flex flex-row gap-2">
                             <button 
-                              onClick={() => handleLove(friend.id)}
-                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isLoved ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-500 hover:bg-pink-100 hover:text-pink-600'}`}
-                              title="Kirim Love"
+                              onClick={() => handleStar(friend.id)}
+                              className={`p-2 rounded-full shadow-lg transition flex items-center gap-1.5 ${isStarred ? 'bg-yellow-400 text-white' : 'bg-white/90 text-gray-500 hover:bg-yellow-100 hover:text-yellow-600'}`}
+                              title="Kirim Bintang"
                             >
-                              <Heart size={14} className={`${isLoved ? 'fill-current' : ''} md:w-4 md:h-4`} />
-                              <span className="text-[10px] md:text-xs font-bold">{friend.loves || 0}</span>
+                              <Star size={14} className={`${isStarred ? 'fill-current' : ''} md:w-4 md:h-4`} />
+                              <span className="text-[10px] md:text-xs font-bold">{friend.stars || 0}</span>
                             </button>
 
                             <button 
@@ -825,8 +825,8 @@ export default function App() {
       <footer className="text-center mt-12 mb-8 px-4">
         <div className="flex justify-center gap-4 mb-4">
           <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-             <div className="bg-pink-100 p-2 rounded-full text-pink-500"><Heart size={16} className="fill-current" /></div>
-             <p className="text-xs text-gray-500 font-bold">Sebarkan Kasih Sayang</p>
+             <div className="bg-yellow-100 p-2 rounded-full text-yellow-500"><Star size={16} className="fill-current" /></div>
+             <p className="text-xs text-gray-500 font-bold">Kumpulkan Bintang</p>
           </div>
           <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
              <div className="bg-green-100 p-2 rounded-full text-green-500"><HeartHandshake size={16} /></div>
