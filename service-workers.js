@@ -1,72 +1,84 @@
 /* eslint-disable no-restricted-globals */
 
-// UPDATE VERSI: v11 (Safety First - Hanya Cache HTML & Manifest)
-const CACHE_NAME = 'kelas3-biodata-v11-safety';
+// UPDATE VERSI: v12 (Safety First - SPA & PWA Ready)
+const CACHE_NAME = 'kelas3-biodata-v12-safety';
 
-// Kita HANYA menyimpan file inti untuk mode offline dasar.
-// File JS/CSS/Gambar biarkan browser yang menangani caching-nya secara alami.
-const urlsToCache = [
+// Hanya cache file inti untuk offline dasar
+const CORE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// 1. INSTALL
+/* =======================
+   1. INSTALL
+======================= */
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('SW: Caching core files only');
-        return cache.addAll(urlsToCache.map(url => new Request(url, {cache: 'reload'})));
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('SW: Caching core assets');
+      return cache.addAll(
+        CORE_ASSETS.map(
+          (url) => new Request(url, { cache: 'reload' })
+        )
+      );
+    })
   );
+
+  // Langsung aktifkan versi baru
   self.skipWaiting();
 });
 
-// 2. FETCH (Bagian Penting)
+/* =======================
+   2. FETCH
+======================= */
 self.addEventListener('fetch', (event) => {
-  // A. Abaikan request ke API eksternal
-  if (event.request.url.includes('http') === false || 
-      event.request.url.includes('firestore') || 
-      event.request.url.includes('googleapis')) {
+  // Abaikan request non-GET & API eksternal
+  if (
+    event.request.method !== 'GET' ||
+    event.request.url.includes('firestore') ||
+    event.request.url.includes('googleapis')
+  ) {
     return;
   }
 
-  // B. STRATEGI NAVIGASI (HTML): NETWORK FIRST
-  // Ini agar saat buka aplikasi, dia selalu cek versi terbaru.
-  // Jika internet mati, baru ambil dari cache (Offline Mode).
+  // A. NAVIGASI (HTML / SPA Route)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
-        .catch(() => {
-          return caches.match('/index.html');
+        .then((response) => {
+          // Jika server return 404 / error → fallback ke index.html
+          if (!response || response.status !== 200) {
+            return caches.match('/index.html');
+          }
+          return response;
         })
+        .catch(() => caches.match('/index.html'))
     );
     return;
   }
 
-  // C. STRATEGI ASET (JS/CSS/GAMBAR): NETWORK ONLY
-  // Kita TIDAK menyimpan JS/CSS di Service Worker Cache Storage.
-  // Kita kembalikan langsung ke jaringan. Browser punya "HTTP Cache" sendiri yang lebih pintar
-  // menangani file hashed (file dengan nama acak) dari Vite.
-  // Ini MENGHILANGKAN error "ChunkLoadError" / "File Not Found".
-  event.respondWith(
-    fetch(event.request)
-  );
+  // B. ASET (JS / CSS / IMG)
+  // Network only → biarkan HTTP cache browser bekerja
+  event.respondWith(fetch(event.request));
 });
 
-// 3. ACTIVATE
+/* =======================
+   3. ACTIVATE
+======================= */
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
+  const whitelist = [CACHE_NAME];
+
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames.map((name) => {
+          if (!whitelist.includes(name)) {
+            console.log('SW: Deleting old cache', name);
+            return caches.delete(name);
           }
         })
-      );
-    }).then(() => self.clients.claim())
+      )
+    ).then(() => self.clients.claim())
   );
 });
