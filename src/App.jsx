@@ -509,7 +509,7 @@ export default function App() {
             </div>
             <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Bintang Terkirim!</h3>
             <p className="text-gray-500 md:text-lg leading-relaxed">
-              Kamu memberikan bintang untuk <br/>
+              Kamu memberikan bintang ⭐ untuk <br/>
               <span className="text-yellow-600 font-bold text-xl md:text-2xl">"{starMessage.name}"</span>
             </p>
             <div className="mt-6 flex justify-center">
