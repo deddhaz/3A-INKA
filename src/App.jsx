@@ -354,7 +354,9 @@ export default function App() {
             <h2 className="text-xl md:text-2xl font-bold text-gray-700 mb-2">Gerbang Terkunci!</h2>
             <form onSubmit={handleLogin} className="w-full">
               <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Kelas..." className={`w-full px-4 py-3 rounded-xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center tracking-widest mb-4 transition-all`} />
-              <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">Buka Gerbang <ArrowRight size={18} /></button>
+              <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
+                Buka Gerbang <ArrowRight size={18} />
+              </button>
             </form>
           </div>
         </div>
@@ -480,7 +482,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-300" />
                 <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-300" />
-                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-300" />
+                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400" />
               </div>
               
               <div className="space-y-2">
@@ -516,9 +518,11 @@ export default function App() {
 
                 return (
                   <div key={friend.id} className="bg-white rounded-[40px] shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all">
-                    <div className={`h-24 md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
-                      <div className="bg-white p-1 rounded-full shadow-md -mb-8 md:-mb-12 w-20 h-20 md:w-28 md:h-28 overflow-hidden flex items-center justify-center ring-4 ring-white z-10">
-                         {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-3xl md:text-5xl`}>{av.emoji}</div>}
+                    {/* Header kartu dengan ukuran kondisional untuk mode grid */}
+                    <div className={`${isMobileGrid ? 'h-16' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
+                      {/* Container foto profil dengan ukuran diperkecil 50% di mode grid */}
+                      <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-10 h-10 -mb-5' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
+                         {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-xl' : 'text-3xl'} md:text-5xl`}>{av.emoji}</div>}
                       </div>
                       <div className="absolute top-3 left-3 flex gap-2">
                         <button onClick={() => handleStar(friend)} className={`p-2 rounded-full shadow-md transition flex items-center gap-1.5 ${isS ? 'bg-yellow-400 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-yellow-500'}`}><Star size={14} className={isS ? 'fill-current' : ''} /><span className="text-[10px] font-bold">{friend.stars || 0}</span></button>
@@ -530,11 +534,11 @@ export default function App() {
                       </div>
                     </div>
                     
-                    {/* Bagian Body Kartu dengan Kondisional Grid */}
-                    <div className={`pt-12 md:pt-16 pb-6 px-4 text-center flex-1 flex flex-col items-center justify-center`}>
+                    {/* Bagian Body Kartu dengan padding kondisional */}
+                    <div className={`${isMobileGrid ? 'pt-7 pb-4' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center justify-center transition-all`}>
                        {isMobileGrid ? (
-                         /* TAMPILAN GRID: Hanya Nama Panggilan */
-                         <h4 className="text-base md:text-xl font-bold text-gray-800 truncate w-full">
+                         /* TAMPILAN GRID: Ringkas */
+                         <h4 className="text-xs md:text-xl font-bold text-gray-800 truncate w-full px-2">
                            {friend.nickname || friend.name}
                          </h4>
                        ) : (
@@ -565,7 +569,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Dibuat Oleh Hiro</footer>
+      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
