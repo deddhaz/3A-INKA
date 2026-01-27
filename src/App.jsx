@@ -3,7 +3,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
   getAuth, 
   signInAnonymously, 
-  onAuthStateChanged,
+  onAuthStateChanged, 
   signInWithCustomToken
 } from 'firebase/auth';
 import { 
@@ -15,14 +15,16 @@ import {
   doc, 
   serverTimestamp, 
   updateDoc, 
-  increment
+  increment,
+  query,
+  where
 } from 'firebase/firestore';
 import { 
   User, Star, Heart, Smile, Trash2, Plus, BookOpen, Gamepad2, 
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
-  MessageSquareQuote, Languages, Sparkles
+  MessageSquareQuote, Languages, Sparkles, MessageSquare, Send
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -41,6 +43,7 @@ const db = getFirestore(app);
 
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelas3_biodata_app';
 const COLLECTION_NAME = 'kelas3_biodata';
+const TESTIMONY_COLLECTION = 'testimonies';
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -97,6 +100,13 @@ export default function App() {
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
   
+  // State baru untuk Testimoni
+  const [showTestimonyModal, setShowTestimonyModal] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [testimonyInput, setTestimonyInput] = useState('');
+  const [allTestimonies, setAllTestimonies] = useState([]);
+  const [isSavingTestimony, setIsSavingTestimony] = useState(false);
+
   const TEACHER_DATA = {
     waliKelas: {
       name: "Ustazah Najwa",
@@ -153,6 +163,7 @@ export default function App() {
 
     setLoading(true);
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+    const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
     
     const unsubscribeData = onSnapshot(dataRef, 
       (snapshot) => {
@@ -176,7 +187,21 @@ export default function App() {
       }
     );
 
-    return () => unsubscribeData();
+    const unsubscribeTestimonies = onSnapshot(testimonyRef, 
+      (snapshot) => {
+        const fetchedTestimonies = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setAllTestimonies(fetchedTestimonies);
+      },
+      (error) => console.error("Error fetching testimonies:", error)
+    );
+
+    return () => {
+      unsubscribeData();
+      unsubscribeTestimonies();
+    };
   }, [user, isAuthenticated]);
 
   const handleLogin = (e) => {
@@ -279,6 +304,38 @@ export default function App() {
       }
     } catch (error) {
       console.error("Error toggling thanks:", error);
+    }
+  };
+
+  const handleSaveTestimony = async (e) => {
+    e.preventDefault();
+    if (!user || !selectedFriend || !testimonyInput.trim()) return;
+    
+    setIsSavingTestimony(true);
+    try {
+      const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
+      await addDoc(testimonyRef, {
+        friendId: selectedFriend.id,
+        message: testimonyInput.trim(),
+        createdAt: serverTimestamp(),
+        authorId: user.uid,
+        authorName: 'Seseorang' // Bisa dikembangkan untuk mengambil nama user
+      });
+      setTestimonyInput('');
+    } catch (error) {
+      console.error("Error saving testimony:", error);
+    } finally {
+      setIsSavingTestimony(false);
+    }
+  };
+
+  const handleDeleteTestimony = async (testimonyId) => {
+    if (!user || userRole !== 'admin') return;
+    try {
+      const testimonyDocRef = doc(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION, testimonyId);
+      await deleteDoc(testimonyDocRef);
+    } catch (error) {
+      console.error("Error deleting testimony:", error);
     }
   };
 
@@ -409,6 +466,76 @@ export default function App() {
         </div>
       )}
 
+      {/* Modal Testimoni */}
+      {showTestimonyModal && selectedFriend && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col border-4 border-purple-200">
+            <div className="p-4 border-b flex justify-between items-center bg-purple-50 rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-1 rounded-full w-10 h-10 overflow-hidden shadow-sm">
+                  {selectedFriend.usePhoto && selectedFriend.photoUrl ? (
+                    <img src={selectedFriend.photoUrl} className="w-full h-full object-cover rounded-full" />
+                  ) : (
+                    <div className="w-full h-full rounded-full flex items-center justify-center text-xl bg-purple-100">
+                      {avatars[selectedFriend.avatar]?.emoji || '🦸‍♂️'}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800 leading-none">{selectedFriend.nickname || selectedFriend.name}</h3>
+                  <p className="text-[10px] text-purple-600 font-bold uppercase tracking-wider">Testimoni Teman</p>
+                </div>
+              </div>
+              <button onClick={() => setShowTestimonyModal(false)} className="text-gray-400 hover:text-red-500 transition"><X size={20} /></button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+              {allTestimonies.filter(t => t.friendId === selectedFriend.id).length === 0 ? (
+                <div className="text-center py-10 opacity-40">
+                  <MessageSquare size={40} className="mx-auto mb-2" />
+                  <p className="text-sm">Belum ada testimoni.<br/>Jadilah yang pertama!</p>
+                </div>
+              ) : (
+                allTestimonies
+                  .filter(t => t.friendId === selectedFriend.id)
+                  .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+                  .map(t => (
+                    <div key={t.id} className="bg-white p-3 rounded-2xl shadow-sm border border-purple-50 relative group">
+                      <p className="text-sm text-gray-700 italic">"{t.message}"</p>
+                      <div className="flex justify-between items-center mt-2">
+                         <span className="text-[9px] text-gray-400 font-bold uppercase">{t.authorName}</span>
+                         {userRole === 'admin' && (
+                           <button onClick={() => handleDeleteTestimony(t.id)} className="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
+                             <Trash2 size={12} />
+                           </button>
+                         )}
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+
+            <div className="p-4 border-t bg-white rounded-b-2xl">
+              <form onSubmit={handleSaveTestimony} className="flex gap-2">
+                <input 
+                  value={testimonyInput}
+                  onChange={(e) => setTestimonyInput(e.target.value)}
+                  placeholder="Tulis pesan singkat..."
+                  className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition"
+                  maxLength={100}
+                />
+                <button 
+                  disabled={isSavingTestimony || !testimonyInput.trim()}
+                  className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 active:scale-95 disabled:opacity-50 transition"
+                >
+                  <Send size={18} />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm:w-full max-w-sm w-full text-center border-4 border-pink-200">
@@ -482,7 +609,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-300" />
                 <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-300" />
-                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-300" />
+                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400" />
               </div>
               
               <div className="space-y-2">
@@ -522,7 +649,6 @@ export default function App() {
                          {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-xl' : 'text-3xl'} md:text-5xl`}>{av.emoji}</div>}
                       </div>
                       
-                      {/* Edit/Delete Buttons tetap di pojok atas */}
                       <div className="absolute top-2 right-2 flex flex-col gap-1.5">
                          {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow hover:bg-blue-500 hover:text-white transition"><Pencil size={14} /></button>}
                          {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={14} /></button>}
@@ -558,21 +684,31 @@ export default function App() {
                          </>
                        )}
 
-                       {/* Interaksi Row (Bintang & Love) di bagian bawah tengah kartu untuk semua mode */}
-                       <div className="flex justify-center gap-4 mt-4 w-full">
+                       {/* Interaksi Row (Bintang, Love, & Testimoni) */}
+                       <div className="flex justify-center gap-3 mt-4 w-full flex-wrap">
                          <button 
                             onClick={() => handleStar(friend)} 
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md transition-all ${isS ? 'bg-yellow-400 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-yellow-500'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md transition-all ${isS ? 'bg-yellow-400 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-yellow-500'}`}
                          >
-                           <Star size={16} className={isS ? 'fill-current' : ''} />
-                           <span className="text-xs font-bold">{friend.stars || 0}</span>
+                           <Star size={14} className={isS ? 'fill-current' : ''} />
+                           <span className="text-[10px] font-bold">{friend.stars || 0}</span>
                          </button>
                          <button 
                             onClick={() => handleThankYou(friend)} 
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md transition-all ${isT ? 'bg-green-500 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-green-500'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md transition-all ${isT ? 'bg-green-500 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-green-500'}`}
                          >
-                           <HeartHandshake size={16} />
-                           <span className="text-xs font-bold">{friend.thanks || 0}</span>
+                           <HeartHandshake size={14} />
+                           <span className="text-[10px] font-bold">{friend.thanks || 0}</span>
+                         </button>
+                         {/* Button Testimoni Ungu */}
+                         <button 
+                            onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md bg-purple-500 text-white hover:bg-purple-600 active:scale-105 transition-all"
+                         >
+                           <MessageSquare size={14} />
+                           <span className="text-[10px] font-bold">
+                             {allTestimonies.filter(t => t.friendId === friend.id).length}
+                           </span>
                          </button>
                        </div>
                     </div>
