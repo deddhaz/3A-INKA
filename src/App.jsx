@@ -26,7 +26,14 @@ import {
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
-const firebaseConfig = JSON.parse(__firebase_config);
+// Menggunakan blok try-catch agar tidak blank jika config belum siap
+let firebaseConfig = {};
+try {
+  firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+} catch (e) {
+  console.error("Firebase config error:", e);
+}
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -155,8 +162,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!user || !isAuthenticated) return;
+    // Jika tidak diautentikasi (kode sekolah belum masuk), tidak usah loading data
+    if (!isAuthenticated) {
+        setLoading(false);
+        return;
+    }
 
+    if (!user) return;
+
+    setLoading(true);
     // RULE 1: Menggunakan path yang ketat untuk Firestore
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     
@@ -420,6 +434,19 @@ export default function App() {
 
   const getAvatar = (key) => avatars[key] || avatars['super_boy'];
 
+  // UI LOADING
+  if (loading && isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
+        <div className="flex flex-col items-center animate-pulse">
+          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+          <div className="text-xl md:text-2xl font-bold text-orange-500 text-center px-4">Membuka Buku Biodata...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // UI LOGIN
   if (!isAuthenticated) {
     return (
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
@@ -456,17 +483,7 @@ export default function App() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
-        <div className="flex flex-col items-center animate-pulse">
-          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl md:text-2xl font-bold text-orange-500">Membuka Buku Biodata...</div>
-        </div>
-      </div>
-    );
-  }
-
+  // UI UTAMA
   return (
     <div className="min-h-screen bg-yellow-50 font-sans pb-10 relative">
       <InstallPrompt />
@@ -685,8 +702,8 @@ export default function App() {
                         </div>
 
                         <div className="pt-10 md:pt-14 pb-4 px-4 md:px-6 text-center flex-1">
-                          <h3 className="text-xl md:text-2xl font-bold text-gray-800">{friend.name}</h3>
-                          <p className="text-blue-500 font-bold text-xs md:text-sm mb-4 uppercase">"{friend.nickname || friend.name}"</p>
+                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h3>
+                          <p className="text-blue-500 font-bold text-xs md:text-sm mb-4 uppercase tracking-wider">"{friend.nickname || friend.name}"</p>
                           <div className={`space-y-2 text-left bg-gray-50 p-3 rounded-xl text-xs md:text-sm mb-4 ${isMobileGrid ? 'hidden md:block' : ''}`}>
                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <span className="font-bold">Cita:</span> {friend.dream || '-'}</p>
                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <span className="font-bold">Hobi:</span> {friend.hobby || '-'}</p>
