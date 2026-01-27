@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
-// UPDATE VERSI: v8 (Versi dengan Dynamic Caching agar file JS tersimpan)
-const CACHE_NAME = 'kelas3-biodata-v8-dynamic';
+// UPDATE VERSI: v9 (Network First - Solusi Paling Stabil untuk Error Chunk/File Hilang)
+const CACHE_NAME = 'kelas3-biodata-v9-stable';
 
 const urlsToCache = [
   '/',
@@ -9,7 +9,7 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// 1. INSTALL: Cache file inti (index.html & manifest)
+// 1. INSTALL: Cache file inti
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -21,13 +21,14 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 2. FETCH: Strategi Network First untuk HTML, Dynamic Cache untuk Aset
+// 2. FETCH: STRATEGI NETWORK FIRST (INTERNET DULU) UNTUK SEMUA REQUEST
+// Ini akan memperbaiki error karena aplikasi selalu mengambil file asli dari server.
 self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
 
   // A. Abaikan request ke API eksternal (Firestore, Google, dll)
   if (
-      requestUrl.protocol.startsWith('http') === false || // Abaikan chrome-extension:// dll
+      requestUrl.protocol.startsWith('http') === false ||
       requestUrl.href.includes('firestore') || 
       requestUrl.href.includes('googleapis') ||
       requestUrl.href.includes('githubusercontent')
@@ -35,50 +36,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // B. KHUSUS NAVIGASI HALAMAN (HTML): Network First
-  // Coba ambil HTML terbaru dari internet. Kalau gagal, baru pakai cache lama.
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return caches.match('/index.html');
-        })
-    );
-    return;
-  }
-
-  // C. UNTUK ASET (JS, CSS, Gambar): Stale-While-Revalidate / Dynamic Cache
-  // Cek cache dulu. Kalau gak ada, ambil internet LALU SIMPAN ke cache (PENTING!)
+  // B. NETWORK FIRST: Coba ambil dari internet dulu untuk SEMUA request
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          // Jika ada di cache, kembalikan langsung (cepat)
-          return cachedResponse;
-        }
-
-        // Jika tidak ada di cache, ambil dari internet
-        return fetch(event.request).then((networkResponse) => {
-          // Pastikan respon valid sebelum disimpan
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
-
-          // Kloning respon karena stream hanya bisa dibaca sekali
+    fetch(event.request)
+      .then((networkResponse) => {
+        // 1. Jika berhasil konek internet dan file ada:
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          // Kloning respon untuk disimpan di cache (buat cadangan offline)
           const responseToCache = networkResponse.clone();
-
-          // Simpan file JS/CSS yang baru didownload ke dalam cache
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
-
-          return networkResponse;
+        }
+        // Kembalikan file asli dari internet
+        return networkResponse;
+      })
+      .catch(() => {
+        // 2. Jika internet MATI atau GAGAL: Ambil dari cache
+        console.log('SW: Internet mati, ambil dari cache:', event.request.url);
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Jika tidak ada di cache juga (dan itu halaman HTML), tampilkan fallback (opsional)
+          if (event.request.mode === 'navigate') {
+             return caches.match('/index.html');
+          }
         });
       })
   );
 });
 
-// 3. ACTIVATE: Hapus Cache Versi Lama
+// 3. ACTIVATE: Bersihkan semua cache lama agar tidak ada file basi yang tertinggal
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -86,7 +75,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-             console.log('SW: Membersihkan cache usang:', cacheName);
+             console.log('SW: Hapus cache lama:', cacheName);
             return caches.delete(cacheName);
           }
         })
