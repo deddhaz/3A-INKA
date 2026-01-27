@@ -26,6 +26,10 @@ import {
 // --- IMPORT KOMPONEN PWA DI SINI ---
 import InstallPrompt from './components/InstallPrompt'; 
 
+// Di bagian atas App.js
+import TestimonyModal from './components/TestimonyModal';
+import { MessageCircle } from 'lucide-react'; // Tambah icon ini
+
 // --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyBC-15YvoHfx8CxsP9ddmMSWfw0aGeJRak",
@@ -641,6 +645,16 @@ export default function App() {
                     const avatarData = getAvatar(friend.avatar);
                     const hasPhoto = friend.usePhoto && friend.photoUrl;
                     const isLoved = localStorage.getItem(`loved_${friend.id}`);
+
+
+                {/* Masukkan ini di dalam baris tombol aksi kartu (dekat tombol Love/Edit) */}
+<button 
+  onClick={() => setSelectedFriendForTestimony(friend)}
+  className="bg-white/70 hover:bg-purple-50 text-purple-500 p-1.5 rounded-full transition shadow-sm flex items-center gap-1"
+  title="Beri Testimoni"
+>
+  <MessageCircle size={16} className="md:w-5 md:h-5" />
+</button>
                     
                     const isOwner = user && user.uid === friend.creatorId;
                     const canEdit = userRole === 'admin' || isOwner;
@@ -740,6 +754,14 @@ export default function App() {
         )}
       </main>
       <footer className="text-center mt-8 md:mt-12 text-gray-400 text-xs md:text-sm pb-4"><p>© 2026 Kelas 3A SDI Insan Karima - Dibuat oleh Bilal dan Abinya</p></footer>
+   {/* Letakkan ini sebelum penutup div utama di App.js */}
+<TestimonyModal 
+  isOpen={!!selectedFriendForTestimony}
+  onClose={() => setSelectedFriendForTestimony(null)}
+  friend={selectedFriendForTestimony}
+  db={db}
+  currentUser={user}
+/>   
     </div>
   );
 }
