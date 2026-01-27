@@ -482,7 +482,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-300" />
                 <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-300" />
-                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400" />
+                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-300" />
               </div>
               
               <div className="space-y-2">
@@ -497,8 +497,7 @@ export default function App() {
 
         {activeTab === 'gallery' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-widest"><List className="text-blue-500" /> Galeri Teman 3A</h3>
+            <div className="flex justify-end items-center mb-6">
               <button 
                 onClick={() => setIsMobileGrid(!isMobileGrid)} 
                 className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100"
@@ -517,27 +516,21 @@ export default function App() {
                 const owner = user && user.uid === friend.creatorId;
 
                 return (
-                  <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-[40px]'}`}>
-                    {/* Header kartu dengan ukuran kondisional untuk mode grid */}
+                  <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
                     <div className={`${isMobileGrid ? 'h-20' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
-                      {/* Container foto profil dengan ukuran diperkecil 50% di mode grid */}
                       <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-12 h-12 -mb-6' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
                          {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-xl' : 'text-3xl'} md:text-5xl`}>{av.emoji}</div>}
                       </div>
-                      <div className="absolute top-2 left-2 flex gap-1.5">
-                        <button onClick={() => handleStar(friend)} className={`p-1.5 rounded-full shadow-md transition flex items-center gap-1 ${isS ? 'bg-yellow-400 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-yellow-500'}`}><Star size={12} className={isS ? 'fill-current' : ''} /><span className="text-[9px] font-bold">{friend.stars || 0}</span></button>
-                        <button onClick={() => handleThankYou(friend)} className={`p-1.5 rounded-full shadow-md transition flex items-center gap-1 ${isT ? 'bg-green-500 text-white scale-110' : 'bg-white/90 text-gray-400 hover:text-green-500'}`}><HeartHandshake size={12} /><span className="text-[9px] font-bold">{friend.thanks || 0}</span></button>
-                      </div>
+                      
+                      {/* Edit/Delete Buttons tetap di pojok atas */}
                       <div className="absolute top-2 right-2 flex flex-col gap-1.5">
                          {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow hover:bg-blue-500 hover:text-white transition"><Pencil size={14} /></button>}
                          {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={14} /></button>}
                       </div>
                     </div>
                     
-                    {/* Bagian Body Kartu dengan padding kondisional */}
-                    <div className={`${isMobileGrid ? 'pt-8 pb-5' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center justify-center transition-all`}>
+                    <div className={`${isMobileGrid ? 'pt-8 pb-5' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center transition-all`}>
                        {isMobileGrid ? (
-                         /* TAMPILAN GRID: Ringkas & Cantik */
                          <div className="flex flex-col items-center w-full space-y-2">
                            <h4 className="text-sm md:text-xl font-bold text-gray-800 truncate w-full px-2">
                              {friend.nickname || friend.name}
@@ -549,7 +542,6 @@ export default function App() {
                            </div>
                          </div>
                        ) : (
-                         /* TAMPILAN LIST: Full Detail */
                          <>
                            <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
                            <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>
@@ -563,10 +555,26 @@ export default function App() {
                              <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 z-10 whitespace-nowrap">Pesan Untuk Teman</div>
                              <div className="border-2 border-dashed border-yellow-200 rounded-2xl p-4 bg-yellow-50 text-gray-600 italic text-xs md:text-sm pt-4 leading-relaxed">"{friend.message}"</div>
                            </div>
-                           
-                           <button onClick={() => handleThankYou(friend)} className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl font-bold text-xs transition-all border ${isT ? 'bg-green-500 text-white' : 'bg-green-50 text-green-700 border-green-200'}`}><MessageSquareQuote size={14} /> {isT ? 'Sudah Bilang Terima Kasih!' : 'Bilang Terima Kasih!'}</button>
                          </>
                        )}
+
+                       {/* Interaksi Row (Bintang & Love) di bagian bawah tengah kartu untuk semua mode */}
+                       <div className="flex justify-center gap-4 mt-4 w-full">
+                         <button 
+                            onClick={() => handleStar(friend)} 
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md transition-all ${isS ? 'bg-yellow-400 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-yellow-500'}`}
+                         >
+                           <Star size={16} className={isS ? 'fill-current' : ''} />
+                           <span className="text-xs font-bold">{friend.stars || 0}</span>
+                         </button>
+                         <button 
+                            onClick={() => handleThankYou(friend)} 
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md transition-all ${isT ? 'bg-green-500 text-white scale-105' : 'bg-white text-gray-400 border border-gray-100 hover:text-green-500'}`}
+                         >
+                           <HeartHandshake size={16} />
+                           <span className="text-xs font-bold">{friend.thanks || 0}</span>
+                         </button>
+                       </div>
                     </div>
                   </div>
                 );
