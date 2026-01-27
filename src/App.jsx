@@ -13,8 +13,8 @@ import {
   onSnapshot, 
   deleteDoc, 
   doc, 
-  serverTimestamp,
-  updateDoc,
+  serverTimestamp, 
+  updateDoc, 
   increment
 } from 'firebase/firestore';
 import { 
@@ -23,8 +23,10 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, LayoutGrid, List, Pencil, RotateCcw, LogOut
 } from 'lucide-react';
 
-// --- KONFIGURASI FIREBASE (GANTI BAGIAN INI) ---
-// Ambil data ini dari Firebase Console -> Project Settings
+// --- IMPORT KOMPONEN PWA DI SINI ---
+import InstallPrompt from './components/InstallPrompt'; 
+
+// --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyBC-15YvoHfx8CxsP9ddmMSWfw0aGeJRak",
   authDomain: "a-inka.firebaseapp.com",
@@ -37,7 +39,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// Gunakan nama unik untuk ID aplikasi
 const appId = "kelas3_biodata_app";
 const COLLECTION_NAME = 'kelas3_biodata';
 
@@ -47,53 +48,36 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('gallery');
   
-  // --- DATA WALI KELAS & ASISTEN (GANTI FOTO DISINI) ---
+  // --- DATA WALI KELAS & ASISTEN ---
   const TEACHER_DATA = {
     waliKelas: {
       name: "Ustazah Najwa",
-      // Ganti URL ini dengan URL foto asli
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
       role: "Wali Kelas"
     },
     asisten: {
       name: "Ustazah Dea",
-      // Ganti URL ini dengan URL foto asli
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
       role: "Asisten Wali Kelas"
     }
   };
 
-  // --- Auth & Role State ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState('user'); // 'user' atau 'admin'
+  const [userRole, setUserRole] = useState('user'); 
   const [accessCode, setAccessCode] = useState('');
   const [loginError, setLoginError] = useState(false);
-  
-  // --- Modal State (Pop-up) ---
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  // --- Display State (Mobile) ---
   const [isMobileGrid, setIsMobileGrid] = useState(false);
-
-  // --- Form & Edit State ---
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
   
   const [formData, setFormData] = useState({
-    name: '',
-    nickname: '',
-    dream: '',
-    hobby: '',
-    food: '',
-    message: '',
-    avatar: 'super_boy', // Default avatar
-    photoUrl: null,
-    usePhoto: false
+    name: '', nickname: '', dream: '', hobby: '', food: '', message: '',
+    avatar: 'super_boy', photoUrl: null, usePhoto: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- Auth & Data Fetching ---
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -108,7 +92,6 @@ export default function App() {
       setUser(currentUser);
     });
     
-    // Cek sesi login agar tidak perlu login ulang saat refresh (opsional)
     const sessionAuth = sessionStorage.getItem('school_auth');
     const sessionRole = sessionStorage.getItem('user_role');
     if (sessionAuth === 'true') {
@@ -122,7 +105,6 @@ export default function App() {
   useEffect(() => {
     if (!user || !isAuthenticated) return;
 
-    // Mengambil data dari Firestore
     const dataRef = collection(db, COLLECTION_NAME);
     
     const unsubscribeData = onSnapshot(dataRef, 
@@ -132,7 +114,6 @@ export default function App() {
           ...doc.data()
         }));
         
-        // Urutkan dari yang terbaru (berdasarkan updatedAt jika ada, atau createdAt)
         fetchedFriends.sort((a, b) => {
           const timeA = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
           const timeB = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
@@ -151,25 +132,22 @@ export default function App() {
     return () => unsubscribeData();
   }, [user, isAuthenticated]);
 
-  // --- Handlers ---
-
   const handleLogin = (e) => {
     e.preventDefault();
     const input = accessCode.toLowerCase().trim();
     
-   // DAFTAR KODE AKSES
     const userCodes = ["insan karima", "inka", "sd insan karima"];
-    const adminCodes = ["ustazah", "ustadzah", "ustadz", "ustad"]; // Kode Guru
+    const adminCodes = ["ustazah", "ustadzah", "ustadz", "ustad"]; 
 
     if (adminCodes.includes(input)) {
       setIsAuthenticated(true);
-      setUserRole('admin'); // Set jadi Admin
+      setUserRole('admin'); 
       setLoginError(false);
       sessionStorage.setItem('school_auth', 'true');
       sessionStorage.setItem('user_role', 'admin');
     } else if (userCodes.includes(input)) {
       setIsAuthenticated(true);
-      setUserRole('user'); // Set jadi User biasa
+      setUserRole('user'); 
       setLoginError(false);
       sessionStorage.setItem('school_auth', 'true');
       sessionStorage.setItem('user_role', 'user');
@@ -245,7 +223,6 @@ export default function App() {
     setFormData(prev => ({ ...prev, photoUrl: null, usePhoto: false, avatar: 'super_boy' }));
   };
 
-  // --- LOGIKA EDIT & BATAL EDIT ---
   const handleEdit = (friend) => {
     setFormData({
       name: friend.name,
@@ -272,7 +249,6 @@ export default function App() {
     setCurrentEditId(null);
   };
 
-  // --- LOGIKA LOVE / LIKE ---
   const handleLove = async (id) => {
     const storageKey = `loved_${id}`;
     if (localStorage.getItem(storageKey)) {
@@ -291,8 +267,6 @@ export default function App() {
     }
   };
 
-  // --- LOGIKA SIMPAN DENGAN POP-UP ---
-  
   const handlePreSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.message) {
@@ -306,7 +280,6 @@ export default function App() {
     setShowConfirmModal(false);
     setIsSubmitting(true);
     
-    // Data dasar yang akan disimpan/diupdate
     const baseData = {
       name: formData.name,
       nickname: formData.nickname,
@@ -321,7 +294,6 @@ export default function App() {
 
     try {
       if (isEditing && currentEditId) {
-        // --- MODE UPDATE ---
         const docRef = doc(db, COLLECTION_NAME, currentEditId);
         await updateDoc(docRef, {
           ...baseData,
@@ -329,7 +301,6 @@ export default function App() {
         });
         alert("Biodata berhasil diperbarui!");
       } else {
-        // --- MODE TAMBAH BARU ---
         const dataRef = collection(db, COLLECTION_NAME);
         await addDoc(dataRef, {
           ...baseData,
@@ -340,8 +311,7 @@ export default function App() {
         alert("Hore! Biodata berhasil disimpan.");
       }
       
-      // Reset Form
-      handleCancelEdit(); // Fungsi ini juga mereset form & state edit
+      handleCancelEdit();
       setActiveTab('gallery');
     } catch (error) {
       console.error("Error saving document: ", error);
@@ -362,7 +332,6 @@ export default function App() {
     }
   };
 
-  // --- Helpers: SUPERHERO AVATARS (Pakai Emoji) ---
   const avatars = {
     super_boy: { emoji: '🦸‍♂️', color: 'bg-blue-100', label: 'Super Boy' },
     super_girl: { emoji: '🦸‍♀️', color: 'bg-pink-100', label: 'Super Girl' },
@@ -376,21 +345,20 @@ export default function App() {
 
   const getAvatar = (key) => { return avatars[key] || avatars['super_boy']; };
 
-  // --- TAMPILAN LOGIN (GERBANG SEKOLAH) ---
   if (!isAuthenticated) {
     return (
-      // FIX LAYOUT: Gunakan h-screen dan overflow-hidden agar tidak perlu scroll di mobile
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-        {/* Dekorasi Background */}
+        
+        {/* === TOMBOL INSTALL JUGA ADA DI HALAMAN LOGIN === */}
+        <InstallPrompt />
+
         <div className="absolute top-10 left-10 text-white/40"><Smile size={80} /></div>
         <div className="absolute top-20 right-20 text-white/30"><Star size={60} /></div>
         <div className="absolute bottom-10 left-1/4 text-white/40"><Heart size={100} /></div>
 
-        {/* Card Login */}
         <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
           <div className="flex flex-col items-center">
             
-            {/* Visual Sekolah - Dikecilkan sedikit untuk mobile */}
             <div className="relative mb-6 mt-2 transform scale-90 md:scale-100">
               <div className="flex gap-2 h-24 md:h-32 items-end mb-2">
                  <div className="w-3 h-24 md:h-32 bg-gray-300 rounded-t-full"></div>
@@ -433,13 +401,11 @@ export default function App() {
           </div>
         </div>
         
-        {/* Bukit Hijau di Bawah */}
         <div className="absolute -bottom-10 w-full h-20 bg-green-400 rounded-t-[50%] scale-150"></div>
       </div>
     );
   }
 
-  // --- TAMPILAN UTAMA APLIKASI ---
   if (loading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center font-comic">
@@ -451,7 +417,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-yellow-50 font-sans pb-10 relative">
       
-      {/* --- POP-UP KONFIRMASI (MODAL) --- */}
+      {/* === KOMPONEN PWA DITAMBAHKAN DI SINI === */}
+      <InstallPrompt />
+
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200 transform scale-100 transition-transform">
@@ -478,10 +446,8 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER: Ganti max-w-4xl menjadi max-w-7xl agar lebih lebar di Desktop */}
       <header className="bg-orange-400 text-white p-4 md:p-6 shadow-lg rounded-b-[30px] md:rounded-b-[40px] mb-6 md:mb-8 relative overflow-hidden">
         
-        {/* TOMBOL KELUAR (LOGOUT) */}
         <button 
           onClick={handleLogout}
           className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition z-50 backdrop-blur-sm"
@@ -495,7 +461,6 @@ export default function App() {
           <Heart className="absolute bottom-2 right-10" size={30} />
           <Smile className="absolute top-10 right-20" size={25} />
         </div>
-        {/* HEADER CONTAINER: max-w-7xl */}
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-2">
           <h1 className="text-2xl md:text-5xl font-extrabold mb-1 md:mb-2 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
           <p className="text-orange-100 text-sm md:text-lg mb-2">Kelas 3A Insan Karima</p>
@@ -505,9 +470,7 @@ export default function App() {
             </span>
           )}
 
-          {/* --- TAMPILAN GURU & ASISTEN (NEW ROW) --- */}
           <div className="flex justify-center gap-6 md:gap-12 mt-6">
-             {/* Wali Kelas */}
              <div className="flex flex-col items-center group">
                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
                  <img src={TEACHER_DATA.waliKelas.photoUrl} alt={TEACHER_DATA.waliKelas.name} className="w-full h-full object-cover" />
@@ -516,7 +479,6 @@ export default function App() {
                <span className="text-[10px] md:text-xs text-orange-100 bg-white/10 px-2 rounded-full">{TEACHER_DATA.waliKelas.role}</span>
              </div>
              
-             {/* Asisten */}
              <div className="flex flex-col items-center group">
                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg bg-white overflow-hidden transform group-hover:scale-105 transition">
                  <img src={TEACHER_DATA.asisten.photoUrl} alt={TEACHER_DATA.asisten.name} className="w-full h-full object-cover" />
@@ -529,7 +491,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* MAIN CONTAINER: Ganti max-w-4xl menjadi max-w-7xl */}
       <main className="max-w-7xl mx-auto px-3 md:px-4">
         <div className="flex justify-center mb-6 md:mb-8 gap-2 md:gap-4">
           <button onClick={() => { setActiveTab('gallery'); handleCancelEdit(); }}
@@ -549,7 +510,6 @@ export default function App() {
         {activeTab === 'form' && (
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-8 max-w-2xl mx-auto border-2 md:border-4 border-pink-200 relative">
             
-            {/* Indikator Mode Edit */}
             {isEditing && (
                <div className="absolute top-4 right-4 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-200">
                  <Pencil size={12} /> Mode Edit
@@ -666,7 +626,6 @@ export default function App() {
               </div>
             ) : (
               <div>
-                {/* Mobile View Toggle */}
                 <div className="flex justify-end mb-4 md:hidden">
                   <button
                     onClick={() => setIsMobileGrid(!isMobileGrid)}
@@ -683,7 +642,6 @@ export default function App() {
                     const hasPhoto = friend.usePhoto && friend.photoUrl;
                     const isLoved = localStorage.getItem(`loved_${friend.id}`);
                     
-                    // Logic Permission Edit
                     const isOwner = user && user.uid === friend.creatorId;
                     const canEdit = userRole === 'admin' || isOwner;
                     
@@ -694,7 +652,6 @@ export default function App() {
                              {hasPhoto ? ( <img src={friend.photoUrl} alt={friend.name} className="w-full h-full object-cover rounded-full" /> ) : ( <div className={`w-full h-full rounded-full flex items-center justify-center ${avatarData.color} text-3xl md:text-4xl shadow-inner`}>{avatarData.emoji}</div> )}
                           </div>
                           
-                          {/* TOMBOL LOVE */}
                           <button 
                             onClick={() => handleLove(friend.id)}
                             className={`absolute top-2 left-2 md:top-3 md:left-3 p-1.5 rounded-full shadow-sm transition flex items-center gap-1 ${isLoved ? 'bg-pink-100 text-pink-600' : 'bg-white/70 text-gray-500 hover:bg-pink-50 hover:text-pink-500'}`}
@@ -704,9 +661,7 @@ export default function App() {
                             <span className="text-xs font-bold">{friend.loves || 0}</span>
                           </button>
                           
-                          {/* TOMBOL EDIT & HAPUS (POJOK KANAN ATAS) */}
                           <div className="absolute top-2 right-2 md:top-3 md:right-3 flex gap-1">
-                            {/* Edit: Untuk Admin ATAU Pemilik Data */}
                             {canEdit && (
                               <button 
                                 onClick={() => handleEdit(friend)} 
@@ -717,7 +672,6 @@ export default function App() {
                               </button>
                             )}
                             
-                            {/* Hapus: HANYA Admin (Guru) */}
                             {userRole === 'admin' && (
                               <button 
                                 onClick={() => handleDelete(friend.id)} 
@@ -733,13 +687,10 @@ export default function App() {
                         <div className="pt-8 pb-4 px-4 md:pt-10 md:pb-6 md:px-6 text-center">
                           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-0.5">{friend.name}</h3>
                           
-                          {/* Nama Panggilan - Hilangkan di Mobile Grid */}
                           <p className={`text-blue-500 font-medium text-xs md:text-sm uppercase tracking-wide mb-3 md:mb-4 ${isMobileGrid ? 'hidden md:block' : ''}`}>
                             "{friend.nickname || friend.name}"
                           </p>
                           
-                          {/* LIST VIEW BIASA (Desktop / Mobile List) */}
-                          {/* FIX WRAPPING: Hapus 'items-center', ubah jadi 'items-start'. Hapus 'truncate', ganti 'break-words' */}
                           <div className={`space-y-2 md:space-y-3 text-left bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm ${isMobileGrid ? 'hidden md:block' : ''}`}>
                             <div className="flex items-start gap-2">
                               <Rocket className="text-blue-400 mt-0.5" size={14} />
@@ -758,7 +709,6 @@ export default function App() {
                             </div>
                           </div>
 
-                          {/* GRID VIEW MOBILE (Ikon + Teks di Bawah) */}
                           <div className={`${isMobileGrid ? 'grid md:hidden' : 'hidden'} grid-cols-3 gap-2 mt-2 bg-gray-50 p-2 rounded-xl`}>
                              <div className="flex flex-col items-center justify-center">
                                <Rocket className="text-blue-400 mb-1" size={16} />
@@ -774,7 +724,6 @@ export default function App() {
                              </div>
                           </div>
 
-                          {/* Pesan - Hilangkan di Mobile Grid */}
                           <div className={`mt-3 md:mt-4 relative ${isMobileGrid ? 'hidden md:block' : ''}`}>
                             <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">Pesan</div>
                             <div className="border-2 border-dashed border-yellow-200 rounded-lg md:rounded-xl p-2 md:p-3 bg-yellow-50 text-gray-700 italic text-xs md:text-sm pt-3 md:pt-4">"{friend.message}"</div>
