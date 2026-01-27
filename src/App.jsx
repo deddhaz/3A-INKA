@@ -495,19 +495,7 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'gallery' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-widest"><List className="text-blue-500" /> Galeri Teman 3A</h3>
-              {/* Tombol switch Grid/List untuk tampilan mobile */}
-              <button 
-                onClick={() => setIsMobileGrid(!isMobileGrid)} 
-                className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100"
-              >
-                {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
-                {isMobileGrid ? 'List' : 'Grid'}
-              </button>
-            </div>
+        
             
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4'} md:grid-cols-2 lg:grid-cols-3 md:gap-6`}>
               {friends.map(friend => {
