@@ -35,16 +35,13 @@ const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__f
   appId: "1:554090824336:web:18902f6b1264965f808e15"
 };
 
-// Inisialisasi Firebase dengan pengecekan agar tidak double
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// RULE 1: Menggunakan path yang ketat
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelas3_biodata_app';
 const COLLECTION_NAME = 'kelas3_biodata';
 
-// --- KOMPONEN INTERNAL PWA ---
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -120,7 +117,6 @@ export default function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // RULE 3: Auth Before Queries
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -150,17 +146,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Guard agar tidak query sebelum login kode sekolah dan user firebase siap
     if (!user || !isAuthenticated) {
       if (!isAuthenticated) setLoading(false);
       return;
     }
 
     setLoading(true);
-    // RULE 1: Path Firestore Ketat
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     
-    // RULE 2: No Complex Queries (Sort di Memori)
     const unsubscribeData = onSnapshot(dataRef, 
       (snapshot) => {
         const fetchedFriends = snapshot.docs.map(doc => ({
@@ -260,7 +253,6 @@ export default function App() {
       } else {
         await updateDoc(docRef, { stars: increment(1) });
         localStorage.setItem(storageKey, 'true');
-        // --- ANIMASI BINTANG POP-UP ---
         setStarMessage({ show: true, name: friend.nickname || friend.name });
         setTimeout(() => setStarMessage({ show: false, name: '' }), 2500);
       }
@@ -282,7 +274,6 @@ export default function App() {
       } else {
         await updateDoc(docRef, { thanks: increment(1) });
         localStorage.setItem(storageKey, 'true');
-        // --- ANIMASI TERIMA KASIH POP-UP ---
         setThanksMessage({ show: true, name: friend.nickname || friend.name });
         setTimeout(() => setThanksMessage({ show: false, name: '' }), 2500);
       }
@@ -349,7 +340,7 @@ export default function App() {
     return (
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
         <InstallPrompt />
-        <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
+        <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-sm:w-full max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
           <div className="flex flex-col items-center">
             <div className="relative mb-6 mt-2 transform scale-90 md:scale-100">
               <div className="flex gap-2 h-24 md:h-32 items-end mb-2">
@@ -386,7 +377,6 @@ export default function App() {
     <div className="min-h-screen bg-yellow-50 font-sans pb-10 relative">
       <InstallPrompt />
 
-      {/* Pop-up Terima Kasih Elegan */}
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 relative overflow-hidden animate-scale-up">
@@ -401,7 +391,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Pop-up Bintang Elegan */}
       {starMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-yellow-300 relative overflow-hidden animate-scale-up">
@@ -467,7 +456,8 @@ export default function App() {
                     {Object.entries(avatars).map(([key, data]) => (
                       <button key={key} type="button" onClick={() => setFormData(p => ({ ...p, avatar: key }))} className={`p-2 rounded-xl border-4 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 scale-105' : 'border-transparent bg-white shadow-sm'}`}>
                         <div className={`${data.color} w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full mx-auto text-xl mb-1`}>{data.emoji}</div>
-                        <span className="text-[10px] text-gray-400 font-bold">{data.label}</span>
+                        {/* Nama avatar disembunyikan di mobile agar lebih elegan */}
+                        <span className="hidden md:block text-[10px] text-gray-400 font-bold">{data.label}</span>
                       </button>
                     ))}
                   </div>
@@ -476,7 +466,11 @@ export default function App() {
                     {formData.photoUrl ? (
                       <div className="relative"><img src={formData.photoUrl} className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-pink-400 shadow-lg" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full"><X size={14} /></button></div>
                     ) : (
-                      <div className="border-2 border-dashed border-pink-200 rounded-2xl p-8 bg-pink-50 cursor-pointer relative"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={24} className="text-pink-300 mx-auto" /><p className="text-pink-300 font-bold text-xs mt-1">Upload Foto</p></div>
+                      <div className="border-2 border-dashed border-pink-200 rounded-2xl p-8 bg-pink-50 cursor-pointer relative"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        {/* Ikon upload tanpa opacity transparan */}
+                        <Upload size={32} className="text-pink-500 mx-auto" />
+                        <p className="text-pink-500 font-bold text-xs mt-1">Upload Foto</p>
+                      </div>
                     )}
                   </div>
                 )}
@@ -486,12 +480,11 @@ export default function App() {
                 <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama Panggilan" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 outline-none focus:border-pink-400" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-400" />
-                <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-400" />
-                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400" />
+                <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-300" />
+                <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-300" />
+                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-300" />
               </div>
               
-              {/* Label "Pesan Untuk Teman" ditambahkan kembali di sini */}
               <div className="space-y-2">
                 <label className="block text-gray-700 font-bold">Pesan Untuk Teman:</label>
                 <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Pesan untuk teman-teman..." rows="3" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 outline-none focus:border-purple-400" />
@@ -504,7 +497,18 @@ export default function App() {
 
         {activeTab === 'gallery' && (
           <div className="space-y-6">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-widest"><List className="text-blue-500" /> Galeri Teman 3A</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-2 uppercase tracking-widest"><List className="text-blue-500" /> Galeri Teman 3A</h3>
+              {/* Tombol switch Grid/List untuk tampilan mobile */}
+              <button 
+                onClick={() => setIsMobileGrid(!isMobileGrid)} 
+                className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100"
+              >
+                {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
+                {isMobileGrid ? 'List' : 'Grid'}
+              </button>
+            </div>
+            
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4'} md:grid-cols-2 lg:grid-cols-3 md:gap-6`}>
               {friends.map(friend => {
                 const av = avatars[friend.avatar] || avatars.super_boy;
@@ -537,7 +541,6 @@ export default function App() {
                           <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makan:</b> {friend.food || '-'}</p>
                        </div>
                        
-                       {/* Floating Label "Pesan Untuk Teman" di Galeri Teman */}
                        <div className="mt-auto relative">
                          <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 z-10">Pesan Untuk Teman</div>
                          <div className="border-2 border-dashed border-yellow-200 rounded-2xl p-4 bg-yellow-50 text-gray-600 italic text-xs md:text-sm pt-4 leading-relaxed">"{friend.message}"</div>
@@ -555,7 +558,6 @@ export default function App() {
 
       <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
 
-      {/* Styles for Animations */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scale-up { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
