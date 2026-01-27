@@ -329,7 +329,8 @@ export default function App() {
       localStorage.setItem(storageKey, 'true');
       
       setThanksMessage({ show: true, name: friend.nickname || friend.name });
-      setTimeout(() => setThanksMessage({ show: false, name: '' }), 3000);
+      // Durasi sedikit lebih lama agar animasi salaman terlihat jelas
+      setTimeout(() => setThanksMessage({ show: false, name: '' }), 2500);
     } catch (error) {
       console.error("Error saying thanks:", error);
     }
@@ -488,11 +489,38 @@ export default function App() {
     <div className="min-h-screen bg-yellow-50 font-sans pb-10 relative">
       <InstallPrompt />
 
-      {/* Thank You Toast */}
+      {/* Elegant Centered Thank You Modal */}
       {thanksMessage.show && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] bg-green-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-bounce border-2 border-white">
-          <HeartHandshake size={24} />
-          <span className="font-bold">Kamu sudah bilang terima kasih ke {thanksMessage.name}!</span>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
+          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 relative overflow-hidden animate-scale-up">
+            {/* Background sparkle effect */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+              <Star size={40} className="absolute top-4 left-4" />
+              <Star size={30} className="absolute bottom-4 right-4" />
+              <Heart size={20} className="absolute top-10 right-10" />
+            </div>
+
+            <div className="relative mx-auto bg-green-50 w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-inner">
+               <div className="animate-shake-hand">
+                  <HeartHandshake size={64} className="text-green-500 md:w-20 md:h-20" />
+               </div>
+               {/* Pulsing hearts around */}
+               <Heart className="absolute -top-2 right-4 text-pink-400 fill-current animate-ping opacity-75" size={24} />
+               <Heart className="absolute bottom-2 -left-2 text-red-400 fill-current animate-pulse" size={20} />
+            </div>
+
+            <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Terima Kasih!</h3>
+            <p className="text-gray-500 md:text-lg leading-relaxed">
+              Kamu sudah bilang terima kasih ke <br/>
+              <span className="text-green-600 font-bold text-xl md:text-2xl">"{thanksMessage.name}"</span>
+            </p>
+
+            <div className="mt-6 flex justify-center">
+               <div className="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                  <CheckCircle size={14} /> Kebaikan Terkirim
+               </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -836,14 +864,29 @@ export default function App() {
         <p className="text-gray-400 text-xs md:text-sm">© 2026 Kelas 3A SDI Insan Karima - Dibuat oleh Bilal dan Abinya</p>
       </footer>
 
-      {/* Styles for PWA look */}
+      {/* Styles for Animations & PWA look */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in {
-          from { opacity: 0; transform: scale(0.95); }
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scale-up {
+          from { opacity: 0; transform: scale(0.8); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shake-hand {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-10deg); }
+          75% { transform: rotate(10deg); }
         }
         .animate-fade-in {
           animation: fade-in 0.3s ease-out forwards;
+        }
+        .animate-scale-up {
+          animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .animate-shake-hand {
+          animation: shake-hand 0.6s ease-in-out infinite;
         }
         body {
           -webkit-tap-highlight-color: transparent;
