@@ -565,7 +565,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
+      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Dibuat Oleh Hiro</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
