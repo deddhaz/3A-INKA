@@ -877,6 +877,14 @@ export default function App() {
                            </p>
                          )}
 
+                         {/* Pesan Semangat (BARU DIKEMBALIKAN) */}
+                         <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
+                            <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
+                            <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>
+                               "{friend.message || 'Semangat terus ya teman-teman!'}"
+                            </p>
+                         </div>
+
                          {isMobileGrid ? (
                             <div className="flex justify-center gap-4 mt-1">
                                <Rocket size={16} className={friend.dream ? "text-blue-400" : "text-gray-100"} />
