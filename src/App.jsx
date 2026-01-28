@@ -655,8 +655,8 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center mb-8 gap-4">
-          <button onClick={() => { setActiveTab('gallery'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'gallery' ? 'bg-blue-500 text-white ring-4 ring-blue-100' : 'bg-white text-blue-500'}`}><BookOpen size={14} className="inline mr-2" /> Lihat Teman</button>
-          <button onClick={() => { setActiveTab('form'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'form' ? 'bg-pink-500 text-white ring-4 ring-pink-100' : 'bg-white text-pink-500'}`}><Plus size={14} className="inline mr-2" /> Isi Biodata</button>
+          <button onClick={() => { setActiveTab('gallery'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'gallery' ? 'bg-blue-500 text-white ring-4 ring-blue-100' : 'bg-white text-blue-500'}`}><BookOpen size={18} className="inline mr-2" /> Lihat Teman</button>
+          <button onClick={() => { setActiveTab('form'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'form' ? 'bg-pink-500 text-white ring-4 ring-pink-100' : 'bg-white text-pink-500'}`}><Plus size={18} className="inline mr-2" /> Isi Biodata</button>
         </div>
 
         {activeTab === 'form' && (
