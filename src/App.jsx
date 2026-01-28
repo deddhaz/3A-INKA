@@ -46,7 +46,7 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelas3_biodata_app';
 const COLLECTION_NAME = 'kelas3_biodata';
 const TESTIMONY_COLLECTION = 'testimonies';
 
-// --- KOMPONEN HELPER ---
+// --- KOMPONEN PEMBANTU ---
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -80,7 +80,7 @@ const InstallPrompt = () => {
           <p className="text-sm font-bold text-gray-800">Simpan ke HP?</p>
           <p className="text-xs text-gray-500">Buka aplikasi lebih cepat!</p>
         </div>
-        <button onClick={handleInstallClick} className="bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md">Install</button>
+        <button onClick={handleInstallClick} className="bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md">Pasang</button>
         <button onClick={() => setIsVisible(false)} className="text-gray-400"><X size={18} /></button>
       </div>
     </div>
@@ -142,17 +142,17 @@ export default function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- LOGIC: PTS CALCULATION ---
+  // --- LOGIK: PENGIRAAN PTS ---
   const calculatePTS = (friend) => {
     return (friend.stars || 0) * 5 + (friend.thanks || 0) * 3;
   };
 
-  // --- LOGIC: RANKING ---
+  // --- LOGIK: PERINGKAT ---
   const rankedFriends = useMemo(() => {
     return [...friends].sort((a, b) => calculatePTS(b) - calculatePTS(a));
   }, [friends]);
 
-  // --- LOGIC: RECENT ACTIVITY ---
+  // --- LOGIK: AKTIVITI TERKINI ---
   const recentActivities = useMemo(() => {
     return [...allTestimonies]
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
@@ -168,7 +168,7 @@ export default function App() {
           await signInAnonymously(auth);
         }
       } catch (error) {
-        console.error("Auth error:", error);
+        console.error("Ralat pengesahan:", error);
       }
     };
     initAuth();
@@ -214,7 +214,7 @@ export default function App() {
         setLoading(false);
       },
       (error) => {
-        console.error("Error fetching data:", error);
+        console.error("Ralat mengambil data:", error);
         setLoading(false);
       }
     );
@@ -227,7 +227,7 @@ export default function App() {
         }));
         setAllTestimonies(fetchedTestimonies);
       },
-      (error) => console.error("Error fetching testimonies:", error)
+      (error) => console.error("Ralat mengambil testimoni:", error)
     );
 
     return () => {
@@ -275,7 +275,7 @@ export default function App() {
   const processFile = (file, maxSize, callback) => {
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert("Wah, filenya terlalu besar! Cari yang lebih kecil ya.");
+      alert("Wah, fail terlalu besar! Sila pilih fail yang lebih kecil.");
       return;
     }
     const reader = new FileReader();
@@ -307,8 +307,10 @@ export default function App() {
     });
   };
 
+  // --- KEMAS KINI: Hanya Admin/Guru boleh beri bintang ---
   const handleStar = async (friend) => {
-    if (!user) return;
+    if (!user || userRole !== 'admin') return;
+    
     const storageKey = `starred_${friend.id}`;
     const isAlreadyStarred = localStorage.getItem(storageKey);
 
@@ -324,7 +326,7 @@ export default function App() {
         setTimeout(() => setStarMessage({ show: false, name: '' }), 2500);
       }
     } catch (error) {
-      console.error("Error toggling star:", error);
+      console.error("Ralat menukar status bintang:", error);
     }
   };
 
@@ -345,7 +347,7 @@ export default function App() {
         setTimeout(() => setThanksMessage({ show: false, name: '' }), 2500);
       }
     } catch (error) {
-      console.error("Error toggling thanks:", error);
+      console.error("Ralat menukar status terima kasih:", error);
     }
   };
 
@@ -365,7 +367,7 @@ export default function App() {
       });
       setTestimonyInput('');
     } catch (error) {
-      console.error("Error saving testimony:", error);
+      console.error("Ralat menyimpan testimoni:", error);
     } finally {
       setIsSavingTestimony(false);
     }
@@ -377,7 +379,7 @@ export default function App() {
       const testimonyDocRef = doc(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION, testimonyId);
       await deleteDoc(testimonyDocRef);
     } catch (error) {
-      console.error("Error deleting testimony:", error);
+      console.error("Ralat memadam testimoni:", error);
     }
   };
 
@@ -405,7 +407,7 @@ export default function App() {
       resetForm();
       setActiveTab('home');
     } catch (error) {
-      console.error("Error saving document: ", error);
+      console.error("Ralat menyimpan dokumen: ", error);
       alert("Gagal menyimpan.");
     } finally {
       setIsSubmitting(false);
@@ -425,10 +427,10 @@ export default function App() {
 
   const handleDelete = async (docId) => {
     if (!user || userRole !== 'admin') return;
-    if (confirm("Yakin ingin menghapus data ini?")) {
+    if (confirm("Adakah anda pasti mahu memadam data ini?")) {
       try {
         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docId));
-      } catch (error) { console.error("Error deleting:", error); }
+      } catch (error) { console.error("Ralat memadam:", error); }
     }
   };
 
@@ -463,9 +465,9 @@ export default function App() {
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Log masuk ke Kelas 3A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
-                <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
+                <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kod Kelas..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Buka Gerbang <ArrowRight size={20} /></button>
               </form>
             </div>
@@ -491,11 +493,11 @@ export default function App() {
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 px-4 z-[100] md:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
       <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-blue-50 scale-110' : ''}`}><Home size={22} /></div>
-        <span className="text-[10px] font-bold uppercase">Home</span>
+        <span className="text-[10px] font-bold uppercase">Utama</span>
       </button>
       <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' ? 'text-purple-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' ? 'bg-purple-50 scale-110' : ''}`}><Zap size={22} /></div>
-        <span className="text-[10px] font-bold uppercase">Activity</span>
+        <span className="text-[10px] font-bold uppercase">Aktiviti</span>
       </button>
       <button onClick={() => setActiveTab('ranking')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'ranking' ? 'text-orange-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
@@ -519,7 +521,7 @@ export default function App() {
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
             <div className="relative mx-auto bg-green-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-shake-hand"><HeartHandshake size={64} className="text-green-500" /></div></div>
             <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Terima Kasih!</h3>
-            <p className="text-gray-500">Kamu sudah bilang terima kasih ke <br/><span className="text-green-600 font-bold text-xl">"{thanksMessage.name}"</span></p>
+            <p className="text-gray-500">Anda telah mengucapkan terima kasih kepada <br/><span className="text-green-600 font-bold text-xl">"{thanksMessage.name}"</span></p>
           </div>
         </div>
       )}
@@ -528,8 +530,8 @@ export default function App() {
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-yellow-300 animate-scale-up">
             <div className="relative mx-auto bg-yellow-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-spin-slow"><Star size={64} className="text-yellow-500 fill-current" /></div></div>
-            <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Bintang Terkirim!</h3>
-            <p className="text-gray-500">Kamu memberikan Bintang untuk <br/><span className="text-yellow-600 font-bold text-xl">"{starMessage.name}"</span></p>
+            <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Bintang Diberikan!</h3>
+            <p className="text-gray-500">Anda memberikan Bintang kepada <br/><span className="text-yellow-600 font-bold text-xl">"{starMessage.name}"</span></p>
           </div>
         </div>
       )}
@@ -563,9 +565,9 @@ export default function App() {
             </div>
             <div className="p-4 border-t bg-white rounded-b-2xl">
               <form onSubmit={handleSaveTestimony} className="space-y-3">
-                <input required value={testimonyAuthor} onChange={(e) => setTestimonyAuthor(e.target.value)} placeholder="Nama Kamu..." className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 font-bold" maxLength={20} />
+                <input required value={testimonyAuthor} onChange={(e) => setTestimonyAuthor(e.target.value)} placeholder="Nama Anda..." className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 font-bold" maxLength={20} />
                 <div className="flex gap-2">
-                  <input required value={testimonyInput} onChange={(e) => setTestimonyInput(e.target.value)} placeholder="Tulis pesan..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
+                  <input required value={testimonyInput} onChange={(e) => setTestimonyInput(e.target.value)} placeholder="Tulis mesej..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
                   <button type="submit" disabled={isSavingTestimony || !testimonyInput.trim() || !testimonyAuthor.trim()} className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 disabled:opacity-50 transition"><Send size={18} /></button>
                 </div>
               </form>
@@ -578,10 +580,10 @@ export default function App() {
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm px-4 w-full text-center border-4 border-pink-200">
             <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
-            <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
+            <h3 className="text-2xl font-bold mb-2">Adakah Anda Pasti?</h3>
+            <p className="text-gray-500 mb-6">Pastikan semua data adalah betul.</p>
             <div className="flex gap-3 justify-center">
-              <button onClick={() => setShowConfirmModal(false)} className="px-6 py-2 rounded-xl border-2 border-gray-200 font-bold text-gray-400 transition">Cek Lagi</button>
+              <button onClick={() => setShowConfirmModal(false)} className="px-6 py-2 rounded-xl border-2 border-gray-200 font-bold text-gray-400 transition">Semak Semula</button>
               <button onClick={handleConfirmSave} className="px-6 py-2 rounded-xl bg-pink-500 text-white font-bold hover:bg-pink-600 shadow-lg transform active:scale-95 transition">Ya, Simpan!</button>
             </div>
           </div>
@@ -591,8 +593,8 @@ export default function App() {
       {/* HEADER DESKTOP */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full"><LogOut size={20} /></button>
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
+        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
            {Object.values(TEACHER_DATA).map(t => (
              <div key={t.name} className="flex flex-col items-center">
@@ -604,8 +606,8 @@ export default function App() {
 
         {/* Desktop Nav Tabs */}
         <div className="hidden md:flex justify-center gap-2 mt-6">
-          <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
-          <button onClick={() => setActiveTab('activity')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'activity' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Activity</button>
+          <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Utama</button>
+          <button onClick={() => setActiveTab('activity')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'activity' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Aktiviti</button>
           <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
           <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
         </div>
@@ -613,19 +615,19 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4">
         
-        {/* TAB: HOME (Gallery) */}
+        {/* TAB: UTAMA (Galeri) */}
         {activeTab === 'home' && (
           <div className="space-y-6">
             <div className="flex justify-end items-center mb-6">
               <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95">
                 {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
-                {isMobileGrid ? 'List' : 'Grid'}
+                {isMobileGrid ? 'Senarai' : 'Grid'}
               </button>
             </div>
             
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3 pb-8' : 'grid-cols-1 gap-8 pb-10'} md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:pb-12`}>
               {friends.length === 0 ? (
-                <div className="col-span-full py-20 text-center opacity-40"><AlertCircle size={48} className="mx-auto mb-2 text-gray-400" /><p className="font-bold">Belum ada data teman.</p></div>
+                <div className="col-span-full py-20 text-center opacity-40"><AlertCircle size={48} className="mx-auto mb-2 text-gray-400" /><p className="font-bold">Tiada data rakan lagi.</p></div>
               ) : (
                 friends.map(friend => {
                   const av = avatars[friend.avatar] || avatars.super_boy;
@@ -641,36 +643,30 @@ export default function App() {
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
                       {/* Banner Section */}
                       <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
-                        {/* Background Container */}
                         <div className={`absolute inset-0 w-full h-full overflow-hidden ${isMobileGrid ? 'rounded-t-2xl' : 'rounded-t-3xl'}`}>
                            <div 
                              className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`}
                              style={banner ? { backgroundImage: `url(${friend.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                            />
-                           {/* Overlay Gradasi */}
                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
                         </div>
 
-                        {/* Nama di Tengah Banner - Tampilkan nama panggilan jika di grid mobile */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                            </h4>
                         </div>
 
-                        {/* Info PTS Badge */}
                         <div className="absolute top-2 left-2 bg-white/90 px-2.5 py-1.5 rounded-full shadow-md flex items-center gap-1.5 z-20 border-2 border-yellow-200 backdrop-blur-sm">
                           <Medal size={16} className="text-yellow-600 fill-yellow-50" />
                           <span className="text-xs font-black text-yellow-700">{totalPTS} <span className="text-[9px] font-normal">PTS</span></span>
                         </div>
 
-                        {/* Tombol Aksi */}
                         <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
                            {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition backdrop-blur-sm"><Pencil size={14} /></button>}
                            {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
                         </div>
 
-                        {/* Avatar / Photo */}
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30">
                           <div className={`bg-white p-1 rounded-full shadow-xl ring-4 ring-white overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-14 h-14' : 'w-20 h-20 md:w-28 md:h-28'} transition-all`}>
                              {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-2xl' : 'text-3xl md:text-5xl'}`}>{av.emoji}</div>}
@@ -678,9 +674,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Content Section */}
                       <div className={`${isMobileGrid ? 'pt-10 pb-4' : 'pt-16 pb-6'} px-4 text-center flex-1 flex flex-col items-center`}>
-                         {/* Nama Panggilan - Hanya tampilkan jika bukan di grid mobile */}
                          {!isMobileGrid && (
                            <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">
                              "{friend.nickname || friend.name}"
@@ -697,12 +691,19 @@ export default function App() {
                             <div className="space-y-2 text-left bg-gray-50/80 p-5 rounded-[2rem] text-xs md:text-sm mb-4 w-full border border-gray-100 shadow-inner">
                                <p className="flex items-center gap-3"><Rocket size={16} className="text-blue-400 shrink-0" /> <span><b>Cita-cita:</b> {friend.dream || '-'}</span></p>
                                <p className="flex items-center gap-3"><Gamepad2 size={16} className="text-green-400 shrink-0" /> <span><b>Hobi:</b> {friend.hobby || '-'}</span></p>
-                               <p className="flex items-center gap-3"><Utensils size={16} className="text-orange-400 shrink-0" /> <span><b>Makan:</b> {friend.food || '-'}</span></p>
+                               <p className="flex items-center gap-3"><Utensils size={16} className="text-orange-400 shrink-0" /> <span><b>Makanan:</b> {friend.food || '-'}</span></p>
                             </div>
                          )}
 
                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
-                           <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'}`}><Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} /><span className="text-xs font-black">{friend.stars || 0}</span></button>
+                           {/* Button Bintang kini hanya bertindak sebagai pemicu fungsi yang diperiksa peranannya */}
+                           <button 
+                             onClick={() => handleStar(friend)} 
+                             className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed opacity-80' : ''}`}
+                           >
+                             <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
+                             <span className="text-xs font-black">{friend.stars || 0}</span>
+                           </button>
                            <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
                            <button onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }} className={`flex items-center justify-center gap-1.5 rounded-full bg-purple-500 text-white shadow-md transition-all active:scale-95 ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2 hover:bg-purple-600'}`}><MessageSquare size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{testimonyCount}</span></button>
                          </div>
@@ -715,18 +716,18 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: ACTIVITY (Recent Testimonies) */}
+        {/* TAB: AKTIVITI (Testimoni Terkini) */}
         {activeTab === 'activity' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
              <div className="text-center mb-8">
                 <div className="bg-purple-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-purple-600 shadow-lg"><Zap size={32} /></div>
-                <h3 className="text-2xl font-black text-gray-800">Aktivitas Terbaru</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Update Terbaru Dari Teman-teman</p>
+                <h3 className="text-2xl font-black text-gray-800">Aktiviti Terbaru</h3>
+                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Kemas Kini Terkini Daripada Rakan-rakan</p>
              </div>
              
              <div className="space-y-4">
                 {recentActivities.length === 0 ? (
-                  <div className="text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-200"><p className="text-gray-400 font-bold italic">Belum ada aktivitas baru...</p></div>
+                  <div className="text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-200"><p className="text-gray-400 font-bold italic">Belum ada aktiviti terbaru...</p></div>
                 ) : (
                   recentActivities.map(act => {
                     const targetFriend = friends.find(f => f.id === act.friendId);
@@ -737,7 +738,7 @@ export default function App() {
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
-                            <h4 className="font-black text-gray-800 text-sm">{act.authorName} <span className="font-normal text-gray-400 mx-1 text-[10px]">memberi testimoni untuk</span> {targetFriend?.name || 'Teman'}</h4>
+                            <h4 className="font-black text-gray-800 text-sm">{act.authorName} <span className="font-normal text-gray-400 mx-1 text-[10px]">memberi testimoni kepada</span> {targetFriend?.name || 'Rakan'}</h4>
                             <span className="text-[9px] text-gray-300 font-bold uppercase shrink-0 ml-2">{new Date(act.createdAt?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           <p className="text-gray-600 italic text-sm mt-2 bg-purple-50/50 p-3 rounded-2xl border border-purple-100/50">"{act.message}"</p>
@@ -750,13 +751,13 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: RANKING (Leaderboard) */}
+        {/* TAB: PERINGKAT (Leaderboard) */}
         {activeTab === 'ranking' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
              <div className="text-center mb-8">
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
-                <h3 className="text-2xl font-black text-gray-800 text-center">Leaderboard PTS</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
+                <h3 className="text-2xl font-black text-gray-800 text-center">Kedudukan PTS</h3>
+                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Jumlah Mata Tertinggi</p>
              </div>
 
              <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-orange-100">
@@ -775,8 +776,8 @@ export default function App() {
                             {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
                           <div className="flex-1">
+                            {/* KEMAS KINI: Menghilangkan nama panggilan di sini */}
                             <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</h4>
-                            <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">"{friend.nickname}"</p>
                           </div>
                           <div className="flex flex-col items-end gap-1.5">
                             <div className="flex items-center gap-1.5 bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shrink-0 shadow-sm">
@@ -797,25 +798,25 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: FORM (Add/Update Biodata) */}
+        {/* TAB: FORM (Tambah/Kemas Kini Biodata) */}
         {activeTab === 'form' && (
           <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 max-w-2xl mx-auto border-2 border-pink-100 animate-scale-up relative mb-10">
-            <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodatamu' : '✏️ Isi Biodatamu Yuk!'}</h2>
+            <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Kemas Kini Biodata' : '✏️ Jom Isi Biodata!'}</h2>
             
             <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-8">
               
-              {/* Opsi Banner (Motif / Upload) */}
+              {/* Opsi Banner */}
               <div className="space-y-3">
-                 <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Desain Banner Kartu:</label>
+                 <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Reka Bentuk Banner Kad:</label>
                  <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
                     <div className="flex justify-center gap-3 mb-5">
                       <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Motif Kelas</button>
-                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Unggah Banner</button>
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Muat Naik Banner</button>
                     </div>
 
                     {!formData.useBanner ? (
                       <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200">
-                         <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Solahudin Aktif</span>
+                         <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span>
                       </div>
                     ) : (
                       <div className="relative">
@@ -842,7 +843,7 @@ export default function App() {
                  <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
                   <div className="flex justify-center gap-3 mb-5">
                     <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Pakai Avatar</button>
-                    <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Unggah Foto</button>
+                    <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Muat Naik Foto</button>
                   </div>
                   
                   {!formData.usePhoto ? (
@@ -880,43 +881,43 @@ export default function App() {
               {/* Data Biodata */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Penuh</label>
+                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Taip nama penuh..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
                 </div>
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Panggilan akrab..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama panggilan..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-black uppercase text-blue-400 ml-1 tracking-widest">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 transition-all shadow-sm" />
+                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Nak jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 transition-all shadow-sm" />
                 </div>
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-black uppercase text-green-400 ml-1 tracking-widest">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 transition-all shadow-sm" />
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka buat apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 transition-all shadow-sm" />
                 </div>
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makan Favorit</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 transition-all shadow-sm" />
+                  <label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makanan Kegemaran</label>
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan paling sedap?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 transition-all shadow-sm" />
                 </div>
               </div>
 
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan pesan penyemangat atau kesan untuk teman-teman..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
+                <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesanan Untuk Rakan-rakan:</label>
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan kata-kata semangat untuk rakan-rakan..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
               </div>
 
               <div className="flex flex-col gap-4 pt-6">
                 <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-5 rounded-3xl shadow-[0_8px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 group text-lg">
-                  {isSubmitting ? 'Menyimpan...' : isEditing ? 'Update Biodata' : 'Simpan Biodata'}
+                  {isSubmitting ? 'Menyimpan...' : isEditing ? 'Kemas Kini Biodata' : 'Simpan Biodata'}
                   <CheckCircle size={24} className="group-hover:scale-110 transition-transform" />
                 </button>
                 
                 <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-3xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                  <CornerUpLeft size={18} /> Batal & Kembali Ke Galeri
+                  <CornerUpLeft size={18} /> Batal & Kembali
                 </button>
               </div>
             </form>
@@ -925,8 +926,8 @@ export default function App() {
       </main>
 
       <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-       6A — SD Insan Karima<br/>
-        Dibuat oleh Hiro — 2026
+        Komuniti Khalid Bin Walid 3A — SD Insan Karima<br/>
+        Generasi Pintar & Berakhlak Mulia — 2026
       </footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
