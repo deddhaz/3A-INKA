@@ -99,6 +99,7 @@ export default function App() {
   const [accessCode, setAccessCode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isMobileGrid, setIsMobileGrid] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
@@ -330,6 +331,13 @@ export default function App() {
   const handleBannerUpload = (e) => {
     processFile(e.target.files[0], 800, (url) => {
       setFormData(prev => ({ ...prev, bannerUrl: url, useBanner: true }));
+    });
+  };
+
+  // --- UPLOAD KHUSUS GURU ---
+  const handleTeacherPhotoUpload = (key, e) => {
+    processFile(e.target.files[0], 400, (url) => {
+      handleUpdateTeacher(key, 'photoUrl', url);
     });
   };
 
@@ -648,11 +656,103 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL SETTINGS GURU (ADMIN ONLY) */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
+              <div className="flex justify-between items-center mb-8">
+                 <div className="flex items-center gap-3">
+                    <div className="bg-orange-100 p-3 rounded-2xl text-orange-500 shadow-inner"><Settings size={24} /></div>
+                    <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tight">Pengaturan Guru</h2>
+                 </div>
+                 <button onClick={() => setShowSettingsModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={24} /></button>
+              </div>
+
+              <div className="space-y-10">
+                {/* Wali Kelas */}
+                <div className="bg-orange-50/50 p-6 rounded-[2.5rem] border-2 border-orange-100 relative">
+                  <div className="absolute -top-3 left-6 bg-orange-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Wali Kelas</div>
+                  
+                  <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
+                     <div className="relative group shrink-0">
+                        <img src={teacherData.waliKelas.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Wali Kelas" />
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                           <Camera size={20} />
+                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="hidden" />
+                        </label>
+                     </div>
+                     <div className="flex-1 w-full space-y-3">
+                        <div className="space-y-1">
+                           <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Lengkap:</label>
+                           <input 
+                             value={teacherData.waliKelas.name} 
+                             onChange={(e) => handleUpdateTeacher('waliKelas', 'name', e.target.value)}
+                             placeholder="Nama Wali Kelas..." 
+                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
+                           />
+                        </div>
+                        <button type="button" className="w-full py-2.5 bg-white border-2 border-orange-100 rounded-xl text-[10px] font-black text-orange-500 uppercase flex items-center justify-center gap-2 hover:bg-orange-100 transition-colors relative overflow-hidden">
+                           <Upload size={14} /> Ganti Foto Wali Kelas
+                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </button>
+                     </div>
+                  </div>
+                </div>
+
+                {/* Asisten */}
+                <div className="bg-blue-50/50 p-6 rounded-[2.5rem] border-2 border-blue-100 relative">
+                  <div className="absolute -top-3 left-6 bg-blue-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Asisten</div>
+                  
+                  <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
+                     <div className="relative group shrink-0">
+                        <img src={teacherData.asisten.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Asisten" />
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                           <Camera size={20} />
+                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="hidden" />
+                        </label>
+                     </div>
+                     <div className="flex-1 w-full space-y-3">
+                        <div className="space-y-1">
+                           <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Lengkap:</label>
+                           <input 
+                             value={teacherData.asisten.name} 
+                             onChange={(e) => handleUpdateTeacher('asisten', 'name', e.target.value)}
+                             placeholder="Nama Asisten..." 
+                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-blue-300 outline-none text-sm font-bold shadow-sm transition-all"
+                           />
+                        </div>
+                        <button type="button" className="w-full py-2.5 bg-white border-2 border-blue-100 rounded-xl text-[10px] font-black text-blue-500 uppercase flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors relative overflow-hidden">
+                           <Upload size={14} /> Ganti Foto Asisten
+                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </button>
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-10 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+                 <p className="text-center text-[10px] text-gray-500 font-bold uppercase leading-relaxed italic">
+                    💡 Perubahan nama dan foto guru akan langsung sinkron secara real-time ke semua perangkat siswa yang membuka aplikasi ini.
+                 </p>
+              </div>
+
+              <button onClick={() => setShowSettingsModal(false)} className="w-full mt-8 py-4 bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-orange-600 active:scale-[0.98] transition-all">Selesai & Simpan</button>
+           </div>
+        </div>
+      )}
+
       {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors">
-          <LogOut size={20} />
-        </button>
+        <div className="absolute top-4 right-4 flex gap-2">
+          {userRole === 'admin' && (
+            <button onClick={() => setShowSettingsModal(true)} className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors shadow-sm border border-white/20">
+              <Settings size={20} />
+            </button>
+          )}
+          <button onClick={handleLogout} className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors shadow-sm border border-white/20">
+            <LogOut size={20} />
+          </button>
+        </div>
 
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
         <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
@@ -904,57 +1004,6 @@ export default function App() {
         {/* TAB: FORM */}
         {activeTab === 'form' && (
           <div className="space-y-8 max-w-2xl mx-auto pb-10">
-            {/* EDITOR DATA GURU (HANYA ADMIN) */}
-            {userRole === 'admin' && (
-              <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-8 border-2 border-orange-200 animate-fade-in">
-                <div className="flex items-center gap-2 mb-6 justify-center">
-                  <div className="bg-orange-100 p-2 rounded-xl text-orange-500"><Settings size={20} /></div>
-                  <h3 className="text-lg font-black text-gray-800 uppercase tracking-tight">Pengaturan Data Guru</h3>
-                </div>
-                
-                <div className="space-y-6">
-                  {/* Wali Kelas */}
-                  <div className="p-4 bg-orange-50/50 rounded-3xl border border-orange-100">
-                    <p className="text-[10px] font-black text-orange-400 uppercase mb-3 ml-1 tracking-widest">Profil Wali Kelas:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <input 
-                        value={teacherData.waliKelas.name} 
-                        onChange={(e) => handleUpdateTeacher('waliKelas', 'name', e.target.value)}
-                        placeholder="Nama Wali Kelas..." 
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
-                      />
-                      <input 
-                        value={teacherData.waliKelas.photoUrl} 
-                        onChange={(e) => handleUpdateTeacher('waliKelas', 'photoUrl', e.target.value)}
-                        placeholder="Link Foto Wali Kelas..." 
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Asisten */}
-                  <div className="p-4 bg-orange-50/50 rounded-3xl border border-orange-100">
-                    <p className="text-[10px] font-black text-orange-400 uppercase mb-3 ml-1 tracking-widest">Profil Asisten:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <input 
-                        value={teacherData.asisten.name} 
-                        onChange={(e) => handleUpdateTeacher('asisten', 'name', e.target.value)}
-                        placeholder="Nama Asisten..." 
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
-                      />
-                      <input 
-                        value={teacherData.asisten.photoUrl} 
-                        onChange={(e) => handleUpdateTeacher('asisten', 'photoUrl', e.target.value)}
-                        placeholder="Link Foto Asisten..." 
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center text-[9px] text-gray-400 mt-4 font-bold uppercase italic">* Perubahan profil guru otomatis tersimpan dan sinkron ke semua HP</p>
-              </div>
-            )}
-
             {/* FORM BIODATA SISWA */}
             <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 border-2 border-pink-100 animate-scale-up relative">
               <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
