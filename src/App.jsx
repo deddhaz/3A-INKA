@@ -485,7 +485,7 @@ export default function App() {
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 3A</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Kelas..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Buka Gerbang <ArrowRight size={20} /></button>
@@ -502,7 +502,7 @@ export default function App() {
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
         <div className="flex flex-col items-center animate-pulse">
           <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl font-bold text-orange-500">Membuka Buku Biodata...</div>
+          <div className="text-xl font-bold text-orange-500">Sabar ya...</div>
         </div>
       </div>
     );
@@ -569,6 +569,27 @@ export default function App() {
         </div>
       )}
 
+      {/* Input Search Overlay untuk Mobile */}
+      {showSearchInput && (
+        <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md md:hidden flex items-start justify-center pt-20 px-4 animate-fade-in">
+          <div className="w-full max-w-md animate-scale-up">
+            <div className="relative">
+              <input 
+                autoFocus
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari teman..."
+                className="w-full px-6 py-4 rounded-full bg-white text-gray-800 shadow-2xl border-4 border-orange-200 outline-none pr-12 font-bold"
+              />
+              <button onClick={() => {setSearchQuery(''); setShowSearchInput(false);}} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 bg-gray-100 p-1 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showTestimonyModal && selectedFriend && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col border-4 border-purple-200">
@@ -623,41 +644,14 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER DESKTOP */}
+      {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        {/* Ikon Search di Pojok Kiri Atas */}
-        <button 
-          onClick={() => setShowSearchInput(!showSearchInput)} 
-          className={`absolute top-4 left-4 p-2 rounded-full transition-all ${showSearchInput ? 'bg-white text-orange-500 shadow-md' : 'bg-white/20 hover:bg-white/30'}`}
-        >
-          <Search size={20} />
-        </button>
-
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors">
           <LogOut size={20} />
         </button>
 
-        {/* Input Search Overlay (muncul saat ikon diklik) */}
-        {showSearchInput && (
-          <div className="absolute top-16 left-4 right-4 md:left-1/2 md:transform md:-translate-x-1/2 md:w-64 z-50 animate-scale-up">
-            <div className="relative">
-              <input 
-                autoFocus
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari teman..."
-                className="w-full px-5 py-3 rounded-full bg-white text-gray-800 shadow-xl border-2 border-orange-200 outline-none pr-10"
-              />
-              <button onClick={() => {setSearchQuery(''); setShowSearchInput(false);}} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <X size={18} />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
+        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
            {Object.values(TEACHER_DATA).map(t => (
              <div key={t.name} className="flex flex-col items-center">
@@ -681,14 +675,49 @@ export default function App() {
         {/* TAB: UTAMA (Galeri) */}
         {activeTab === 'home' && (
           <div className="space-y-6">
+            
+            {/* Desktop Search Bar (Berbentuk kolom lengkap, terpusat di bawah header) */}
+            <div className="hidden md:flex justify-center mb-10">
+              <div className="relative w-full max-w-2xl group">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-orange-400 group-focus-within:text-orange-500 transition-colors">
+                  <Search size={24} />
+                </div>
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari nama teman atau nama panggilan..."
+                  className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white shadow-lg border-2 border-orange-100 outline-none focus:border-orange-400 transition-all font-bold text-lg text-gray-700"
+                />
+                {searchQuery && (
+                   <button 
+                     onClick={() => setSearchQuery('')}
+                     className="absolute right-6 top-1/2 -translate-y-1/2 bg-gray-100 p-1.5 rounded-full text-gray-400 hover:text-red-500 transition-colors"
+                   >
+                     <X size={20} />
+                   </button>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-between items-center mb-6 px-1">
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                 {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : 'Galeri Biodata'}
               </div>
-              <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95">
-                {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
-                {isMobileGrid ? 'List' : 'Grid'}
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Mobile Search Icon (Tanpa teks, di samping tombol Grid/List) */}
+                <button 
+                  onClick={() => setShowSearchInput(true)}
+                  className="md:hidden p-2.5 bg-white rounded-xl shadow-sm text-orange-500 border-2 border-orange-100 active:scale-95 transition-all"
+                >
+                  <Search size={18} />
+                </button>
+
+                <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95">
+                  {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
+                  {isMobileGrid ? 'List' : 'Grid'}
+                </button>
+              </div>
             </div>
             
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3 pb-8' : 'grid-cols-1 gap-8 pb-10'} md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:pb-12`}>
@@ -784,7 +813,7 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: AKTIVITAS (Testimoni Terbaru) */}
+        {/* TAB: AKTIVITAS */}
         {activeTab === 'activity' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
              <div className="text-center mb-8">
@@ -819,7 +848,7 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: PERINGKAT (Leaderboard) */}
+        {/* TAB: PERINGKAT */}
         {activeTab === 'ranking' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
              <div className="text-center mb-8">
@@ -848,7 +877,7 @@ export default function App() {
                           </div>
                           <div className="flex flex-col items-end gap-1.5">
                             <div className="flex items-center gap-1.5 bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shrink-0 shadow-sm">
-                              <medal size={16} className="text-yellow-600 fill-yellow-200" />
+                              <Medal size={16} className="text-yellow-600 fill-yellow-200" />
                               <span className="font-black text-yellow-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
                             </div>
                             <div className="flex gap-2.5 text-[10px] font-black text-gray-300 px-1">
@@ -865,7 +894,7 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: FORM (Tambah/Update Biodata) */}
+        {/* TAB: FORM */}
         {activeTab === 'form' && (
           <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 max-w-2xl mx-auto border-2 border-pink-100 animate-scale-up relative mb-10">
             <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
@@ -993,8 +1022,8 @@ export default function App() {
       </main>
 
       <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-        Komunitas Khalid Bin Walid 3A — SD Insan Karima<br/>
-        Generasi Pintar & Berakhlak Mulia — 2026
+        Kelas 6A — SD Insan Karima<br/>
+        Dibuat oleh Hiro dan Abinya — 2026
       </footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
