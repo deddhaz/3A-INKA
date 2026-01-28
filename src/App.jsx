@@ -567,8 +567,8 @@ export default function App() {
       {/* HEADER DESKTOP */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full"><LogOut size={20} /></button>
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Sholahudin Al Ayubi</h1>
+        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
            {Object.values(TEACHER_DATA).map(t => (
              <div key={t.name} className="flex flex-col items-center">
@@ -775,7 +775,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-bold px-4">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
+      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-bold px-4">© 2026 HIRO - SD Insan Karima</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
