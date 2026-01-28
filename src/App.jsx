@@ -429,7 +429,6 @@ export default function App() {
           <div className="absolute bottom-[18vh] left-[5%] md:left-[15%] text-green-700 hidden sm:block"><Tree size={120} className="fill-current opacity-80" /></div>
         </div>
 
-        {/* PERBAIKAN: Mengganti max-sm menjadi max-w-sm agar kartu tidak melebar */}
         <div className="relative z-10 w-full max-w-sm px-4">
           <div className="bg-white/90 backdrop-blur-md rounded-[30px] shadow-2xl p-6 md:p-8 relative border-4 border-orange-200 overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-2 bg-orange-400"></div>
@@ -562,7 +561,6 @@ export default function App() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          {/* PERBAIKAN: Mengganti max-sm menjadi max-w-sm agar kartu konfirmasi tidak melebar */}
           <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200">
             <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
@@ -625,11 +623,23 @@ export default function App() {
 
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
+                      {/* Nama Paling Atas khusus Desktop & List Mobile */}
+                      {(!isMobileGrid || false) && (
+                        <div className="pt-4 px-4 text-center hidden md:block">
+                           <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
+                        </div>
+                      )}
+                      {!isMobileGrid && (
+                        <div className="pt-4 px-4 text-center md:hidden">
+                           <h4 className="text-xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
+                        </div>
+                      )}
+
                       <div className={`${isMobileGrid ? 'h-20' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
-                        {/* Info PTS Badge */}
-                        <div className="absolute top-2 left-2 bg-white/90 px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-20 border border-blue-100">
-                          <Medal size={12} className="text-blue-500" />
-                          <span className="text-[10px] font-black text-blue-700">{totalPTS} <span className="text-[8px] font-normal">PTS</span></span>
+                        {/* Info PTS Badge - Update Emas & Besar */}
+                        <div className="absolute top-2 left-2 bg-white/95 px-2.5 py-1.5 rounded-full shadow-md flex items-center gap-1.5 z-20 border-2 border-yellow-200">
+                          <Medal size={16} className="text-yellow-600 fill-yellow-50" />
+                          <span className="text-xs md:text-sm font-black text-yellow-700">{totalPTS} <span className="text-[10px] font-normal">PTS</span></span>
                         </div>
 
                         <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-12 h-12 -mb-6' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
@@ -641,7 +651,9 @@ export default function App() {
                         </div>
                       </div>
                       <div className={`${isMobileGrid ? 'pt-8 pb-5' : 'pt-12 pb-6'} md:pt-16 px-4 text-center flex-1 flex flex-col items-center transition-all`}>
-                         <h4 className={`font-bold text-gray-800 truncate w-full px-2 ${isMobileGrid ? 'text-sm' : 'text-xl md:text-2xl'}`}>{isMobileGrid ? (friend.nickname || friend.name) : friend.name}</h4>
+                         {/* Nama di Grid Mobile tetap di sini */}
+                         {isMobileGrid && <h4 className="font-bold text-gray-800 truncate w-full px-2 text-sm">{friend.nickname || friend.name}</h4>}
+                         
                          {!isMobileGrid && <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>}
                          
                          {isMobileGrid ? (
@@ -736,13 +748,14 @@ export default function App() {
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">"{friend.nickname}"</p>
                           </div>
                           <div className="flex flex-col items-end gap-1">
-                            <div className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 shrink-0 shadow-sm">
-                              <Medal size={14} className="text-blue-500" />
-                              <span className="font-black text-blue-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
+                            {/* Update PTS Gold */}
+                            <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200 shrink-0 shadow-sm">
+                              <Medal size={14} className="text-yellow-600 fill-yellow-200" />
+                              <span className="font-black text-yellow-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
                             </div>
                             <div className="flex gap-2 text-[9px] font-bold text-gray-400 px-1">
-                               <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
-                               <span className="flex items-center gap-0.5"><Heart size={10} className="text-pink-400 fill-current" /> {friend.thanks || 0}</span>
+                               <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-500 fill-current" /> {friend.stars || 0}</span>
+                               <span className="flex items-center gap-0.5"><HeartHandshake size={10} className="text-green-500" /> {friend.thanks || 0}</span>
                             </div>
                           </div>
                         </div>
