@@ -463,9 +463,9 @@ export default function App() {
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 3A</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
-                <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Kelas..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
+                <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Buka Gerbang <ArrowRight size={20} /></button>
               </form>
             </div>
@@ -591,8 +591,8 @@ export default function App() {
       {/* HEADER DESKTOP */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full"><LogOut size={20} /></button>
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
+        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
            {Object.values(TEACHER_DATA).map(t => (
              <div key={t.name} className="flex flex-col items-center">
@@ -639,9 +639,9 @@ export default function App() {
 
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
-                      {/* Banner Section - PERBAIKAN: Melepas overflow-hidden dari container utama banner */}
+                      {/* Banner Section */}
                       <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
-                        {/* Background Container - PERBAIKAN: Menggunakan div terpisah untuk overflow-hidden lencana/motif */}
+                        {/* Background Container */}
                         <div className={`absolute inset-0 w-full h-full overflow-hidden ${isMobileGrid ? 'rounded-t-2xl' : 'rounded-t-3xl'}`}>
                            <div 
                              className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`}
@@ -651,10 +651,10 @@ export default function App() {
                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
                         </div>
 
-                        {/* Nama di Tengah Banner */}
+                        {/* Nama di Tengah Banner - Tampilkan nama panggilan jika di grid mobile */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
-                             {friend.name}
+                             {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                            </h4>
                         </div>
 
@@ -670,7 +670,7 @@ export default function App() {
                            {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
                         </div>
 
-                        {/* Avatar / Photo - PERBAIKAN: Sekarang tidak terpotong karena berada di luar overflow-hidden */}
+                        {/* Avatar / Photo */}
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30">
                           <div className={`bg-white p-1 rounded-full shadow-xl ring-4 ring-white overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-14 h-14' : 'w-20 h-20 md:w-28 md:h-28'} transition-all`}>
                              {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-2xl' : 'text-3xl md:text-5xl'}`}>{av.emoji}</div>}
@@ -680,10 +680,12 @@ export default function App() {
 
                       {/* Content Section */}
                       <div className={`${isMobileGrid ? 'pt-10 pb-4' : 'pt-16 pb-6'} px-4 text-center flex-1 flex flex-col items-center`}>
-                         {/* Nama Panggilan - Kembalikan ke posisi di bawah avatar */}
-                         <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">
-                           "{friend.nickname || friend.name}"
-                         </p>
+                         {/* Nama Panggilan - Hanya tampilkan jika bukan di grid mobile */}
+                         {!isMobileGrid && (
+                           <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">
+                             "{friend.nickname || friend.name}"
+                           </p>
+                         )}
 
                          {isMobileGrid ? (
                             <div className="flex justify-center gap-4 mt-1">
@@ -813,7 +815,7 @@ export default function App() {
 
                     {!formData.useBanner ? (
                       <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200">
-                         <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span>
+                         <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Solahudin Aktif</span>
                       </div>
                     ) : (
                       <div className="relative">
@@ -923,8 +925,8 @@ export default function App() {
       </main>
 
       <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-        Khalid Bin Walid Community 3A — SD Insan Karima<br/>
-        Generasi Pintar & Berakhlaq Mulia — 2026
+       6A — SD Insan Karima<br/>
+        Dibuat oleh Hiro — 2026
       </footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
