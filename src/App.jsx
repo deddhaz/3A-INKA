@@ -847,8 +847,8 @@ export default function App() {
                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
                         </div>
 
-                        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
-                           <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
+                           <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                            </h4>
                         </div>
