@@ -25,7 +25,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -102,6 +102,7 @@ export default function App() {
   const [currentEditId, setCurrentEditId] = useState(null);
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
+  const [restrictedMessage, setRestrictedMessage] = useState(false); // Pop-up untuk non-admin
   
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
@@ -109,6 +110,8 @@ export default function App() {
   const [testimonyAuthor, setTestimonyAuthor] = useState(''); 
   const [allTestimonies, setAllTestimonies] = useState([]);
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   const TEACHER_DATA = {
     waliKelas: {
@@ -146,6 +149,16 @@ export default function App() {
   const calculatePTS = (friend) => {
     return (friend.stars || 0) * 5 + (friend.thanks || 0) * 3;
   };
+
+  // --- LOGIKA: FILTER PENCARIAN ---
+  const filteredFriends = useMemo(() => {
+    if (!searchQuery.trim()) return friends;
+    const query = searchQuery.toLowerCase().trim();
+    return friends.filter(f => 
+      f.name.toLowerCase().includes(query) || 
+      (f.nickname && f.nickname.toLowerCase().includes(query))
+    );
+  }, [friends, searchQuery]);
 
   // --- LOGIKA: PERINGKAT ---
   const rankedFriends = useMemo(() => {
@@ -309,7 +322,14 @@ export default function App() {
 
   // --- UPDATE: Hanya Admin/Guru yang boleh memberi bintang ---
   const handleStar = async (friend) => {
-    if (!user || userRole !== 'admin') return;
+    if (!user) return;
+
+    // Cek apakah guru
+    if (userRole !== 'admin') {
+      setRestrictedMessage(true);
+      setTimeout(() => setRestrictedMessage(false), 2500);
+      return;
+    }
     
     const storageKey = `starred_${friend.id}`;
     const isAlreadyStarred = localStorage.getItem(storageKey);
@@ -515,7 +535,7 @@ export default function App() {
       <InstallPrompt />
       <BottomNav />
 
-      {/* Popups (Star, Thanks, Testimony, Confirm) */}
+      {/* Popups (Star, Thanks, Testimony, Confirm, Restricted) */}
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
@@ -532,6 +552,19 @@ export default function App() {
             <div className="relative mx-auto bg-yellow-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-spin-slow"><Star size={64} className="text-yellow-500 fill-current" /></div></div>
             <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Bintang Terkirim!</h3>
             <p className="text-gray-500">Kamu memberikan Bintang untuk <br/><span className="text-yellow-600 font-bold text-xl">"{starMessage.name}"</span></p>
+          </div>
+        </div>
+      )}
+
+      {/* Pop-up Pesan Dibatasi (Hanya Guru) */}
+      {restrictedMessage && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
+          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-red-300 animate-scale-up">
+            <div className="relative mx-auto bg-red-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <div className="animate-bounce"><AlertCircle size={64} className="text-red-500" /></div>
+            </div>
+            <h3 className="text-xl font-extrabold text-gray-800 mb-2">Akses Terbatas</h3>
+            <p className="text-red-600 font-bold">Hanya guru yang bisa memberikan bintang</p>
           </div>
         </div>
       )}
@@ -567,7 +600,7 @@ export default function App() {
               <form onSubmit={handleSaveTestimony} className="space-y-3">
                 <input required value={testimonyAuthor} onChange={(e) => setTestimonyAuthor(e.target.value)} placeholder="Nama Kamu..." className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 font-bold" maxLength={20} />
                 <div className="flex gap-2">
-                  <input required value={testimonyInput} onChange={(e) => setTestimonyInput} placeholder="Tulis pesan..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
+                  <input required value={testimonyInput} onChange={(e) => setTestimonyInput(e.target.value)} placeholder="Tulis pesan..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
                   <button type="submit" disabled={isSavingTestimony || !testimonyInput.trim() || !testimonyAuthor.trim()} className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 disabled:opacity-50 transition"><Send size={18} /></button>
                 </div>
               </form>
@@ -592,7 +625,37 @@ export default function App() {
 
       {/* HEADER DESKTOP */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full"><LogOut size={20} /></button>
+        {/* Ikon Search di Pojok Kiri Atas */}
+        <button 
+          onClick={() => setShowSearchInput(!showSearchInput)} 
+          className={`absolute top-4 left-4 p-2 rounded-full transition-all ${showSearchInput ? 'bg-white text-orange-500 shadow-md' : 'bg-white/20 hover:bg-white/30'}`}
+        >
+          <Search size={20} />
+        </button>
+
+        <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors">
+          <LogOut size={20} />
+        </button>
+
+        {/* Input Search Overlay (muncul saat ikon diklik) */}
+        {showSearchInput && (
+          <div className="absolute top-16 left-4 right-4 md:left-1/2 md:transform md:-translate-x-1/2 md:w-64 z-50 animate-scale-up">
+            <div className="relative">
+              <input 
+                autoFocus
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari teman..."
+                className="w-full px-5 py-3 rounded-full bg-white text-gray-800 shadow-xl border-2 border-orange-200 outline-none pr-10"
+              />
+              <button onClick={() => {setSearchQuery(''); setShowSearchInput(false);}} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
         <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
@@ -618,7 +681,10 @@ export default function App() {
         {/* TAB: UTAMA (Galeri) */}
         {activeTab === 'home' && (
           <div className="space-y-6">
-            <div className="flex justify-end items-center mb-6">
+            <div className="flex justify-between items-center mb-6 px-1">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : 'Galeri Biodata'}
+              </div>
               <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95">
                 {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
                 {isMobileGrid ? 'List' : 'Grid'}
@@ -626,10 +692,13 @@ export default function App() {
             </div>
             
             <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3 pb-8' : 'grid-cols-1 gap-8 pb-10'} md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:pb-12`}>
-              {friends.length === 0 ? (
-                <div className="col-span-full py-20 text-center opacity-40"><AlertCircle size={48} className="mx-auto mb-2 text-gray-400" /><p className="font-bold">Belum ada data teman.</p></div>
+              {filteredFriends.length === 0 ? (
+                <div className="col-span-full py-20 text-center opacity-40">
+                  <AlertCircle size={48} className="mx-auto mb-2 text-gray-400" />
+                  <p className="font-bold">{searchQuery ? 'Teman tidak ditemukan.' : 'Belum ada data teman.'}</p>
+                </div>
               ) : (
-                friends.map(friend => {
+                filteredFriends.map(friend => {
                   const av = avatars[friend.avatar] || avatars.super_boy;
                   const pic = friend.usePhoto && friend.photoUrl;
                   const banner = friend.useBanner && friend.bannerUrl;
@@ -698,7 +767,7 @@ export default function App() {
                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
                            <button 
                              onClick={() => handleStar(friend)} 
-                             className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed opacity-80' : ''}`}
+                             className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed' : ''}`}
                            >
                              <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
                              <span className="text-xs font-black">{friend.stars || 0}</span>
@@ -779,7 +848,7 @@ export default function App() {
                           </div>
                           <div className="flex flex-col items-end gap-1.5">
                             <div className="flex items-center gap-1.5 bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shrink-0 shadow-sm">
-                              <Medal size={16} className="text-yellow-600 fill-yellow-200" />
+                              <medal size={16} className="text-yellow-600 fill-yellow-200" />
                               <span className="font-black text-yellow-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
                             </div>
                             <div className="flex gap-2.5 text-[10px] font-black text-gray-300 px-1">
