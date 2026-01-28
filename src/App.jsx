@@ -25,7 +25,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -386,9 +386,7 @@ export default function App() {
           creatorId: user.uid
         });
       }
-      setFormData({ name: '', nickname: '', dream: '', hobby: '', food: '', message: '', avatar: 'super_boy', photoUrl: null, usePhoto: false });
-      setIsEditing(false);
-      setCurrentEditId(null);
+      resetForm();
       setActiveTab('home');
     } catch (error) {
       console.error("Error saving document: ", error);
@@ -397,6 +395,12 @@ export default function App() {
       setIsSubmitting(false);
       setShowConfirmModal(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({ name: '', nickname: '', dream: '', hobby: '', food: '', message: '', avatar: 'super_boy', photoUrl: null, usePhoto: false });
+    setIsEditing(false);
+    setCurrentEditId(null);
   };
 
   const handleDelete = async (docId) => {
@@ -489,7 +493,7 @@ export default function App() {
       <InstallPrompt />
       <BottomNav />
 
-      {/* Popups (Star, Thanks, Testimony, Confirm) - Kode sama seperti sebelumnya */}
+      {/* Popups (Star, Thanks, Testimony, Confirm) */}
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
@@ -567,8 +571,8 @@ export default function App() {
       {/* HEADER DESKTOP */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
         <button onClick={handleLogout} className="absolute top-4 right-4 bg-white/20 p-2 rounded-full"><LogOut size={20} /></button>
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Sholahudin Al Ayubi</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">🏹 Khalid Bin Walid 🏹</h1>
+        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 3A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
            {Object.values(TEACHER_DATA).map(t => (
              <div key={t.name} className="flex flex-col items-center">
@@ -580,10 +584,10 @@ export default function App() {
 
         {/* Desktop Nav Tabs */}
         <div className="hidden md:flex justify-center gap-2 mt-6">
-          <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
-          <button onClick={() => setActiveTab('activity')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'activity' ? 'bg-white text-orange-500' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Activity</button>
-          <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
-          <button onClick={() => setActiveTab('form')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
+          <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
+          <button onClick={() => setActiveTab('activity')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'activity' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Activity</button>
+          <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
+          <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
         </div>
       </header>
 
@@ -676,8 +680,8 @@ export default function App() {
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
-                            <h4 className="font-black text-gray-800 text-sm">{act.authorName} <span className="font-normal text-gray-400 mx-1">memberi testimoni untuk</span> {targetFriend?.nickname || 'Teman'}</h4>
-                            <span className="text-[9px] text-gray-300 font-bold uppercase">{new Date(act.createdAt?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <h4 className="font-black text-gray-800 text-sm">{act.authorName} <span className="font-normal text-gray-400 mx-1 text-[10px]">memberi testimoni untuk</span> {targetFriend?.nickname || 'Teman'}</h4>
+                            <span className="text-[9px] text-gray-300 font-bold uppercase shrink-0 ml-2">{new Date(act.createdAt?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           <p className="text-gray-600 italic text-sm mt-1 bg-purple-50 p-2 rounded-xl border border-purple-100">"{act.message}"</p>
                         </div>
@@ -715,7 +719,7 @@ export default function App() {
                           <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</h4>
                           <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">"{friend.nickname}"</p>
                         </div>
-                        <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-100">
+                        <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-100 shrink-0">
                            <Star size={16} className="text-yellow-500 fill-current" />
                            <span className="font-black text-yellow-700">{friend.stars || 0}</span>
                         </div>
@@ -727,55 +731,96 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: FORM (Add Biodata) */}
+        {/* TAB: FORM (Add/Update Biodata) */}
         {activeTab === 'form' && (
-          <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 max-w-2xl mx-auto border-2 border-pink-100 animate-scale-up">
+          <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 max-w-2xl mx-auto border-2 border-pink-100 animate-scale-up relative">
             <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-6 text-center">{isEditing ? '✏️ Update Biodatamu' : '✏️ Isi Biodatamu Yuk!'}</h2>
+            
             <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-6">
-              <div className="bg-gray-50 p-4 rounded-2xl border-2 border-gray-100 text-center">
+              <div className="bg-gray-50 p-4 rounded-2xl border-2 border-gray-100 text-center overflow-hidden">
                 <div className="flex justify-center gap-3 mb-4">
                   <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: false }))} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Avatar</button>
                   <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Foto</button>
                 </div>
+                
                 {!formData.usePhoto ? (
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-4 gap-2 md:gap-3 max-w-full mx-auto">
                     {Object.entries(avatars).map(([key, data]) => (
-                      <button key={key} type="button" onClick={() => setFormData(p => ({ ...p, avatar: key }))} className={`p-2 rounded-xl border-4 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 scale-105' : 'border-transparent bg-white shadow-sm'}`}>
-                        <div className={`${data.color} w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full mx-auto text-xl mb-1`}>{data.emoji}</div>
-                        <span className="hidden md:block text-[10px] text-gray-400 font-bold uppercase">{data.label}</span>
+                      <button 
+                        key={key} 
+                        type="button" 
+                        onClick={() => setFormData(p => ({ ...p, avatar: key }))} 
+                        className={`flex flex-col items-center justify-center p-1.5 rounded-2xl border-2 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 ring-2 ring-pink-200 ring-offset-1' : 'border-transparent bg-white shadow-sm'}`}
+                      >
+                        <div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl md:text-2xl shadow-inner`}>
+                          {data.emoji}
+                        </div>
+                        <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full">{data.label}</span>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="relative inline-block">
+                  <div className="relative inline-block mt-2">
                     {formData.photoUrl ? (
-                      <div className="relative"><img src={formData.photoUrl} className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-pink-400 shadow-lg" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full shadow-md transition-all hover:scale-110"><X size={14} /></button></div>
+                      <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-1.5 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button></div>
                     ) : (
-                      <div className="border-2 border-dashed border-pink-200 rounded-2xl p-8 bg-pink-50 cursor-pointer relative transition-colors hover:bg-pink-100"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={32} className="text-pink-500 mx-auto" /><p className="text-pink-500 font-bold text-xs mt-2 uppercase">Klik Untuk Upload</p></div>
+                      <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" /><p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest">Klik Untuk Ambil Foto</p></div>
                     )}
                   </div>
                 )}
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Nama Lengkap" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold" />
-                <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama Panggilan" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold" />
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Nama Lengkap</label>
+                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Nama Panggilan</label>
+                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Panggilan akrab..." className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                </div>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Cita-cita" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-400" />
-                <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Hobi" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-400" />
-                <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makanan Favorit" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400" />
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase text-blue-400 ml-1">Cita-cita</label>
+                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-400 transition-all" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase text-green-400 ml-1">Hobi</label>
+                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-400 transition-all" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase text-orange-400 ml-1">Makan Favorit</label>
+                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400 transition-all" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="block text-gray-700 font-black text-sm uppercase tracking-widest">Pesan Untuk Teman:</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tulis sesuatu untuk teman-teman..." rows="3" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 outline-none focus:border-purple-400" />
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
+                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan pesan penyemangat atau kesan untuk teman-teman..." rows="3" className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
               </div>
-              <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-widest">{isSubmitting ? 'Menyimpan...' : 'Simpan Biodata'}</button>
+
+              <div className="flex flex-col gap-3 pt-4">
+                <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2 group">
+                  {isSubmitting ? 'Tunggu Sebentar...' : isEditing ? 'Update Biodata' : 'Simpan Biodata'}
+                  <CheckCircle size={20} className="group-hover:scale-110 transition-transform" />
+                </button>
+                
+                {/* Tombol Batal khusus mode Edit */}
+                <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-2xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
+                  <CornerUpLeft size={18} /> Batal & Kembali
+                </button>
+              </div>
             </form>
           </div>
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-bold px-4">© 2026 HIRO - SD Insan Karima</footer>
+      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-bold px-4 leading-relaxed">
+        Khalid Bin Walid Community 3A<br/>
+        SD Insan Karima — 2026
+      </footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
@@ -795,6 +840,8 @@ export default function App() {
         .animate-float-reverse { animation: float-reverse 12s ease-in-out infinite; }
         .animate-shake { animation: shake 0.3s ease-in-out infinite; }
         body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
       `}} />
     </div>
   );
