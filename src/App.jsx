@@ -168,13 +168,6 @@ export default function App() {
     return [...friends].sort((a, b) => calculatePTS(b) - calculatePTS(a));
   }, [friends]);
 
-  // --- LOGIKA: AKTIVITAS TERBARU ---
-  const recentActivities = useMemo(() => {
-    return [...allTestimonies]
-      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-      .slice(0, 15);
-  }, [allTestimonies]);
-
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -549,10 +542,6 @@ export default function App() {
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-blue-50 scale-110' : ''}`}><Home size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Home</span>
       </button>
-      <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' ? 'text-purple-500' : 'text-gray-400'}`}>
-        <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' ? 'bg-purple-50 scale-110' : ''}`}><Zap size={22} /></div>
-        <span className="text-[10px] font-bold uppercase">Aktivitas</span>
-      </button>
       <button onClick={() => setActiveTab('ranking')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'ranking' ? 'text-orange-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Peringkat</span>
@@ -768,7 +757,6 @@ export default function App() {
         {/* Desktop Nav Tabs */}
         <div className="hidden md:flex justify-center gap-2 mt-6">
           <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
-          <button onClick={() => setActiveTab('activity')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'activity' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Aktivitas</button>
           <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
           <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
         </div>
@@ -804,7 +792,7 @@ export default function App() {
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-1">
               <div className="w-full md:w-auto text-xs font-bold text-gray-400 uppercase tracking-widest text-left">
-                {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : 'Galeri Biodata'}
+                {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : ''}
               </div>
               
               <div className="flex items-center gap-2 w-full md:w-auto">
@@ -917,41 +905,6 @@ export default function App() {
                 })
               )}
             </div>
-          </div>
-        )}
-
-        {/* TAB: AKTIVITAS */}
-        {activeTab === 'activity' && (
-          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
-             <div className="text-center mb-8">
-                <div className="bg-purple-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-purple-600 shadow-lg"><Zap size={32} /></div>
-                <h3 className="text-2xl font-black text-gray-800">Aktivitas Terbaru</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Update Terbaru Dari Teman-teman</p>
-             </div>
-             
-             <div className="space-y-4">
-                {recentActivities.length === 0 ? (
-                  <div className="text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-200"><p className="text-gray-400 font-bold italic">Belum ada aktivitas terbaru...</p></div>
-                ) : (
-                  recentActivities.map(act => {
-                    const targetFriend = friends.find(f => f.id === act.friendId);
-                    return (
-                      <div key={act.id} className="bg-white p-5 rounded-[2rem] shadow-sm border-l-8 border-purple-400 flex items-start gap-4 hover:shadow-md transition-all">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center border-2 border-white shadow-sm">
-                          {targetFriend?.usePhoto && targetFriend?.photoUrl ? <img src={targetFriend.photoUrl} className="w-full h-full object-cover" /> : <div className="text-2xl">{avatars[targetFriend?.avatar]?.emoji || '🦸‍♂️'}</div>}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-black text-gray-800 text-sm">{act.authorName} <span className="font-normal text-gray-400 mx-1 text-[10px]">memberi testimoni kepada</span> {targetFriend?.name || 'Teman'}</h4>
-                            <span className="text-[9px] text-gray-300 font-bold uppercase shrink-0 ml-2">{new Date(act.createdAt?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                          <p className="text-gray-600 italic text-sm mt-2 bg-purple-50/50 p-3 rounded-2xl border border-purple-100/50">"{act.message}"</p>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-             </div>
           </div>
         )}
 
