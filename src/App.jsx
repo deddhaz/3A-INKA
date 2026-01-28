@@ -16,6 +16,7 @@ import {
   serverTimestamp, 
   updateDoc, 
   increment,
+  setDoc,
   query,
   where
 } from 'firebase/firestore';
@@ -25,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -45,6 +46,7 @@ const db = getFirestore(app);
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelas3_biodata_app';
 const COLLECTION_NAME = 'kelas3_biodata';
 const TESTIMONY_COLLECTION = 'testimonies';
+const SETTINGS_COLLECTION = 'settings';
 
 // --- KOMPONEN HELPER ---
 
@@ -112,7 +114,8 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const TEACHER_DATA = {
+  // --- STATE DATA GURU (DENGAN DEFAULT) ---
+  const [teacherData, setTeacherData] = useState({
     waliKelas: {
       name: "Ustazah Najwa",
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
@@ -123,7 +126,7 @@ export default function App() {
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
       role: "Asisten Wali Kelas"
     }
-  };
+  });
 
   const avatars = {
     super_boy: { emoji: '🦸‍♂️', color: 'bg-blue-100', label: 'Super Boy' },
@@ -208,7 +211,9 @@ export default function App() {
     setLoading(true);
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
+    const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'teacher_info');
     
+    // Listener Data Teman
     const unsubscribeData = onSnapshot(dataRef, 
       (snapshot) => {
         const fetchedFriends = snapshot.docs.map(doc => ({
@@ -231,6 +236,7 @@ export default function App() {
       }
     );
 
+    // Listener Testimoni
     const unsubscribeTestimonies = onSnapshot(testimonyRef, 
       (snapshot) => {
         const fetchedTestimonies = snapshot.docs.map(doc => ({
@@ -242,9 +248,17 @@ export default function App() {
       (error) => console.error("Gagal mengambil testimoni:", error)
     );
 
+    // Listener Data Guru
+    const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setTeacherData(snapshot.data());
+      }
+    });
+
     return () => {
       unsubscribeData();
       unsubscribeTestimonies();
+      unsubscribeSettings();
     };
   }, [user, isAuthenticated]);
 
@@ -319,11 +333,8 @@ export default function App() {
     });
   };
 
-  // --- UPDATE: Hanya Admin/Guru yang boleh memberi bintang ---
   const handleStar = async (friend) => {
     if (!user) return;
-
-    // Cek apakah guru
     if (userRole !== 'admin') {
       setRestrictedMessage(true);
       setTimeout(() => setRestrictedMessage(false), 2500);
@@ -431,6 +442,22 @@ export default function App() {
     } finally {
       setIsSubmitting(false);
       setShowConfirmModal(false);
+    }
+  };
+
+  // --- LOGIKA: UPDATE PROFIL GURU (ADMIN ONLY) ---
+  const handleUpdateTeacher = async (key, field, value) => {
+    if (userRole !== 'admin') return;
+    const newTeacherData = {
+      ...teacherData,
+      [key]: { ...teacherData[key], [field]: value }
+    };
+    
+    try {
+      const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'teacher_info');
+      await setDoc(settingsRef, newTeacherData);
+    } catch (error) {
+      console.error("Gagal update guru:", error);
     }
   };
 
@@ -555,7 +582,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Pop-up Pesan Dibatasi (Hanya Guru) */}
       {restrictedMessage && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-red-300 animate-scale-up">
@@ -631,7 +657,7 @@ export default function App() {
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
         <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
         <div className="flex justify-center gap-8 mb-4">
-           {Object.values(TEACHER_DATA).map(t => (
+           {Object.values(teacherData).map(t => (
              <div key={t.name} className="flex flex-col items-center">
                <img src={t.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover mb-2" alt={t.name} />
                <span className="font-bold text-xs md:text-sm">{t.name}</span>
@@ -653,8 +679,6 @@ export default function App() {
         {/* TAB: UTAMA (Galeri) */}
         {activeTab === 'home' && (
           <div className="space-y-6">
-            
-            {/* Desktop Search Bar (Berbentuk kolom lengkap, terpusat di bawah header) */}
             <div className="hidden md:flex justify-center mb-10">
               <div className="relative w-full max-w-2xl group">
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-orange-400 group-focus-within:text-orange-500 transition-colors">
@@ -684,7 +708,6 @@ export default function App() {
               </div>
               
               <div className="flex items-center gap-2 w-full md:w-auto">
-                {/* Mobile Search Input (Inline, tepat disamping icon search) */}
                 <div className="md:hidden flex flex-1 items-center bg-white rounded-xl shadow-sm border-2 border-orange-100 px-3 py-1.5 transition-all focus-within:border-orange-400">
                   <Search size={18} className="text-orange-500 shrink-0" />
                   <input 
@@ -727,7 +750,6 @@ export default function App() {
 
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
-                      {/* Banner Section */}
                       <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
                         <div className={`absolute inset-0 w-full h-full overflow-hidden ${isMobileGrid ? 'rounded-t-2xl' : 'rounded-t-3xl'}`}>
                            <div 
@@ -738,7 +760,7 @@ export default function App() {
                         </div>
 
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
-                           <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
+                           <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                            </h4>
                         </div>
@@ -782,10 +804,7 @@ export default function App() {
                          )}
 
                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
-                           <button 
-                             onClick={() => handleStar(friend)} 
-                             className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed' : ''}`}
-                           >
+                           <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed' : ''}`}>
                              <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
                              <span className="text-xs font-black">{friend.stars || 0}</span>
                            </button>
@@ -884,127 +903,180 @@ export default function App() {
 
         {/* TAB: FORM */}
         {activeTab === 'form' && (
-          <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 max-w-2xl mx-auto border-2 border-pink-100 animate-scale-up relative mb-10">
-            <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
-            
-            <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-8">
-              
-              {/* Opsi Banner */}
-              <div className="space-y-3">
-                 <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Desain Banner Kartu:</label>
-                 <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
-                    <div className="flex justify-center gap-3 mb-5">
-                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Motif Kelas</button>
-                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Banner</button>
+          <div className="space-y-8 max-w-2xl mx-auto pb-10">
+            {/* EDITOR DATA GURU (HANYA ADMIN) */}
+            {userRole === 'admin' && (
+              <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-8 border-2 border-orange-200 animate-fade-in">
+                <div className="flex items-center gap-2 mb-6 justify-center">
+                  <div className="bg-orange-100 p-2 rounded-xl text-orange-500"><Settings size={20} /></div>
+                  <h3 className="text-lg font-black text-gray-800 uppercase tracking-tight">Pengaturan Data Guru</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Wali Kelas */}
+                  <div className="p-4 bg-orange-50/50 rounded-3xl border border-orange-100">
+                    <p className="text-[10px] font-black text-orange-400 uppercase mb-3 ml-1 tracking-widest">Profil Wali Kelas:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input 
+                        value={teacherData.waliKelas.name} 
+                        onChange={(e) => handleUpdateTeacher('waliKelas', 'name', e.target.value)}
+                        placeholder="Nama Wali Kelas..." 
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
+                      />
+                      <input 
+                        value={teacherData.waliKelas.photoUrl} 
+                        onChange={(e) => handleUpdateTeacher('waliKelas', 'photoUrl', e.target.value)}
+                        placeholder="Link Foto Wali Kelas..." 
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
+                      />
                     </div>
+                  </div>
 
-                    {!formData.useBanner ? (
-                      <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200">
-                         <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span>
+                  {/* Asisten */}
+                  <div className="p-4 bg-orange-50/50 rounded-3xl border border-orange-100">
+                    <p className="text-[10px] font-black text-orange-400 uppercase mb-3 ml-1 tracking-widest">Profil Asisten:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input 
+                        value={teacherData.asisten.name} 
+                        onChange={(e) => handleUpdateTeacher('asisten', 'name', e.target.value)}
+                        placeholder="Nama Asisten..." 
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
+                      />
+                      <input 
+                        value={teacherData.asisten.photoUrl} 
+                        onChange={(e) => handleUpdateTeacher('asisten', 'photoUrl', e.target.value)}
+                        placeholder="Link Foto Asisten..." 
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:border-orange-400 outline-none text-sm font-bold shadow-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-center text-[9px] text-gray-400 mt-4 font-bold uppercase italic">* Perubahan profil guru otomatis tersimpan dan sinkron ke semua HP</p>
+              </div>
+            )}
+
+            {/* FORM BIODATA SISWA */}
+            <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 border-2 border-pink-100 animate-scale-up relative">
+              <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
+              
+              <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-8">
+                
+                {/* Opsi Banner */}
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Desain Banner Kartu:</label>
+                  <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
+                      <div className="flex justify-center gap-3 mb-5">
+                        <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Motif Kelas</button>
+                        <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Banner</button>
+                      </div>
+
+                      {!formData.useBanner ? (
+                        <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200">
+                          <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          {formData.bannerUrl ? (
+                            <div className="relative group">
+                                <img src={formData.bannerUrl} className="w-full h-32 object-cover rounded-2xl border-2 border-purple-200 shadow-md" />
+                                <button type="button" onClick={() => setFormData(p => ({ ...p, bannerUrl: null }))} className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-purple-200 rounded-2xl p-8 bg-purple-50/50 cursor-pointer relative hover:bg-purple-100 transition-colors">
+                              <input type="file" accept="image/*" onChange={handleBannerUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                              <ImageIcon size={32} className="text-purple-400 mx-auto" />
+                              <p className="text-purple-500 font-black text-[10px] mt-2 uppercase">Klik Untuk Pilih Gambar Banner</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                  </div>
+                </div>
+
+                {/* Opsi Foto Profil / Avatar */}
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black uppercase text-pink-400 ml-1 tracking-widest">Foto / Avatar Profil:</label>
+                  <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
+                    <div className="flex justify-center gap-3 mb-5">
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Pakai Avatar</button>
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Foto</button>
+                    </div>
+                    
+                    {!formData.usePhoto ? (
+                      <div className="grid grid-cols-4 gap-3 max-w-full mx-auto">
+                        {Object.entries(avatars).map(([key, data]) => (
+                          <button 
+                            key={key} 
+                            type="button" 
+                            onClick={() => setFormData(p => ({ ...p, avatar: key }))} 
+                            className={`flex flex-col items-center justify-center p-2 rounded-2xl border-2 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 ring-2 ring-pink-100 ring-offset-1' : 'border-transparent bg-white shadow-sm'}`}
+                          >
+                            <div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl md:text-2xl shadow-inner`}>
+                              {data.emoji}
+                            </div>
+                            <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full text-center">{data.label}</span>
+                          </button>
+                        ))}
                       </div>
                     ) : (
-                      <div className="relative">
-                        {formData.bannerUrl ? (
-                           <div className="relative group">
-                              <img src={formData.bannerUrl} className="w-full h-32 object-cover rounded-2xl border-2 border-purple-200 shadow-md" />
-                              <button type="button" onClick={() => setFormData(p => ({ ...p, bannerUrl: null }))} className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button>
-                           </div>
+                      <div className="relative inline-block mt-2">
+                        {formData.photoUrl ? (
+                          <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button></div>
                         ) : (
-                          <div className="border-2 border-dashed border-purple-200 rounded-2xl p-8 bg-purple-50/50 cursor-pointer relative hover:bg-purple-100 transition-colors">
-                             <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                             <ImageIcon size={32} className="text-purple-400 mx-auto" />
-                             <p className="text-purple-500 font-black text-[10px] mt-2 uppercase">Klik Untuk Pilih Gambar Banner</p>
+                          <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group relative">
+                            <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                            <Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" />
+                            <p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest text-center">Klik Untuk Ambil Foto</p>
                           </div>
                         )}
                       </div>
                     )}
-                 </div>
-              </div>
-
-              {/* Opsi Foto Profil / Avatar */}
-              <div className="space-y-3">
-                 <label className="text-[11px] font-black uppercase text-pink-400 ml-1 tracking-widest">Foto / Avatar Profil:</label>
-                 <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
-                  <div className="flex justify-center gap-3 mb-5">
-                    <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Pakai Avatar</button>
-                    <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Foto</button>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Lengkap</label>
+                    <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Panggilan</label>
+                    <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama panggilan..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black uppercase text-blue-400 ml-1 tracking-widest">Cita-cita</label>
+                    <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black uppercase text-green-400 ml-1 tracking-widest">Hobi</label>
+                    <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makanan Favorit</label>
+                    <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 transition-all shadow-sm" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
+                  <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan kata-kata semangat untuk teman-teman..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
+                </div>
+
+                <div className="flex flex-col gap-4 pt-6">
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-5 rounded-3xl shadow-[0_8px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 group text-lg">
+                    {isSubmitting ? 'Menyimpan...' : isEditing ? 'Update Biodata' : 'Simpan Biodata'}
+                    <CheckCircle size={24} className="group-hover:scale-110 transition-transform" />
+                  </button>
                   
-                  {!formData.usePhoto ? (
-                    <div className="grid grid-cols-4 gap-3 max-w-full mx-auto">
-                      {Object.entries(avatars).map(([key, data]) => (
-                        <button 
-                          key={key} 
-                          type="button" 
-                          onClick={() => setFormData(p => ({ ...p, avatar: key }))} 
-                          className={`flex flex-col items-center justify-center p-2 rounded-2xl border-2 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 ring-2 ring-pink-100 ring-offset-1' : 'border-transparent bg-white shadow-sm'}`}
-                        >
-                          <div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl md:text-2xl shadow-inner`}>
-                            {data.emoji}
-                          </div>
-                          <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full text-center">{data.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="relative inline-block mt-2">
-                      {formData.photoUrl ? (
-                        <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button></div>
-                      ) : (
-                        <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group relative">
-                          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                          <Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" />
-                          <p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest text-center">Klik Untuk Ambil Foto</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-3xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
+                    <CornerUpLeft size={18} /> Batal & Kembali
+                  </button>
                 </div>
-              </div>
-
-              {/* Data Biodata */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Lengkap</label>
-                  <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
-                </div>
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Panggilan</label>
-                  <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama panggilan..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-blue-400 ml-1 tracking-widest">Cita-cita</label>
-                  <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 transition-all shadow-sm" />
-                </div>
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-green-400 ml-1 tracking-widest">Hobi</label>
-                  <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 transition-all shadow-sm" />
-                </div>
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makanan Favorit</label>
-                  <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 transition-all shadow-sm" />
-                </div>
-              </div>
-
-              <div className="space-y-1.5 text-left">
-                <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
-                <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan kata-kata semangat untuk teman-teman..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
-              </div>
-
-              <div className="flex flex-col gap-4 pt-6">
-                <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-5 rounded-3xl shadow-[0_8px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 group text-lg">
-                  {isSubmitting ? 'Menyimpan...' : isEditing ? 'Update Biodata' : 'Simpan Biodata'}
-                  <CheckCircle size={24} className="group-hover:scale-110 transition-transform" />
-                </button>
-                
-                <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-3xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                  <CornerUpLeft size={18} /> Batal & Kembali
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         )}
       </main>
