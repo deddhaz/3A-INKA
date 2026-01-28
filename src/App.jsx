@@ -25,7 +25,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -141,9 +141,14 @@ export default function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- LOGIC: PTS CALCULATION ---
+  const calculatePTS = (friend) => {
+    return (friend.stars || 0) * 5 + (friend.thanks || 0) * 3;
+  };
+
   // --- LOGIC: RANKING ---
   const rankedFriends = useMemo(() => {
-    return [...friends].sort((a, b) => (b.stars || 0) - (a.stars || 0));
+    return [...friends].sort((a, b) => calculatePTS(b) - calculatePTS(a));
   }, [friends]);
 
   // --- LOGIC: RECENT ACTIVITY ---
@@ -424,6 +429,7 @@ export default function App() {
           <div className="absolute bottom-[18vh] left-[5%] md:left-[15%] text-green-700 hidden sm:block"><Tree size={120} className="fill-current opacity-80" /></div>
         </div>
 
+        {/* PERBAIKAN: Mengganti max-sm menjadi max-w-sm agar kartu tidak melebar */}
         <div className="relative z-10 w-full max-w-sm px-4">
           <div className="bg-white/90 backdrop-blur-md rounded-[30px] shadow-2xl p-6 md:p-8 relative border-4 border-orange-200 overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-2 bg-orange-400"></div>
@@ -443,7 +449,7 @@ export default function App() {
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Masuk ke Kelas 3A</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 3A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Kelas..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Buka Gerbang <ArrowRight size={20} /></button>
@@ -556,7 +562,8 @@ export default function App() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm:w-full max-w-sm w-full text-center border-4 border-pink-200">
+          {/* PERBAIKAN: Mengganti max-sm menjadi max-w-sm agar kartu konfirmasi tidak melebar */}
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200">
             <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
             <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
@@ -614,14 +621,21 @@ export default function App() {
                   const isT = localStorage.getItem(`thanked_${friend.id}`);
                   const owner = user && user.uid === friend.creatorId;
                   const testimonyCount = allTestimonies.filter(t => t.friendId === friend.id).length;
+                  const totalPTS = calculatePTS(friend);
 
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
                       <div className={`${isMobileGrid ? 'h-20' : 'h-24'} md:h-32 ${pic ? 'bg-gray-100' : av.color.split(' ')[0]} relative flex justify-center items-end`}>
+                        {/* Info PTS Badge */}
+                        <div className="absolute top-2 left-2 bg-white/90 px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-20 border border-blue-100">
+                          <Medal size={12} className="text-blue-500" />
+                          <span className="text-[10px] font-black text-blue-700">{totalPTS} <span className="text-[8px] font-normal">PTS</span></span>
+                        </div>
+
                         <div className={`bg-white p-1 rounded-full shadow-md ring-4 ring-white z-10 overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-12 h-12 -mb-6' : 'w-16 h-16 -mb-8'} md:w-28 md:h-28 md:-mb-12 transition-all`}>
                            {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-xl' : 'text-3xl'} md:text-5xl`}>{av.emoji}</div>}
                         </div>
-                        <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                        <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
                            {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow hover:bg-blue-500 hover:text-white transition"><Pencil size={14} /></button>}
                            {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow hover:bg-red-500 hover:text-white transition"><Trash2 size={14} /></button>}
                         </div>
@@ -664,7 +678,7 @@ export default function App() {
              <div className="text-center mb-8">
                 <div className="bg-purple-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-purple-600 shadow-lg"><Zap size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800">Aktivitas Terbaru</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1">Kabari Terbaru Dari Teman-teman</p>
+                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Kabari Terbaru Dari Teman-teman</p>
              </div>
              
              <div className="space-y-4">
@@ -698,8 +712,8 @@ export default function App() {
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
              <div className="text-center mb-8">
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
-                <h3 className="text-2xl font-black text-gray-800">Bintang Terpopuler</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1">Teman Paling Banyak Mendapat Bintang</p>
+                <h3 className="text-2xl font-black text-gray-800 text-center">Leaderboard PTS</h3>
+                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
              </div>
 
              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-orange-100">
@@ -707,24 +721,33 @@ export default function App() {
                   <div className="p-10 text-center text-gray-400 italic font-bold">Data belum tersedia...</div>
                 ) : (
                   <div className="divide-y divide-gray-50">
-                    {rankedFriends.slice(0, 10).map((friend, index) => (
-                      <div key={friend.id} className="flex items-center p-4 hover:bg-orange-50 transition-colors group">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black mr-4 ${index === 0 ? 'bg-yellow-400 text-white' : index === 1 ? 'bg-gray-300 text-white' : index === 2 ? 'bg-orange-300 text-white' : 'bg-gray-50 text-gray-400'}`}>
-                          {index + 1}
+                    {rankedFriends.slice(0, 15).map((friend, index) => {
+                      const totalPTS = calculatePTS(friend);
+                      return (
+                        <div key={friend.id} className="flex items-center p-4 hover:bg-orange-50 transition-colors group">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black mr-4 ${index === 0 ? 'bg-yellow-400 text-white' : index === 1 ? 'bg-gray-300 text-white' : index === 2 ? 'bg-orange-300 text-white' : 'bg-gray-50 text-gray-400'}`}>
+                            {index + 1}
+                          </div>
+                          <div className="w-12 h-12 rounded-full overflow-hidden mr-4 border-2 border-white shadow-sm shrink-0">
+                            {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</h4>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">"{friend.nickname}"</p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 shrink-0 shadow-sm">
+                              <Medal size={14} className="text-blue-500" />
+                              <span className="font-black text-blue-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
+                            </div>
+                            <div className="flex gap-2 text-[9px] font-bold text-gray-400 px-1">
+                               <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
+                               <span className="flex items-center gap-0.5"><Heart size={10} className="text-pink-400 fill-current" /> {friend.thanks || 0}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-12 h-12 rounded-full overflow-hidden mr-4 border-2 border-white shadow-sm shrink-0">
-                           {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</h4>
-                          <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">"{friend.nickname}"</p>
-                        </div>
-                        <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-100 shrink-0">
-                           <Star size={16} className="text-yellow-500 fill-current" />
-                           <span className="font-black text-yellow-700">{friend.stars || 0}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
              </div>
@@ -755,7 +778,7 @@ export default function App() {
                         <div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl md:text-2xl shadow-inner`}>
                           {data.emoji}
                         </div>
-                        <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full">{data.label}</span>
+                        <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full text-center">{data.label}</span>
                       </button>
                     ))}
                   </div>
@@ -764,39 +787,39 @@ export default function App() {
                     {formData.photoUrl ? (
                       <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-1.5 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button></div>
                     ) : (
-                      <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" /><p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest">Klik Untuk Ambil Foto</p></div>
+                      <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" /><p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest text-center">Klik Untuk Ambil Foto</p></div>
                     )}
                   </div>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Nama Lengkap</label>
                   <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Nama Panggilan</label>
                   <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Panggilan akrab..." className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <label className="text-[10px] font-black uppercase text-blue-400 ml-1">Cita-cita</label>
                   <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 outline-none focus:border-blue-400 transition-all" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <label className="text-[10px] font-black uppercase text-green-400 ml-1">Hobi</label>
                   <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-4 py-3 rounded-xl border-2 border-green-100 outline-none focus:border-green-400 transition-all" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <label className="text-[10px] font-black uppercase text-orange-400 ml-1">Makan Favorit</label>
                   <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-4 py-3 rounded-xl border-2 border-orange-100 outline-none focus:border-orange-400 transition-all" />
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 text-left">
                 <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
                 <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan pesan penyemangat atau kesan untuk teman-teman..." rows="3" className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
               </div>
@@ -807,7 +830,6 @@ export default function App() {
                   <CheckCircle size={20} className="group-hover:scale-110 transition-transform" />
                 </button>
                 
-                {/* Tombol Batal khusus mode Edit */}
                 <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-2xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
                   <CornerUpLeft size={18} /> Batal & Kembali
                 </button>
