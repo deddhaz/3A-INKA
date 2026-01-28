@@ -24,7 +24,8 @@ import {
   Utensils, Rocket, Palette, Music, Camera, Upload, X, 
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
-  MessageSquareQuote, Languages, Sparkles, MessageSquare, Send
+  MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
+  Sun, Cloud, TreeDeciduous as Tree, Flower
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -100,11 +101,10 @@ export default function App() {
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
   
-  // State baru untuk Testimoni
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [testimonyInput, setTestimonyInput] = useState('');
-  const [testimonyAuthor, setTestimonyAuthor] = useState(''); // State untuk nama pengirim
+  const [testimonyAuthor, setTestimonyAuthor] = useState(''); 
   const [allTestimonies, setAllTestimonies] = useState([]);
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
 
@@ -323,7 +323,6 @@ export default function App() {
         authorName: testimonyAuthor.trim()
       });
       setTestimonyInput('');
-      // Kita simpan nama pengirim di state agar tidak perlu mengetik ulang jika ingin memberi testimoni lagi
     } catch (error) {
       console.error("Error saving testimony:", error);
     } finally {
@@ -399,36 +398,112 @@ export default function App() {
     return (
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
         <InstallPrompt />
-        <div className="bg-white rounded-[30px] shadow-2xl p-6 md:p-8 max-sm:w-full max-w-sm w-full relative z-10 border-4 md:border-8 border-orange-200">
-          <div className="flex flex-col items-center">
-            <div className="relative mb-6 mt-2 transform scale-90 md:scale-100">
-              <div className="flex gap-2 h-24 md:h-32 items-end mb-2">
-                 {[1,2,3,4,5].map(i => <div key={i} className={`w-3 ${i % 2 === 0 ? 'h-20 md:h-28' : 'h-24 md:h-32'} bg-gray-300 rounded-t-full`}></div>)}
-              </div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-400 p-3 md:p-4 rounded-full border-4 border-white shadow-lg">
-                <Lock size={32} className="text-white" />
-              </div>
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-xs font-bold shadow-md whitespace-nowrap">SD Insan Karima</div>
-            </div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-700 mb-2">Gerbang Terkunci!</h2>
-            <form onSubmit={handleLogin} className="w-full">
-              <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Kelas..." className={`w-full px-4 py-3 rounded-xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center tracking-widest mb-4 transition-all`} />
-              <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
-                Buka Gerbang <ArrowRight size={18} />
-              </button>
-            </form>
+        
+        {/* Dekorasi Latar Belakang Sekolah */}
+        <div className="absolute inset-0 z-0">
+          {/* Matahari */}
+          <div className="absolute top-10 right-10 md:top-20 md:right-20 animate-pulse text-yellow-400">
+            <Sun size={80} className="fill-current" />
           </div>
-        </div>
-      </div>
-    );
-  }
+          
+          {/* Awan-awan */}
+          <div className="absolute top-10 left-[10%] animate-float-slow opacity-60 text-white">
+            <Cloud size={64} className="fill-current" />
+          </div>
+          <div className="absolute top-40 left-[40%] animate-float opacity-40 text-white">
+            <Cloud size={80} className="fill-current" />
+          </div>
+          <div className="absolute top-20 left-[70%] animate-float-reverse opacity-50 text-white">
+            <Cloud size={72} className="fill-current" />
+          </div>
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
-        <div className="flex flex-col items-center animate-pulse">
-          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl font-bold text-orange-500">Membuka Buku Biodata...</div>
+          {/* Tanah Hijau */}
+          <div className="absolute bottom-0 w-full h-[25vh] bg-green-500 rounded-t-[100%] scale-x-125 transform translate-y-10"></div>
+          
+          {/* Pohon & Bunga */}
+          <div className="absolute bottom-[18vh] left-[5%] md:left-[15%] text-green-700 hidden sm:block">
+            <Tree size={120} className="fill-current opacity-80" />
+          </div>
+          <div className="absolute bottom-[18vh] right-[5%] md:right-[15%] text-green-700 hidden sm:block">
+            <Tree size={100} className="fill-current opacity-80" />
+          </div>
+          
+          {/* Bunga kecil-kecil */}
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="absolute bottom-[10vh] text-pink-400 opacity-60 animate-bounce" style={{ left: `${i * 12 + 10}%`, animationDelay: `${i * 0.5}s` }}>
+              <Flower size={20} className="fill-current" />
+            </div>
+          ))}
+        </div>
+
+        {/* Card Login Utama */}
+        <div className="relative z-10 w-full max-w-sm px-4">
+          <div className="bg-white/90 backdrop-blur-md rounded-[30px] shadow-2xl p-6 md:p-8 relative border-4 border-orange-200 overflow-hidden group">
+            
+            {/* Dekorasi Atap Gerbang di dalam Card */}
+            <div className="absolute top-0 left-0 w-full h-2 bg-orange-400"></div>
+            
+            <div className="flex flex-col items-center">
+              {/* Header Visual Gerbang */}
+              <div className="relative mb-6 mt-2 flex flex-col items-center">
+                <div className="flex gap-4 md:gap-6 items-end mb-1">
+                   {/* Pilar Gerbang */}
+                   <div className="w-4 h-24 md:h-32 bg-orange-300 rounded-t-full shadow-inner relative">
+                      <div className="absolute -top-1 -left-1 w-6 h-6 bg-orange-400 rounded-full border-2 border-white"></div>
+                   </div>
+                   <div className="w-4 h-24 md:h-32 bg-orange-300 rounded-t-full shadow-inner relative">
+                      <div className="absolute -top-1 -left-1 w-6 h-6 bg-orange-400 rounded-full border-2 border-white"></div>
+                   </div>
+                </div>
+                
+                {/* Logo & Teks Sekolah */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                  <School size={32} className="text-orange-500" />
+                </div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md whitespace-nowrap z-20 transform -rotate-2">
+                  SD INSAN KARIMA
+                </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-black text-gray-800 tracking-tight">Assalamualaikum!</h2>
+                <p className="text-xs font-bold text-gray-500 mt-1 uppercase tracking-widest">Ayo Masuk ke Kelas 3A</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="w-full space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Key size={18} className="text-orange-400" />
+                  </div>
+                  <input 
+                    type="password" 
+                    value={accessCode} 
+                    onChange={(e) => setAccessCode(e.target.value)} 
+                    placeholder="Masukkan Kode Kelas..." 
+                    className={`w-full pl-10 pr-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all placeholder:tracking-normal placeholder:font-bold`} 
+                  />
+                  {loginError && (
+                    <div className="flex items-center justify-center gap-1 mt-2 text-red-500 text-[10px] font-bold animate-shake">
+                      <AlertCircle size={12} /> Kode salah, coba lagi ya!
+                    </div>
+                  )}
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 group/btn uppercase tracking-wider"
+                >
+                  Buka Gerbang <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+              </form>
+              
+              <div className="mt-8 flex items-center justify-center gap-1 text-gray-400">
+                <Sparkles size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Khalid Bin Walid Community</span>
+                <Sparkles size={14} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -687,9 +762,9 @@ export default function App() {
                            <h4 className="text-xl md:text-2xl font-bold text-gray-800 leading-tight">{friend.name}</h4>
                            <p className="text-blue-500 font-bold text-xs uppercase mb-4 tracking-widest">"{friend.nickname || friend.name}"</p>
                            <div className="space-y-1.5 text-left bg-gray-50 p-4 rounded-3xl text-xs md:text-sm mb-4 w-full">
-                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita-cita :</b> {friend.dream || '-'}</p>
-                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi :</b> {friend.hobby || '-'}</p>
-                              <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makanan favorit :</b> {friend.food || '-'}</p>
+                              <p><Rocket size={14} className="inline mr-2 text-blue-400" /> <b>Cita:</b> {friend.dream || '-'}</p>
+                              <p><Gamepad2 size={14} className="inline mr-2 text-green-400" /> <b>Hobi:</b> {friend.hobby || '-'}</p>
+                              <p><Utensils size={14} className="inline mr-2 text-orange-400" /> <b>Makan:</b> {friend.food || '-'}</p>
                            </div>
                            
                            <div className="mt-auto relative w-full mb-3">
@@ -699,7 +774,6 @@ export default function App() {
                          </>
                        )}
 
-                       {/* Interaksi Row (Bintang, Love, & Testimoni) - Dibuat kompak dalam satu baris */}
                        <div className={`flex justify-center items-center w-full mt-4 ${isMobileGrid ? 'gap-1' : 'gap-3 flex-wrap'}`}>
                          <button 
                             onClick={() => handleStar(friend)} 
@@ -732,17 +806,27 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase">© 2026 Dibuat oleh Bilal dan Abinya</footer>
+      <footer className="text-center mt-12 mb-8 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-bold">© 2026 Khalid Bin Walid 3A - SD Insan Karima</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scale-up { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         @keyframes shake-hand { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+        @keyframes float-slow { 0% { transform: translateX(0px) translateY(0px); } 50% { transform: translateX(30px) translateY(-10px); } 100% { transform: translateX(0px) translateY(0px); } }
+        @keyframes float-reverse { 0% { transform: translateX(0px) translateY(0px); } 50% { transform: translateX(-40px) translateY(-15px); } 100% { transform: translateX(0px) translateY(0px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
         .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
         .animate-scale-up { animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         .animate-shake-hand { animation: shake-hand 0.6s ease-in-out infinite; }
         .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-slow { animation: float-slow 10s ease-in-out infinite; }
+        .animate-float-reverse { animation: float-reverse 12s ease-in-out infinite; }
+        .animate-shake { animation: shake 0.3s ease-in-out infinite; }
+        
         body { -webkit-tap-highlight-color: transparent; }
       `}} />
     </div>
