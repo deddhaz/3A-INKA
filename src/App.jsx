@@ -111,7 +111,6 @@ export default function App() {
   const [allTestimonies, setAllTestimonies] = useState([]);
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchInput, setShowSearchInput] = useState(false);
 
   const TEACHER_DATA = {
     waliKelas: {
@@ -569,27 +568,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Input Search Overlay untuk Mobile */}
-      {showSearchInput && (
-        <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md md:hidden flex items-start justify-center pt-20 px-4 animate-fade-in">
-          <div className="w-full max-w-md animate-scale-up">
-            <div className="relative">
-              <input 
-                autoFocus
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari teman..."
-                className="w-full px-6 py-4 rounded-full bg-white text-gray-800 shadow-2xl border-4 border-orange-200 outline-none pr-12 font-bold"
-              />
-              <button onClick={() => {setSearchQuery(''); setShowSearchInput(false);}} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 bg-gray-100 p-1 rounded-full">
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showTestimonyModal && selectedFriend && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col border-4 border-purple-200">
@@ -700,20 +678,30 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mb-6 px-1">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-1">
+              <div className="w-full md:w-auto text-xs font-bold text-gray-400 uppercase tracking-widest text-left">
                 {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : 'Galeri Biodata'}
               </div>
-              <div className="flex items-center gap-2">
-                {/* Mobile Search Icon (Tanpa teks, di samping tombol Grid/List) */}
-                <button 
-                  onClick={() => setShowSearchInput(true)}
-                  className="md:hidden p-2.5 bg-white rounded-xl shadow-sm text-orange-500 border-2 border-orange-100 active:scale-95 transition-all"
-                >
-                  <Search size={18} />
-                </button>
+              
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                {/* Mobile Search Input (Inline, tepat disamping icon search) */}
+                <div className="md:hidden flex flex-1 items-center bg-white rounded-xl shadow-sm border-2 border-orange-100 px-3 py-1.5 transition-all focus-within:border-orange-400">
+                  <Search size={18} className="text-orange-500 shrink-0" />
+                  <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari teman..."
+                    className="flex-1 bg-transparent outline-none text-sm font-bold text-gray-700 ml-2"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="text-gray-300 hover:text-red-400">
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
 
-                <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95">
+                <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95 shrink-0">
                   {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
                   {isMobileGrid ? 'List' : 'Grid'}
                 </button>
@@ -923,7 +911,7 @@ export default function App() {
                            </div>
                         ) : (
                           <div className="border-2 border-dashed border-purple-200 rounded-2xl p-8 bg-purple-50/50 cursor-pointer relative hover:bg-purple-100 transition-colors">
-                             <input type="file" accept="image/*" onChange={handleBannerUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                             <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
                              <ImageIcon size={32} className="text-purple-400 mx-auto" />
                              <p className="text-purple-500 font-black text-[10px] mt-2 uppercase">Klik Untuk Pilih Gambar Banner</p>
                           </div>
