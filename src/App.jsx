@@ -576,7 +576,7 @@ export default function App() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-pink-200">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm px-4 w-full text-center border-4 border-pink-200">
             <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
             <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
@@ -623,7 +623,7 @@ export default function App() {
               </button>
             </div>
             
-            <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4'} md:grid-cols-2 lg:grid-cols-4 md:gap-6`}>
+            <div className={`grid ${isMobileGrid ? 'grid-cols-2 gap-3 pb-8' : 'grid-cols-1 gap-8 pb-10'} md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:pb-12`}>
               {friends.length === 0 ? (
                 <div className="col-span-full py-20 text-center opacity-40"><AlertCircle size={48} className="mx-auto mb-2 text-gray-400" /><p className="font-bold">Belum ada data teman.</p></div>
               ) : (
@@ -638,23 +638,24 @@ export default function App() {
                   const totalPTS = calculatePTS(friend);
 
                   return (
-                    <div key={friend.id} className={`bg-white shadow-lg overflow-hidden border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
-                      {/* Banner Section dengan Motif / Gambar */}
-                      <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative overflow-hidden`}>
-                        {/* Background Banner */}
-                        <div 
-                          className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`}
-                          style={banner ? { backgroundImage: `url(${friend.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                        />
-                        {/* Overlay Gradasi agar nama terbaca */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
+                    <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
+                      {/* Banner Section - PERBAIKAN: Melepas overflow-hidden dari container utama banner */}
+                      <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
+                        {/* Background Container - PERBAIKAN: Menggunakan div terpisah untuk overflow-hidden lencana/motif */}
+                        <div className={`absolute inset-0 w-full h-full overflow-hidden ${isMobileGrid ? 'rounded-t-2xl' : 'rounded-t-3xl'}`}>
+                           <div 
+                             className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`}
+                             style={banner ? { backgroundImage: `url(${friend.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                           />
+                           {/* Overlay Gradasi */}
+                           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
+                        </div>
 
-                        {/* Nama di Tengah Banner (Turun lagi) */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none">
-                           <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-sm mt-1' : 'text-xl md:text-2xl mt-2'}`}>
+                        {/* Nama di Tengah Banner */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none z-10">
+                           <h4 className={`font-black text-white text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
                              {friend.name}
                            </h4>
-                           <p className="text-[9px] md:text-[10px] font-bold text-white/90 uppercase tracking-widest drop-shadow-sm mt-0.5">"{friend.nickname}"</p>
                         </div>
 
                         {/* Info PTS Badge */}
@@ -663,13 +664,13 @@ export default function App() {
                           <span className="text-xs font-black text-yellow-700">{totalPTS} <span className="text-[9px] font-normal">PTS</span></span>
                         </div>
 
-                        {/* Tombol Aksi (Edit/Delete) */}
+                        {/* Tombol Aksi */}
                         <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
                            {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition backdrop-blur-sm"><Pencil size={14} /></button>}
                            {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
                         </div>
 
-                        {/* Avatar / Photo di batas bawah banner */}
+                        {/* Avatar / Photo - PERBAIKAN: Sekarang tidak terpotong karena berada di luar overflow-hidden */}
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30">
                           <div className={`bg-white p-1 rounded-full shadow-xl ring-4 ring-white overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-14 h-14' : 'w-20 h-20 md:w-28 md:h-28'} transition-all`}>
                              {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-2xl' : 'text-3xl md:text-5xl'}`}>{av.emoji}</div>}
@@ -679,6 +680,11 @@ export default function App() {
 
                       {/* Content Section */}
                       <div className={`${isMobileGrid ? 'pt-10 pb-4' : 'pt-16 pb-6'} px-4 text-center flex-1 flex flex-col items-center`}>
+                         {/* Nama Panggilan - Kembalikan ke posisi di bawah avatar */}
+                         <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">
+                           "{friend.nickname || friend.name}"
+                         </p>
+
                          {isMobileGrid ? (
                             <div className="flex justify-center gap-4 mt-1">
                                <Rocket size={16} className={friend.dream ? "text-blue-400" : "text-gray-100"} />
@@ -693,7 +699,7 @@ export default function App() {
                             </div>
                          )}
 
-                         <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-2' : 'gap-4 pt-4'}`}>
+                         <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
                            <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'}`}><Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} /><span className="text-xs font-black">{friend.stars || 0}</span></button>
                            <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
                            <button onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }} className={`flex items-center justify-center gap-1.5 rounded-full bg-purple-500 text-white shadow-md transition-all active:scale-95 ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2 hover:bg-purple-600'}`}><MessageSquare size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{testimonyCount}</span></button>
