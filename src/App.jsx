@@ -653,12 +653,47 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-center mb-8 gap-4">
-          <button onClick={() => { setActiveTab('gallery'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'gallery' ? 'bg-blue-500 text-white ring-4 ring-blue-100' : 'bg-white text-blue-500'}`}><BookOpen size={18} className="inline mr-2" /> Lihat Teman</button>
-          <button onClick={() => { setActiveTab('form'); setIsEditing(false); }} className={`px-6 py-3 rounded-full font-bold shadow-md transition-all ${activeTab === 'form' ? 'bg-pink-500 text-white ring-4 ring-pink-100' : 'bg-white text-pink-500'}`}><Plus size={18} className="inline mr-2" /> Isi Biodata</button>
-        </div>
+   <main className="max-w-7xl mx-auto px-4">
+  <div className="flex justify-center mb-8 gap-4">
+    
+    {/* Button Lihat Teman */}
+    <button
+      onClick={() => {
+        setActiveTab('gallery');
+        setIsEditing(false);
+      }}
+      className={`
+        px-6 py-3 rounded-full font-bold shadow-md transition-all
+        text-base sm:text-lg md:text-xl
+        ${activeTab === 'gallery'
+          ? 'bg-blue-500 text-white ring-4 ring-blue-100'
+          : 'bg-white text-blue-500'}
+      `}
+    >
+      <BookOpen size={18} className="inline mr-2" />
+      Lihat Teman
+    </button>
 
+    {/* Button Isi Biodata */}
+    <button
+      onClick={() => {
+        setActiveTab('form');
+        setIsEditing(false);
+      }}
+      className={`
+        px-6 py-3 rounded-full font-bold shadow-md transition-all
+        text-base sm:text-lg md:text-xl
+        ${activeTab === 'form'
+          ? 'bg-pink-500 text-white ring-4 ring-pink-100'
+          : 'bg-white text-pink-500'}
+      `}
+    >
+      <Plus size={18} className="inline mr-2" />
+      Isi Biodata
+    </button>
+
+  </div>
+</main>
         {activeTab === 'form' && (
           <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 max-w-2xl mx-auto border-2 border-pink-100">
             <h2 className="text-xl md:text-2xl font-bold text-pink-600 mb-6 text-center">{isEditing ? '✏️ Update Biodatamu' : '✏️ Isi Biodatamu Yuk!'}</h2>
