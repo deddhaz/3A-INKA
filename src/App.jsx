@@ -732,14 +732,23 @@ export default function App() {
 
       {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        <div className="absolute top-4 right-4 flex gap-2">
+        {/* Kontainer Tombol Header yang diperbaiki responsivitasnya */}
+        <div className="absolute top-4 right-4 flex gap-3 z-50">
           {userRole === 'admin' && (
-            <button onClick={() => setShowSettingsModal(true)} className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors shadow-sm border border-white/20">
-              <Settings size={20} />
+            <button 
+              onClick={() => setShowSettingsModal(true)} 
+              className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
+              aria-label="Settings"
+            >
+              <Settings size={22} />
             </button>
           )}
-          <button onClick={handleLogout} className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors shadow-sm border border-white/20">
-            <LogOut size={20} />
+          <button 
+            onClick={handleLogout} 
+            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
+            aria-label="Logout"
+          >
+            <LogOut size={22} />
           </button>
         </div>
 
