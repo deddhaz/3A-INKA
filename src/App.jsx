@@ -26,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -116,8 +116,10 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- STATE DATA GURU & KETUA (DENGAN DEFAULT) ---
-  const [teacherData, setTeacherData] = useState({
+  // --- STATE DATA KELAS & GURU (DENGAN DEFAULT) ---
+  const [schoolSettings, setSchoolSettings] = useState({
+    className: "Solahudin Al-Ayubi",
+    classDescription: "Kelas 6A SD Insan Karima",
     waliKelas: {
       name: "Ustazah Najwa",
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
@@ -220,7 +222,7 @@ export default function App() {
     setLoading(true);
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
-    const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'teacher_info');
+    const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'class_info');
     
     // Listener Data Teman
     const unsubscribeData = onSnapshot(dataRef, 
@@ -257,10 +259,10 @@ export default function App() {
       (error) => console.error("Gagal mengambil testimoni:", error)
     );
 
-    // Listener Data Guru
+    // Listener Data Pengaturan Kelas
     const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
       if (snapshot.exists()) {
-        setTeacherData(snapshot.data());
+        setSchoolSettings(prev => ({ ...prev, ...snapshot.data() }));
       }
     });
 
@@ -346,7 +348,7 @@ export default function App() {
   // --- UPLOAD KHUSUS GURU & KETUA ---
   const handleTeacherPhotoUpload = (key, e) => {
     processFile(e.target.files[0], 400, (url) => {
-      handleUpdateTeacher(key, 'photoUrl', url);
+      handleUpdateSchoolSettings(key, 'photoUrl', url);
     });
   };
 
@@ -462,19 +464,32 @@ export default function App() {
     }
   };
 
-  // --- LOGIKA: UPDATE PROFIL GURU & KETUA (ADMIN ONLY) ---
-  const handleUpdateTeacher = async (key, field, value) => {
+  // --- LOGIKA: UPDATE PENGATURAN SEKOLAH / KELAS (ADMIN ONLY) ---
+  const handleUpdateSchoolSettings = async (key, field, value) => {
     if (userRole !== 'admin') return;
-    const newTeacherData = {
-      ...teacherData,
-      [key]: { ...teacherData[key], [field]: value }
-    };
     
+    let updatedData = {};
+    if (field) {
+        // Update nested object (seperti waliKelas.name)
+        updatedData = {
+          ...schoolSettings,
+          [key]: { ...schoolSettings[key], [field]: value }
+        };
+    } else {
+        // Update direct field (seperti className)
+        updatedData = {
+          ...schoolSettings,
+          [key]: value
+        };
+    }
+    
+    setSchoolSettings(updatedData);
+
     try {
-      const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'teacher_info');
-      await setDoc(settingsRef, newTeacherData);
+      const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'class_info');
+      await setDoc(settingsRef, updatedData);
     } catch (error) {
-      console.error("Gagal update guru:", error);
+      console.error("Gagal update pengaturan:", error);
     }
   };
 
@@ -535,17 +550,6 @@ export default function App() {
               </form>
             </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
-        <div className="flex flex-col items-center animate-pulse">
-          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl font-bold text-orange-500">Sabar ya...</div>
         </div>
       </div>
     );
@@ -678,7 +682,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL SETTINGS GURU & KETUA (ADMIN ONLY) */}
+      {/* MODAL SETTINGS KELAS (ADMIN ONLY) */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
@@ -691,13 +695,44 @@ export default function App() {
               </div>
 
               <div className="space-y-10">
+                {/* Identitas Kelas (BARU) */}
+                <div className="bg-gray-50 p-6 rounded-[2.5rem] border-2 border-gray-100 relative">
+                  <div className="absolute -top-3 left-6 bg-gray-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Identitas Kelas</div>
+                  <div className="space-y-4 mt-2">
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black uppercase text-gray-400 ml-1">Nama Kelas:</label>
+                       <div className="relative">
+                          <Type size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                          <input 
+                             value={schoolSettings.className} 
+                             onChange={(e) => handleUpdateSchoolSettings('className', null, e.target.value)}
+                             placeholder="Contoh: Solahudin Al-Ayubi" 
+                             className="w-full pl-11 pr-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
+                          />
+                       </div>
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-black uppercase text-gray-400 ml-1">Deskripsi Kelas:</label>
+                       <div className="relative">
+                          <School size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                          <input 
+                             value={schoolSettings.classDescription} 
+                             onChange={(e) => handleUpdateSchoolSettings('classDescription', null, e.target.value)}
+                             placeholder="Contoh: Kelas 6A SD Insan Karima" 
+                             className="w-full pl-11 pr-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
+                          />
+                       </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Wali Kelas */}
                 <div className="bg-orange-50/50 p-6 rounded-[2.5rem] border-2 border-orange-100 relative">
                   <div className="absolute -top-3 left-6 bg-orange-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Wali Kelas</div>
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
                      <div className="relative group shrink-0">
-                        <img src={teacherData.waliKelas.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Wali Kelas" />
+                        <img src={schoolSettings.waliKelas.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Wali Kelas" />
                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                            <Camera size={20} />
                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="hidden" />
@@ -707,8 +742,8 @@ export default function App() {
                         <div className="space-y-1">
                            <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Wali Kelas:</label>
                            <input 
-                             value={teacherData.waliKelas.name} 
-                             onChange={(e) => handleUpdateTeacher('waliKelas', 'name', e.target.value)}
+                             value={schoolSettings.waliKelas.name} 
+                             onChange={(e) => handleUpdateSchoolSettings('waliKelas', 'name', e.target.value)}
                              placeholder="Nama Wali Kelas..." 
                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
                            />
@@ -723,7 +758,7 @@ export default function App() {
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
                      <div className="relative group shrink-0">
-                        <img src={teacherData.asisten.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Asisten" />
+                        <img src={schoolSettings.asisten.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Asisten" />
                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                            <Camera size={20} />
                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="hidden" />
@@ -733,8 +768,8 @@ export default function App() {
                         <div className="space-y-1">
                            <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Asisten:</label>
                            <input 
-                             value={teacherData.asisten.name} 
-                             onChange={(e) => handleUpdateTeacher('asisten', 'name', e.target.value)}
+                             value={schoolSettings.asisten.name} 
+                             onChange={(e) => handleUpdateSchoolSettings('asisten', 'name', e.target.value)}
                              placeholder="Nama Asisten..." 
                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-blue-300 outline-none text-sm font-bold shadow-sm transition-all"
                            />
@@ -743,13 +778,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Ketua Kelas (BARU) */}
+                {/* Ketua Kelas */}
                 <div className="bg-purple-50/50 p-6 rounded-[2.5rem] border-2 border-purple-100 relative">
                   <div className="absolute -top-3 left-6 bg-purple-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Ketua Kelas</div>
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
                      <div className="relative group shrink-0">
-                        <img src={teacherData.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Ketua Kelas" />
+                        <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Ketua Kelas" />
                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                            <Camera size={20} />
                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('ketuaKelas', e)} className="hidden" />
@@ -759,8 +794,8 @@ export default function App() {
                         <div className="space-y-1">
                            <label className="text-[9px] font-black uppercase text-purple-400 ml-1">Nama Ketua Kelas:</label>
                            <input 
-                             value={teacherData.ketuaKelas?.name || ""} 
-                             onChange={(e) => handleUpdateTeacher('ketuaKelas', 'name', e.target.value)}
+                             value={schoolSettings.ketuaKelas?.name || ""} 
+                             onChange={(e) => handleUpdateSchoolSettings('ketuaKelas', 'name', e.target.value)}
                              placeholder="Nama Ketua Kelas..." 
                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-purple-300 outline-none text-sm font-bold shadow-sm transition-all"
                            />
@@ -772,7 +807,7 @@ export default function App() {
 
               <div className="mt-10 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200 text-center">
                  <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed italic">
-                    💡 Perubahan informasi guru dan ketua kelas akan langsung terupdate di halaman utama semua siswa.
+                    💡 Perubahan informasi identitas kelas, guru, dan ketua kelas akan langsung terupdate untuk semua siswa.
                  </p>
               </div>
 
@@ -783,7 +818,7 @@ export default function App() {
 
       {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        {/* Kontainer Tombol Header: Diubah menjadi flex-col untuk mobile (Settings di bawah Signout) */}
+        {/* Kontainer Tombol Header */}
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
           <button 
             onClick={() => setShowLogoutConfirm(true)} 
@@ -803,36 +838,37 @@ export default function App() {
           )}
         </div>
 
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
-        <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
+        {/* Identitas Kelas Fleksibel */}
+        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">{schoolSettings.className}</h1>
+        <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-4">{schoolSettings.classDescription}</p>
         
         {/* INFORMASI GURU & KETUA KELAS DI HEADER */}
         <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
            {/* Wali Kelas */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={teacherData.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
+               <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">WALI KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.waliKelas.name}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
            </div>
 
            {/* Asisten */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={teacherData.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
+               <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">ASISTEN</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.asisten.name}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
            </div>
 
-           {/* Ketua Kelas (BARU) */}
+           {/* Ketua Kelas */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={teacherData.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
+               <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.ketuaKelas?.name || "Belum Ada"}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
            </div>
         </div>
 
@@ -1011,7 +1047,7 @@ export default function App() {
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
-                {/* Deskripsi Poin PTS dengan Ikon Visual Baru */}
+                {/* Deskripsi Poin PTS */}
                 <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm">
                   <div className="flex items-center gap-4 text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider">
                      <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
@@ -1190,7 +1226,7 @@ export default function App() {
       </main>
 
       <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-        Kelas 6A — SD Insan Karima<br/>
+        {schoolSettings.className} — {schoolSettings.classDescription}<br/>
         Dibuat oleh Hiro dan Abinya — 2026
       </footer>
 
