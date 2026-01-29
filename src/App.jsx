@@ -48,47 +48,6 @@ const COLLECTION_NAME = 'kelas3_biodata';
 const TESTIMONY_COLLECTION = 'testimonies';
 const SETTINGS_COLLECTION = 'settings';
 
-// --- KOMPONEN HELPER ---
-
-const InstallPrompt = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsVisible(true);
-    });
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-      setIsVisible(false);
-    }
-  };
-
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed bottom-24 left-4 right-4 z-[100] bg-white rounded-2xl shadow-2xl p-4 border-2 border-orange-400 animate-bounce md:max-w-xs md:left-auto md:right-10 md:bottom-10">
-      <div className="flex items-center gap-3">
-        <div className="bg-orange-100 p-2 rounded-xl text-orange-600"><School size={24} /></div>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-gray-800">Simpan ke HP?</p>
-          <p className="text-xs text-gray-500">Buka aplikasi lebih cepat!</p>
-        </div>
-        <button onClick={handleInstallClick} className="bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md">Install</button>
-        <button onClick={() => setIsVisible(false)} className="text-gray-400"><X size={18} /></button>
-      </div>
-    </div>
-  );
-};
-
 export default function App() {
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
@@ -325,6 +284,7 @@ export default function App() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (loginError) setLoginError(false);
   };
 
   const processFile = (file, maxSize, callback) => {
@@ -535,16 +495,13 @@ export default function App() {
     }
   };
 
-  // --- LOADING SCREEN (SIMPEL & ELEGAN) ---
+  // --- LOADING SCREEN ---
   if (loading || settingsLoading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex flex-col items-center justify-center p-4">
-        {/* Rumah yang memantul */}
         <div className="animate-bounce text-orange-500 mb-6 drop-shadow-sm">
           <Home size={80} strokeWidth={2.5} />
         </div>
-        
-        {/* Hanya teks Sabar ya... */}
         <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
           Sabar ya...
         </div>
@@ -552,10 +509,10 @@ export default function App() {
     );
   }
 
+  // --- LOGIN PAGE ---
   if (!isAuthenticated) {
     return (
       <div className="h-screen w-full bg-sky-200 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-        <InstallPrompt />
         <div className="absolute inset-0 z-0">
           <div className="absolute top-10 right-10 md:top-20 md:right-20 animate-pulse text-yellow-400"><Sun size={80} className="fill-current" /></div>
           <div className="absolute top-10 left-[10%] animate-float-slow opacity-60 text-white"><Cloud size={64} className="fill-current" /></div>
@@ -577,15 +534,32 @@ export default function App() {
                       <div className="absolute -top-1 -left-1 w-6 h-6 bg-orange-400 rounded-full border-2 border-white"></div>
                    </div>
                 </div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                
+                {/* School Icon with Error Balloon */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500 relative">
                   <School size={32} className="text-orange-500" />
+                  
+                  {loginError && (
+                    <div className="absolute -top-14 -right-16 md:-right-20 bg-red-500 text-white px-3 py-2 rounded-2xl text-[10px] md:text-xs font-black animate-bounce shadow-xl whitespace-nowrap z-50">
+                      Opps! Kode salah ❌
+                      <div className="absolute top-full left-4 border-8 border-transparent border-t-red-500"></div>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU APPS</div>
+
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
-              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Ayo Masuk ke Kelasmu</p>
+              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
-                <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
+                <input 
+                  type="password" 
+                  value={accessCode} 
+                  onChange={(e) => setAccessCode(e.target.value)} 
+                  onFocus={() => setLoginError(false)}
+                  placeholder="Kode Rahasia..." 
+                  className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} 
+                />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Masuk Kelas<ArrowRight size={20} /></button>
               </form>
             </div>
@@ -617,7 +591,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-yellow-50 font-sans pb-24 md:pb-10 relative">
-      <InstallPrompt />
       <BottomNav />
 
       {thanksMessage.show && (
@@ -879,43 +852,28 @@ export default function App() {
         <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-4">{schoolSettings.classDescription}</p>
         
         <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
-           {/* Wali Kelas dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img 
-                 src={schoolSettings.waliKelas.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher"} 
-                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
-                 alt="Wali" 
-               />
+               <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">WALI KELAS</div>
              </div>
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
            </div>
 
-           {/* Asisten dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img 
-                 src={schoolSettings.asisten.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant"} 
-                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
-                 alt="Asisten" 
-               />
+               <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">ASISTEN</div>
              </div>
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
            </div>
 
-           {/* Ketua Kelas dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img 
-                 src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} 
-                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
-                 alt="Ketua" 
-               />
+               <img src={schoolSettings.ketuaKelas?.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
            </div>
         </div>
 
@@ -944,12 +902,7 @@ export default function App() {
                   className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white shadow-lg border-2 border-orange-100 outline-none focus:border-orange-400 transition-all font-bold text-lg text-gray-700"
                 />
                 {searchQuery && (
-                   <button 
-                     onClick={() => setSearchQuery('')}
-                     className="absolute right-6 top-1/2 -translate-y-1/2 bg-gray-100 p-1.5 rounded-full text-gray-400 hover:text-red-500 transition-colors"
-                   >
-                     <X size={20} />
-                   </button>
+                   <button onClick={() => setSearchQuery('')} className="absolute right-6 top-1/2 -translate-y-1/2 bg-gray-100 p-1.5 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={20} /></button>
                 )}
               </div>
             </div>
@@ -958,24 +911,14 @@ export default function App() {
               <div className="w-full md:w-auto text-xs font-bold text-gray-400 uppercase tracking-widest text-left">
                 {searchQuery ? `Hasil pencarian untuk "${searchQuery}"` : ''}
               </div>
-              
               <div className="flex items-center gap-2 w-full md:w-auto">
                 <div className="md:hidden flex flex-1 items-center bg-white rounded-xl shadow-sm border-2 border-orange-100 px-3 py-1.5 transition-all focus-within:border-orange-400">
                   <Search size={18} className="text-orange-500 shrink-0" />
-                  <input 
-                    type="text" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari teman..."
-                    className="flex-1 bg-transparent outline-none text-sm font-bold text-gray-700 ml-2"
-                  />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari teman..." className="flex-1 bg-transparent outline-none text-sm font-bold text-gray-700 ml-2" />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="text-gray-300 hover:text-red-400">
-                      <X size={16} />
-                    </button>
+                    <button onClick={() => setSearchQuery('')} className="text-gray-300 hover:text-red-400"><X size={16} /></button>
                   )}
                 </div>
-
                 <button onClick={() => setIsMobileGrid(!isMobileGrid)} className="md:hidden flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm text-sm font-bold text-blue-500 border-2 border-blue-100 transition-all active:scale-95 shrink-0">
                   {isMobileGrid ? <List size={18} /> : <LayoutGrid size={18} />}
                   {isMobileGrid ? 'List' : 'Grid'}
@@ -999,7 +942,6 @@ export default function App() {
                   const owner = user && user.uid === friend.creatorId;
                   const testimonyCount = allTestimonies.filter(t => t.friendId === friend.id).length;
                   const totalPTS = calculatePTS(friend);
-
                   const rankIndex = rankedFriends.findIndex(f => f.id === friend.id);
                   const rankNum = rankIndex + 1;
                   const ordinalRank = getOrdinal(rankNum);
@@ -1008,37 +950,28 @@ export default function App() {
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
                       <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
                         <div className={`absolute inset-0 w-full h-full overflow-hidden ${isMobileGrid ? 'rounded-t-2xl' : 'rounded-t-3xl'}`}>
-                           <div 
-                             className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`}
-                             style={banner ? { backgroundImage: `url(${friend.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                           />
+                           <div className={`absolute inset-0 w-full h-full transition-all duration-700 ${banner ? '' : (pic ? 'bg-gray-100' : av.color.split(' ')[0])} ${!banner && !pic ? 'pattern-dots' : ''}`} style={banner ? { backgroundImage: `url(${friend.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}} />
                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
                         </div>
-
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                              <span className={`flex items-center gap-1 text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
-                               {rankNum === 1 && <Trophy size={10} className="fill-current" />}
-                               {rankNum === 2 && <Trophy size={10} className="fill-current" />}
-                               {rankNum === 3 && <Trophy size={10} className="fill-current" />}
+                               {(rankNum <= 3) && <Trophy size={10} className="fill-current" />}
                                {ordinalRank}
                              </span>
                            </h4>
                         </div>
-
                         <div className="absolute top-2 left-2 bg-white/90 px-2.5 py-1.5 rounded-full shadow-md flex items-center gap-1.5 z-20 border-2 border-yellow-200 backdrop-blur-sm">
                           <Medal size={16} className="text-yellow-600 fill-yellow-50" />
                           <span className="text-xs font-black text-yellow-700">{totalPTS} <span className="text-[9px] font-normal">PTS</span></span>
                         </div>
-
                         {userRole !== 'viewer' && (
                           <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
                              {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition backdrop-blur-sm"><Pencil size={14} /></button>}
                              {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
                           </div>
                         )}
-
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30">
                           <div className={`bg-white p-1 rounded-full shadow-xl ring-4 ring-white overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-14 h-14' : 'w-20 h-20 md:w-28 md:h-28'} transition-all`}>
                              {pic ? <img src={friend.photoUrl} className="w-full h-full object-cover rounded-full" /> : <div className={`${av.color} w-full h-full rounded-full flex items-center justify-center text-xl ${isMobileGrid ? 'text-2xl' : 'text-3xl md:text-5xl'}`}>{av.emoji}</div>}
@@ -1047,27 +980,18 @@ export default function App() {
                       </div>
 
                       <div className={`${isMobileGrid ? 'pt-10 pb-4' : 'pt-16 pb-6'} px-4 text-center flex-1 flex flex-col items-center`}>
-                         {!isMobileGrid && (
-                           <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">
-                             "{friend.nickname || friend.name}"
-                           </p>
-                         )}
-
+                         {!isMobileGrid && <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">"{friend.nickname || friend.name}"</p>}
                          <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
                             <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
-                            <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>
-                               "{friend.message || 'Semangat terus ya teman-teman!'}"
-                            </p>
+                            <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>"{friend.message || 'Semangat terus ya teman-teman!'}"</p>
                          </div>
-
-                         {isMobileGrid ? null : (
+                         {!isMobileGrid && (
                             <div className="space-y-2 text-left bg-gray-50/80 p-5 rounded-[2rem] text-xs md:text-sm mb-4 w-full border border-gray-100 shadow-inner">
                                <p className="flex items-center gap-3"><Rocket size={16} className="text-blue-400 shrink-0" /> <span><b>Cita-cita:</b> {friend.dream || '-'}</span></p>
                                <p className="flex items-center gap-3"><Gamepad2 size={16} className="text-green-400 shrink-0" /> <span><b>Hobi:</b> {friend.hobby || '-'}</span></p>
                                <p className="flex items-center gap-3"><Utensils size={16} className="text-orange-400 shrink-0" /> <span><b>Makanan:</b> {friend.food || '-'}</span></p>
                             </div>
                          )}
-
                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
                            <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole === 'viewer' || userRole !== 'admin' ? 'cursor-not-allowed opacity-60' : ''}`}>
                              <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
@@ -1091,40 +1015,26 @@ export default function App() {
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
-                <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm">
-                  <div className="flex items-center gap-4 text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider">
-                     <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
-                     <span className="border-r border-orange-200 h-4"></span>
-                     <span className="flex items-center gap-1.5"><HeartHandshake size={16} className="text-green-600" /> = 3 PTS</span>
-                  </div>
+                <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
+                  <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
+                  <span className="border-r border-orange-200 h-4"></span>
+                  <span className="flex items-center gap-1.5"><HeartHandshake size={16} className="text-green-600" /> = 3 PTS</span>
                 </div>
              </div>
-
              <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-orange-100">
-                {rankedFriends.length === 0 ? (
-                  <div className="p-10 text-center text-gray-400 italic font-bold">Data belum tersedia...</div>
-                ) : (
+                {rankedFriends.length === 0 ? <div className="p-10 text-center text-gray-400 italic font-bold">Data belum tersedia...</div> : (
                   <div className="divide-y divide-gray-50">
                     {rankedFriends.slice(0, 15).map((friend, index) => {
                       const totalPTS = calculatePTS(friend);
                       return (
                         <div key={friend.id} className="flex items-center p-5 hover:bg-orange-50/50 transition-colors group">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black mr-4 ${index === 0 ? 'bg-yellow-400 text-white shadow-yellow-200 shadow-lg' : index === 1 ? 'bg-gray-300 text-white shadow-gray-200 shadow-lg' : index === 2 ? 'bg-orange-300 text-white shadow-orange-200 shadow-lg' : 'bg-gray-50 text-gray-400'}`}>
-                            {index + 1}
-                          </div>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black mr-4 ${index === 0 ? 'bg-yellow-400 text-white shadow-lg' : index === 1 ? 'bg-gray-300 text-white shadow-lg' : index === 2 ? 'bg-orange-300 text-white shadow-lg' : 'bg-gray-50 text-gray-400'}`}>{index + 1}</div>
                           <div className="w-14 h-14 rounded-full overflow-hidden mr-4 border-2 border-white shadow-md shrink-0">
                             {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
-                          <div className="flex-1">
-                            <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">
-                              {friend.name}
-                            </h4>
-                          </div>
-                          <div className="flex flex-col items-end gap-1.5">
-                            <div className="flex items-center gap-1.5 bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shrink-0 shadow-sm">
-                              <Medal size={16} className="text-yellow-600 fill-yellow-200" />
-                              <span className="font-black text-yellow-700">{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></span>
-                            </div>
+                          <div className="flex-1 font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</div>
+                          <div className="flex flex-col items-end gap-1.5 shrink-0">
+                            <div className="bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shadow-sm font-black text-yellow-700 flex items-center gap-1.5"><Medal size={16} className="text-yellow-600 fill-yellow-200" />{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></div>
                             <div className="flex gap-2.5 text-[10px] font-black text-gray-300 px-1">
                                <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
                                <span className="flex items-center gap-1"><HeartHandshake size={11} className="text-green-500" /> {friend.thanks || 0}</span>
@@ -1143,36 +1053,23 @@ export default function App() {
           <div className="space-y-8 max-w-2xl mx-auto pb-10">
             <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 border-2 border-pink-100 animate-scale-up relative">
               <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
-              
               <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-8">
                 <div className="space-y-3">
                   <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Desain Banner Kartu:</label>
                   <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
-                      <div className="flex justify-center gap-3 mb-5">
-                        <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Motif Kelas</button>
-                        <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Banner</button>
+                    <div className="flex justify-center gap-3 mb-5">
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Motif Kelas</button>
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, useBanner: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.useBanner ? 'bg-purple-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Banner</button>
+                    </div>
+                    {!formData.useBanner ? <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200"><span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span></div> : (
+                      <div className="relative">
+                        {formData.bannerUrl ? (
+                          <div className="relative group"><img src={formData.bannerUrl} className="w-full h-32 object-cover rounded-2xl border-2 border-purple-200 shadow-md" /><button type="button" onClick={() => setFormData(p => ({ ...p, bannerUrl: null }))} className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-all"><X size={16} /></button></div>
+                        ) : (
+                          <div className="border-2 border-dashed border-purple-200 rounded-2xl p-8 bg-purple-50/50 cursor-pointer relative hover:bg-purple-100 transition-colors"><input type="file" accept="image/*" onChange={handleBannerUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><ImageIcon size={32} className="text-purple-400 mx-auto" /><p className="text-purple-500 font-black text-[10px] mt-2 uppercase">Pilih Gambar Banner</p></div>
+                        )}
                       </div>
-
-                      {!formData.useBanner ? (
-                        <div className="p-10 rounded-2xl bg-indigo-100 pattern-dots flex items-center justify-center border-2 border-indigo-200">
-                          <span className="bg-white/80 px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-500 uppercase">Motif Khalid Bin Walid Aktif</span>
-                        </div>
-                      ) : (
-                        <div className="relative">
-                          {formData.bannerUrl ? (
-                            <div className="relative group">
-                                <img src={formData.bannerUrl} className="w-full h-32 object-cover rounded-2xl border-2 border-purple-200 shadow-md" />
-                                <button type="button" onClick={() => setFormData(p => ({ ...p, bannerUrl: null }))} className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button>
-                            </div>
-                          ) : (
-                            <div className="border-2 border-dashed border-purple-200 rounded-2xl p-8 bg-purple-50/50 cursor-pointer relative hover:bg-purple-100 transition-colors">
-                              <input type="file" accept="image/*" onChange={handleBannerUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                              <ImageIcon size={32} className="text-purple-400 mx-auto" />
-                              <p className="text-purple-500 font-black text-[10px] mt-2 uppercase">Klik Untuk Pilih Gambar Banner</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                    )}
                   </div>
                 </div>
 
@@ -1183,33 +1080,18 @@ export default function App() {
                       <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: false }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${!formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Pakai Avatar</button>
                       <button type="button" onClick={() => setFormData(p => ({ ...p, usePhoto: true }))} className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${formData.usePhoto ? 'bg-pink-500 text-white shadow-lg' : 'bg-white border text-gray-400'}`}>Upload Foto</button>
                     </div>
-                    
                     {!formData.usePhoto ? (
                       <div className="grid grid-cols-4 gap-3 max-w-full mx-auto">
                         {Object.entries(avatars).map(([key, data]) => (
-                          <button 
-                            key={key} 
-                            type="button" 
-                            onClick={() => setFormData(p => ({ ...p, avatar: key }))} 
-                            className={`flex flex-col items-center justify-center p-2 rounded-2xl border-2 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 ring-2 ring-pink-100 ring-offset-1' : 'border-transparent bg-white shadow-sm'}`}
-                          >
-                            <div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl md:text-2xl shadow-inner`}>
-                              {data.emoji}
-                            </div>
-                            <span className="hidden md:block text-[9px] text-gray-400 font-black mt-1 uppercase truncate w-full text-center">{data.label}</span>
-                          </button>
+                          <button key={key} type="button" onClick={() => setFormData(p => ({ ...p, avatar: key }))} className={`flex flex-col items-center justify-center p-2 rounded-2xl border-2 transition-all ${formData.avatar === key ? 'border-pink-400 bg-pink-50 ring-2 ring-pink-100' : 'border-transparent bg-white'}`}><div className={`${data.color} w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full text-xl shadow-inner`}>{data.emoji}</div></button>
                         ))}
                       </div>
                     ) : (
                       <div className="relative inline-block mt-2">
                         {formData.photoUrl ? (
-                          <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110"><X size={16} /></button></div>
+                          <div className="relative"><img src={formData.photoUrl} className="w-28 h-28 md:w-36 md:h-36 object-cover rounded-full border-4 border-pink-400 shadow-xl" /><button type="button" onClick={() => setFormData(p => ({ ...p, photoUrl: null }))} className="absolute -top-1 -right-1 bg-red-500 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-all"><X size={16} /></button></div>
                         ) : (
-                          <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 hover:border-pink-300 group relative">
-                            <input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                            <Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" />
-                            <p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest text-center">Klik Untuk Ambil Foto</p>
-                          </div>
+                          <div className="border-2 border-dashed border-pink-200 rounded-3xl p-10 bg-pink-50 cursor-pointer transition-all hover:bg-pink-100 group relative"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" /><Upload size={40} className="text-pink-400 mx-auto group-hover:scale-110 transition-transform" /><p className="text-pink-500 font-black text-[10px] mt-2 uppercase tracking-widest text-center">Klik Untuk Ambil Foto</p></div>
                         )}
                       </div>
                     )}
@@ -1217,45 +1099,21 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Lengkap</label>
-                    <input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
-                  </div>
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Panggilan</label>
-                    <input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama panggilan..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" />
-                  </div>
+                  <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Lengkap</label><input required name="name" value={formData.name} onChange={handleInputChange} placeholder="Ketik nama lengkap..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" /></div>
+                  <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Nama Panggilan</label><input name="nickname" value={formData.nickname} onChange={handleInputChange} placeholder="Nama panggilan..." className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-pink-400 font-bold transition-all shadow-sm" /></div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-black uppercase text-blue-400 ml-1 tracking-widest">Cita-cita</label>
-                    <input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 transition-all shadow-sm" />
-                  </div>
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-black uppercase text-green-400 ml-1 tracking-widest">Hobi</label>
-                    <input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 transition-all shadow-sm" />
-                  </div>
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makanan Favorit</label>
-                    <input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 transition-all shadow-sm" />
-                  </div>
+                  <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-blue-400 ml-1 tracking-widest">Cita-cita</label><input name="dream" value={formData.dream} onChange={handleInputChange} placeholder="Ingin jadi apa?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-blue-50 outline-none focus:border-blue-400 font-bold shadow-sm transition-all" /></div>
+                  <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-green-400 ml-1 tracking-widest">Hobi</label><input name="hobby" value={formData.hobby} onChange={handleInputChange} placeholder="Suka ngapain?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-green-50 outline-none focus:border-green-400 font-bold shadow-sm transition-all" /></div>
+                  <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-orange-400 ml-1 tracking-widest">Makanan Favorit</label><input name="food" value={formData.food} onChange={handleInputChange} placeholder="Makan paling enak?" className="w-full px-5 py-3.5 rounded-2xl border-2 border-orange-50 outline-none focus:border-orange-400 font-bold shadow-sm transition-all" /></div>
                 </div>
 
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label>
-                  <textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tuliskan kata-kata semangat untuk teman-teman..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 transition-all shadow-sm resize-none" />
-                </div>
+                <div className="space-y-1.5 text-left"><label className="text-[10px] font-black uppercase text-purple-400 ml-1 tracking-widest">Pesan Untuk Teman-teman:</label><textarea required name="message" value={formData.message} onChange={handleInputChange} placeholder="Tulis kata-kata semangat..." rows="3" className="w-full px-6 py-5 rounded-3xl border-2 border-gray-100 outline-none focus:border-purple-400 font-bold shadow-sm transition-all resize-none" /></div>
 
                 <div className="flex flex-col gap-4 pt-6">
-                  <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-5 rounded-3xl shadow-[0_8px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 group text-lg">
-                    {isSubmitting ? 'Menyimpan...' : isEditing ? 'Update Biodata' : 'Simpan Biodata'}
-                    <CheckCircle size={24} className="group-hover:scale-110 transition-transform" />
-                  </button>
-                  
-                  <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-3xl transition-all hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                    <CornerUpLeft size={18} /> Batal & Kembali
-                  </button>
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-pink-500 text-white font-black py-5 rounded-3xl shadow-[0_8px_0_rgb(190,24,93)] active:shadow-none active:translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-lg group">{isSubmitting ? 'Menyimpan...' : (isEditing ? 'Update Biodata' : 'Simpan Biodata')}<CheckCircle size={24} className="group-hover:scale-110 transition-transform" /></button>
+                  <button type="button" onClick={() => { resetForm(); setActiveTab('home'); }} className="w-full bg-white text-gray-400 border-2 border-gray-100 font-black py-4 rounded-3xl hover:bg-gray-50 flex items-center justify-center gap-2 uppercase tracking-widest text-xs transition-all"><CornerUpLeft size={18} /> Batal & Kembali</button>
                 </div>
               </form>
             </div>
@@ -1263,10 +1121,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-        {schoolSettings.className || "Kelas"} — {schoolSettings.classDescription || "SD Insan Karima"}<br/>
-        Dibuat oleh Hiro dan Abinya — 2026
-      </footer>
+      <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">{schoolSettings.className || "Kelas"} — SD Insan Karima<br/>Dibuat oleh Hiro dan Abinya — 2026</footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
@@ -1279,12 +1134,7 @@ export default function App() {
         .animate-shake-hand { animation: shake-hand 0.6s ease-in-out infinite; }
         .animate-spin-slow { animation: spin-slow 10s linear infinite; }
         .animate-float { animation: float 6s ease-in-out infinite; }
-        
-        .pattern-dots {
-          background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
-          background-size: 15px 15px;
-        }
-
+        .pattern-dots { background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 15px 15px; }
         body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
