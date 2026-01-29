@@ -93,7 +93,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [settingsLoading, setSettingsLoading] = useState(true); // State baru untuk handle flicker
+  const [settingsLoading, setSettingsLoading] = useState(true); 
   const [activeTab, setActiveTab] = useState('home'); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState('user'); 
@@ -117,13 +117,14 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- STATE DATA KELAS & GURU (DIKOSONGKAN UNTUK CEGAH FLICKER) ---
+  // --- STATE DATA KELAS & GURU ---
+  // Ditambahkan URL default dicebear untuk mencegah flicker gambar kosong
   const [schoolSettings, setSchoolSettings] = useState({
     className: "",
     classDescription: "",
-    waliKelas: { name: "", photoUrl: "", role: "Wali Kelas" },
-    asisten: { name: "", photoUrl: "", role: "Asisten" },
-    ketuaKelas: { name: "", photoUrl: "", role: "Ketua Kelas" }
+    waliKelas: { name: "", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher", role: "Wali Kelas" },
+    asisten: { name: "", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant", role: "Asisten" },
+    ketuaKelas: { name: "", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", role: "Ketua Kelas" }
   });
 
   const avatars = {
@@ -253,21 +254,28 @@ export default function App() {
       (error) => console.error("Gagal mengambil testimoni:", error)
     );
 
-    // Listener Data Pengaturan Kelas (Menghentikan Flicker)
+    // Listener Data Pengaturan Kelas
     const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
       if (snapshot.exists()) {
-        setSchoolSettings(prev => ({ ...prev, ...snapshot.data() }));
+        const data = snapshot.data();
+        setSchoolSettings(prev => ({
+          ...prev,
+          ...data,
+          // Pastikan jika URL kosong, tetap menggunakan fallback dicebear
+          waliKelas: { ...data.waliKelas, photoUrl: data.waliKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher" },
+          asisten: { ...data.asisten, photoUrl: data.asisten?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant" },
+          ketuaKelas: { ...data.ketuaKelas, photoUrl: data.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader" }
+        }));
       } else {
-        // Jika dokumen tidak ada, set default agar tidak kosong selamanya
         setSchoolSettings({
           className: "Solahudin Al-Ayubi",
           classDescription: "Kelas 6A SD Insan Karima",
-          waliKelas: { name: "Ustazah Najwa", photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", role: "Wali Kelas" },
-          asisten: { name: "Ustazah Dea", photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", role: "Asisten" },
+          waliKelas: { name: "Ustazah Najwa", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher", role: "Wali Kelas" },
+          asisten: { name: "Ustazah Dea", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant", role: "Asisten" },
           ketuaKelas: { name: "Nama Ketua", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", role: "Ketua Kelas" }
         });
       }
-      setSettingsLoading(false); // Selesai memuat pengaturan
+      setSettingsLoading(false); 
     });
 
     return () => {
@@ -512,13 +520,13 @@ export default function App() {
     }
   };
 
-  // --- LOADING SCREEN (Mencegah Flicker) ---
+  // --- LOADING SCREEN ---
   if (loading || settingsLoading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
         <div className="flex flex-col items-center animate-pulse">
           <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl font-bold text-orange-500 uppercase tracking-widest">Memuat Kelas...</div>
+          <div className="text-xl font-bold text-orange-500 uppercase tracking-widest">Sabar ya...</div>
         </div>
       </div>
     );
@@ -554,8 +562,8 @@ export default function App() {
                 </div>
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
-              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
+              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
+              <p className="text-xs font-bold text-gray-500 tracking-widest mb-6 text-center">Silahkan masuk ke kelasmu</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Masuk Kelas<ArrowRight size={20} /></button>
@@ -845,25 +853,40 @@ export default function App() {
         <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-4">{schoolSettings.classDescription}</p>
         
         <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
+           {/* Wali Kelas dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
+               <img 
+                 src={schoolSettings.waliKelas.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher"} 
+                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
+                 alt="Wali" 
+               />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">WALI KELAS</div>
              </div>
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
            </div>
 
+           {/* Asisten dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
+               <img 
+                 src={schoolSettings.asisten.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant"} 
+                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
+                 alt="Asisten" 
+               />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">ASISTEN</div>
              </div>
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
            </div>
 
+           {/* Ketua Kelas dengan fallback rapi */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
-               <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
+               <img 
+                 src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} 
+                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" 
+                 alt="Ketua" 
+               />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
