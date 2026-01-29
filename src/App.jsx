@@ -1244,45 +1244,142 @@ export default function App() {
           </div>
         )}
 
-        {/* --- RANKING PAGE (Restored) --- */}
+        {/* --- RANKING PAGE (Restored with Podium) --- */}
         {activeTab === 'ranking' && (
-          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-20">
-             {/* Header */}
-             <div className="text-center mb-8">
-               <Trophy size={64} className="mx-auto text-yellow-400 mb-2 drop-shadow-md animate-bounce" />
-               <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight">Papan Juara</h2>
-               <p className="text-gray-500 font-bold text-xs uppercase tracking-widest">Siapa Paling Rajin?</p>
+          <div className="max-w-3xl mx-auto pb-24 animate-fade-in px-4">
+             <div className="text-center mb-8 pt-4">
+               <div className="relative inline-block">
+                 <Trophy size={56} className="text-yellow-400 drop-shadow-md animate-bounce" />
+                 <Sparkles size={24} className="absolute -top-2 -right-4 text-yellow-300 animate-pulse" />
+               </div>
+               <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight mt-2">Papan Juara</h2>
+               <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em]">Rajin Pangkal Pandai!</p>
              </div>
 
-             {/* Ranking List */}
-             <div className="space-y-4">
-                {rankedFriends.map((friend, index) => (
-                   <div key={friend.id} className="bg-white p-4 rounded-3xl shadow-lg border-b-4 border-gray-100 flex items-center gap-4 transform hover:scale-[1.02] transition-transform">
-                      <div className={`font-black text-xl w-10 h-10 flex items-center justify-center rounded-full ${index === 0 ? 'bg-yellow-400 text-white' : index === 1 ? 'bg-gray-300 text-white' : index === 2 ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                         {index + 1}
-                      </div>
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-100">
-                         {friend.usePhoto && friend.photoUrl ? (
-                           <img src={friend.photoUrl} className="w-full h-full object-cover" />
-                         ) : (
-                           <div className={`${avatars[friend.avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-xl`}>
-                             {avatars[friend.avatar]?.emoji || '😐'}
-                           </div>
-                         )}
-                      </div>
-                      <div className="flex-1">
-                         <h3 className="font-bold text-gray-800">{friend.name}</h3>
-                         <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span className="flex items-center gap-1"><Star size={12} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
-                            <span className="flex items-center gap-1"><HeartHandshake size={12} className="text-green-500" /> {friend.thanks || 0}</span>
+             {/* PODIUM DISPLAY */}
+             {rankedFriends.length > 0 ? (
+               <div className="flex justify-center items-end mb-12 min-h-[300px] px-2 gap-2 md:gap-6 relative">
+                  {/* PODIUM 2 (Left) */}
+                  <div className="w-1/3 max-w-[130px] flex flex-col items-center z-10 order-1 md:order-1">
+                     {rankedFriends[1] ? (
+                       <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                          <div className="relative mb-3 group">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-gray-300 overflow-hidden shadow-lg bg-gray-100">
+                                {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? (
+                                  <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[1].avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-2xl`}>
+                                    {avatars[rankedFriends[1].avatar]?.emoji || '🥈'}
+                                  </div>
+                                )}
+                             </div>
+                             <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-gray-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#2</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-gray-200 to-gray-300 h-32 md:h-44 rounded-t-2xl border-t-4 border-gray-100 flex flex-col justify-end p-2 text-center shadow-lg relative">
+                             <div className="font-bold text-xs md:text-sm text-gray-700 truncate w-full mb-1">{rankedFriends[1].nickname || rankedFriends[1].name.split(' ')[0]}</div>
+                             <div className="bg-white/60 rounded-lg py-1 px-1 mb-2 backdrop-blur-sm">
+                                <span className="font-black text-gray-600 text-[10px] md:text-xs">{calculatePTS(rankedFriends[1])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     ) : <div className="w-full h-32 md:h-44 bg-gray-50/50 rounded-t-2xl border-t-2 border-dashed border-gray-200"></div>}
+                  </div>
+
+                  {/* PODIUM 1 (Center) */}
+                  <div className="w-1/3 max-w-[150px] flex flex-col items-center z-20 order-2 -mt-10">
+                     {rankedFriends[0] && (
+                       <div className="w-full flex flex-col items-center animate-slide-up">
+                          <div className="relative mb-3 scale-110 group">
+                             <Crown size={36} className="absolute -top-10 left-1/2 -translate-x-1/2 text-yellow-500 fill-yellow-400 drop-shadow-md animate-bounce" />
+                             <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-[5px] border-yellow-400 overflow-hidden shadow-xl bg-yellow-100 ring-4 ring-yellow-400/20">
+                                {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? (
+                                  <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[0].avatar]?.color || 'bg-yellow-100'} w-full h-full flex items-center justify-center text-4xl`}>
+                                    {avatars[rankedFriends[0].avatar]?.emoji || '🥇'}
+                                  </div>
+                                )}
+                             </div>
+                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white min-w-[36px] text-center">#1</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-yellow-300 to-yellow-500 h-44 md:h-56 rounded-t-[24px] border-t-4 border-yellow-200 flex flex-col justify-end p-3 text-center shadow-xl relative overflow-hidden">
+                             <div className="absolute inset-0 pattern-elegant opacity-20"></div>
+                             <div className="relative z-10 font-black text-sm md:text-base text-yellow-900 truncate w-full mb-1">{rankedFriends[0].nickname || rankedFriends[0].name.split(' ')[0]}</div>
+                             <div className="relative z-10 bg-white/70 rounded-xl py-1.5 px-2 mb-4 backdrop-blur-md shadow-sm">
+                                <span className="font-black text-yellow-800 text-xs md:text-sm">{calculatePTS(rankedFriends[0])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     )}
+                  </div>
+
+                  {/* PODIUM 3 (Right) */}
+                  <div className="w-1/3 max-w-[130px] flex flex-col items-center z-10 order-3">
+                     {rankedFriends[2] ? (
+                       <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                          <div className="relative mb-3 group">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-amber-600 overflow-hidden shadow-lg bg-amber-100">
+                                {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? (
+                                  <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[2].avatar]?.color || 'bg-amber-100'} w-full h-full flex items-center justify-center text-2xl`}>
+                                    {avatars[rankedFriends[2].avatar]?.emoji || '🥉'}
+                                  </div>
+                                )}
+                             </div>
+                             <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-amber-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#3</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-amber-600 to-amber-700 h-24 md:h-36 rounded-t-2xl border-t-4 border-amber-500 flex flex-col justify-end p-2 text-center shadow-lg relative">
+                             <div className="font-bold text-xs md:text-sm text-amber-50 truncate w-full mb-1">{rankedFriends[2].nickname || rankedFriends[2].name.split(' ')[0]}</div>
+                             <div className="bg-black/20 rounded-lg py-1 px-1 mb-2">
+                                <span className="font-black text-amber-50 text-[10px] md:text-xs">{calculatePTS(rankedFriends[2])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     ) : <div className="w-full h-24 md:h-36 bg-gray-50/50 rounded-t-2xl border-t-2 border-dashed border-gray-200"></div>}
+                  </div>
+               </div>
+             ) : (
+                <div className="text-center py-12 opacity-50"><p className="font-bold text-gray-400">Belum ada data peringkat.</p></div>
+             )}
+
+             {/* LIST SISANYA */}
+             <div className="bg-white rounded-[2rem] p-6 shadow-xl border-4 border-indigo-50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200"></div>
+                <h3 className="font-black text-gray-400 text-center uppercase tracking-widest text-[10px] mb-6 flex items-center justify-center gap-2">
+                   <Star size={12} /> Pejuang Bintang Lainnya <Star size={12} />
+                </h3>
+                <div className="space-y-3">
+                   {rankedFriends.slice(3).map((friend, idx) => (
+                      <div key={friend.id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-indigo-50 transition-colors group border border-transparent hover:border-indigo-100">
+                         <div className="font-black text-gray-300 text-sm w-6 text-center group-hover:text-indigo-400">{idx + 4}</div>
+                         <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-100 group-hover:scale-110 transition-transform">
+                            {friend.usePhoto && friend.photoUrl ? (
+                              <img src={friend.photoUrl} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className={`${avatars[friend.avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-lg`}>
+                                {avatars[friend.avatar]?.emoji || '😐'}
+                              </div>
+                            )}
+                         </div>
+                         <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-gray-700 text-sm truncate group-hover:text-indigo-600">{friend.name}</h4>
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                               <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
+                               <span className="flex items-center gap-0.5"><HeartHandshake size={10} className="text-green-500" /> {friend.thanks || 0}</span>
+                            </div>
+                         </div>
+                         <div className="bg-indigo-100 px-3 py-1 rounded-full text-indigo-600 font-black text-[10px] whitespace-nowrap">
+                            {calculatePTS(friend)} PTS
                          </div>
                       </div>
-                      <div className="text-right">
-                         <span className="text-2xl font-black text-blue-500">{calculatePTS(friend)}</span>
-                         <span className="text-[10px] font-bold text-gray-300 block">PTS</span>
+                   ))}
+                   {rankedFriends.length <= 3 && rankedFriends.length > 0 && (
+                      <div className="text-center py-4 text-xs text-gray-400 italic bg-gray-50 rounded-xl">
+                         Semua sudah di podium! Semangat terus! 🚀
                       </div>
-                   </div>
-                ))}
+                   )}
+                </div>
              </div>
           </div>
         )}
