@@ -131,6 +131,27 @@ export default function App() {
     return n + "th";
   };
 
+  // --- LOGIKA: HITUNG TANGGAL UNTUK JADWAL ---
+  const getDateForDay = (dayName) => {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const targetIndex = days.indexOf(dayName);
+    const today = new Date();
+    const currentDayIndex = today.getDay(); // 0 = Sunday
+    
+    // Hitung selisih hari
+    let diff = targetIndex - currentDayIndex;
+    
+    // Jika hari ini Sabtu (6), tampilkan jadwal minggu depan
+    if (currentDayIndex === 6) {
+        diff += 7;
+    }
+    
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + diff);
+    
+    return targetDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
   // --- LOGIKA: FILTER PENCARIAN ---
   const filteredFriends = useMemo(() => {
     if (!searchQuery.trim()) return friends;
@@ -1468,12 +1489,14 @@ export default function App() {
                      const lightColors = ['bg-pink-50', 'bg-orange-50', 'bg-yellow-50', 'bg-green-50', 'bg-blue-50'];
                      const borderColors = ['border-pink-200', 'border-orange-200', 'border-yellow-200', 'border-green-200', 'border-blue-200'];
                      const subjects = scheduleData[day] ? scheduleData[day].split('\n').filter(s => s.trim() !== '') : [];
+                     const dateStr = getDateForDay(day);
 
                      return (
                         <div key={day} className={`rounded-2xl md:rounded-3xl overflow-hidden border-2 ${borderColors[idx]} shadow-lg flex flex-col bg-white`}>
                            <div className={`${colors[idx]} py-3 md:py-4 text-center relative overflow-hidden`}>
                               <div className="absolute top-0 right-0 p-2 opacity-20 transform rotate-12"><CalendarDays size={40} className="text-white" /></div>
                               <h3 className="text-white font-black uppercase tracking-widest text-sm md:text-base relative z-10">{day}</h3>
+                              <p className="text-white/90 text-[10px] md:text-xs font-medium relative z-10 mt-0.5">{dateStr}</p>
                            </div>
                            <div className={`flex-1 p-3 md:p-5 ${lightColors[idx]} flex flex-col gap-3`}>
                               {subjects.length > 0 ? (
