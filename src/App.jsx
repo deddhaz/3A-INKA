@@ -28,7 +28,8 @@ import {
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
   Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, 
   ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, 
-  Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit
+  Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit,
+  CalendarCheck, Clock
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -77,6 +78,13 @@ export default function App() {
   const [allTestimonies, setAllTestimonies] = useState([]);
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // --- JADWAL PELAJARAN STATE ---
+  const [scheduleData, setScheduleData] = useState({
+    Senin: '', Selasa: '', Rabu: '', Kamis: '', Jumat: ''
+  });
+  const [showScheduleModal, setShowScheduleModal] = useState(false); // Untuk Admin Input
+  const [showScheduleView, setShowScheduleView] = useState(false);   // Untuk User Lihat
 
   // --- STATE DATA KELAS & GURU ---
   const [schoolSettings, setSchoolSettings] = useState({
@@ -178,6 +186,7 @@ export default function App() {
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
     const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'class_info');
+    const scheduleRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'schedule');
     
     // Listener Data Teman
     const unsubscribeData = onSnapshot(dataRef, 
@@ -237,10 +246,18 @@ export default function App() {
       setSettingsLoading(false); 
     });
 
+    // Listener Jadwal Pelajaran
+    const unsubscribeSchedule = onSnapshot(scheduleRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setScheduleData(snapshot.data());
+      }
+    });
+
     return () => {
       unsubscribeData();
       unsubscribeTestimonies();
       unsubscribeSettings();
+      unsubscribeSchedule();
     };
   }, [user, isAuthenticated]);
 
@@ -475,6 +492,20 @@ export default function App() {
       await setDoc(settingsRef, updatedData);
     } catch (error) {
       console.error("Gagal update pengaturan:", error);
+    }
+  };
+
+  const handleSaveSchedule = async (e) => {
+    e.preventDefault();
+    if (userRole !== 'admin') return;
+
+    try {
+      const scheduleRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'schedule');
+      await setDoc(scheduleRef, scheduleData);
+      setShowScheduleModal(false);
+    } catch (error) {
+      console.error("Gagal update jadwal:", error);
+      alert("Gagal menyimpan jadwal.");
     }
   };
 
@@ -722,6 +753,83 @@ export default function App() {
         </div>
       )}
 
+      {/* --- MODAL INPUT JADWAL (ADMIN ONLY) --- */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-[450] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+            <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl w-[95%] md:w-full max-w-lg overflow-y-auto border-4 border-blue-200 p-5 md:p-8 animate-scale-up max-h-[90vh]">
+              <div className="flex justify-between items-center mb-6">
+                 <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-3 rounded-2xl text-blue-500 shadow-inner"><CalendarDays size={24} /></div>
+                    <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tight">Atur Jadwal</h2>
+                 </div>
+                 <button onClick={() => setShowScheduleModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleSaveSchedule} className="space-y-4">
+                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map(day => (
+                  <div key={day} className="space-y-1">
+                    <label className="text-xs font-black uppercase text-gray-500 ml-1 block">{day}</label>
+                    <textarea 
+                      value={scheduleData[day] || ''} 
+                      onChange={(e) => setScheduleData({...scheduleData, [day]: e.target.value})}
+                      placeholder={`Pelajaran hari ${day}... (Pisahkan dengan Enter)`}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-blue-400 outline-none text-sm font-bold bg-gray-50 focus:bg-white transition-all resize-none"
+                      rows={3}
+                    />
+                  </div>
+                ))}
+                <button type="submit" className="w-full mt-4 py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-blue-600 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                  <CheckCircle size={20} /> Simpan Jadwal
+                </button>
+              </form>
+            </div>
+        </div>
+      )}
+
+      {/* --- MODAL LIHAT JADWAL (VIEW ONLY) --- */}
+      {showScheduleView && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border-8 border-blue-100 p-2 md:p-6 animate-scale-up relative">
+            <button onClick={() => setShowScheduleView(false)} className="absolute top-4 right-4 bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors z-10"><X size={24} /></button>
+            
+            <div className="text-center mb-8 mt-4">
+              <h2 className="text-2xl md:text-4xl font-black text-blue-600 uppercase tracking-tight mb-2 flex items-center justify-center gap-3">
+                <CalendarCheck size={32} className="md:w-10 md:h-10" /> Jadwal Pelajaran
+              </h2>
+              <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.3em]">Jangan Lupa Bawa Bukunya Ya!</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+               {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map((day, idx) => {
+                 const colors = ['bg-pink-500', 'bg-orange-500', 'bg-yellow-400', 'bg-green-500', 'bg-blue-500'];
+                 const lightColors = ['bg-pink-50', 'bg-orange-50', 'bg-yellow-50', 'bg-green-50', 'bg-blue-50'];
+                 const borderColors = ['border-pink-200', 'border-orange-200', 'border-yellow-200', 'border-green-200', 'border-blue-200'];
+                 const subjects = scheduleData[day] ? scheduleData[day].split('\n').filter(s => s.trim() !== '') : [];
+
+                 return (
+                   <div key={day} className={`rounded-2xl overflow-hidden border-2 ${borderColors[idx]} shadow-lg flex flex-col h-full bg-white transform hover:-translate-y-1 transition-transform duration-300`}>
+                      <div className={`${colors[idx]} py-3 text-center`}>
+                        <h3 className="text-white font-black uppercase tracking-widest text-sm">{day}</h3>
+                      </div>
+                      <div className={`flex-1 p-4 ${lightColors[idx]} flex flex-col gap-2 items-center justify-center min-h-[150px]`}>
+                        {subjects.length > 0 ? (
+                          subjects.map((sub, i) => (
+                            <div key={i} className="bg-white w-full py-2 px-3 rounded-xl text-center shadow-sm border border-black/5">
+                              <span className="text-xs md:text-sm font-bold text-gray-700 block truncate">{sub}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 italic text-xs font-bold">Libur / Kosong</span>
+                        )}
+                      </div>
+                   </div>
+                 )
+               })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl w-[95%] md:w-full max-w-xl h-[85vh] md:max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-5 md:p-10 animate-scale-up">
@@ -858,13 +966,18 @@ export default function App() {
         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-pink-400 rounded-full blur-3xl opacity-20 mix-blend-overlay animate-float" style={{ animationDelay: '2s' }}></div>
 
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
-          <button 
-            onClick={() => setShowLogoutConfirm(true)} 
-            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center backdrop-blur-md"
-            aria-label="Logout"
-          >
-            <LogOut size={22} />
-          </button>
+          {/* MENU KHUSUS ADMIN: INPUT JADWAL */}
+          {userRole === 'admin' && (
+            <button 
+              onClick={() => setShowScheduleModal(true)} 
+              className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center backdrop-blur-md"
+              aria-label="Atur Jadwal"
+            >
+              <CalendarDays size={22} />
+            </button>
+          )}
+
+          {/* MENU KHUSUS ADMIN: SETTINGS */}
           {userRole === 'admin' && (
             <button 
               onClick={() => setShowSettingsModal(true)} 
@@ -874,6 +987,15 @@ export default function App() {
               <Settings size={22} />
             </button>
           )}
+
+          {/* LOGOUT */}
+          <button 
+            onClick={() => setShowLogoutConfirm(true)} 
+            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center backdrop-blur-md"
+            aria-label="Logout"
+          >
+            <LogOut size={22} />
+          </button>
         </div>
 
         <div className="relative z-10">
@@ -1073,129 +1195,6 @@ export default function App() {
           </div>
         )}
 
-        {/* --- PERINGKAT PAGE (RESTORED) --- */}
-        {activeTab === 'ranking' && (
-          <div className="min-h-[80vh] pattern-elegant py-10 rounded-[2rem] shadow-inner mb-10">
-            <div className="max-w-6xl mx-auto space-y-6 animate-fade-in px-4">
-                <div className="text-center mb-12">
-                  <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg border-2 border-white"><Trophy size={32} /></div>
-                  <h3 className="text-2xl md:text-3xl font-black text-gray-800 text-center uppercase tracking-tight drop-shadow-sm">Peringkat Kelas</h3>
-                  <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2 text-center opacity-70">Siswa Teladan dengan Poin Tertinggi</p>
-
-                  <div className="mt-6 mx-auto w-fit bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl border-2 border-orange-100 shadow-md text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
-                    <span className="flex items-center gap-1.5">
-                      <Star size={16} className="fill-current text-yellow-500 animate-pulse" /> <span className="text-gray-400">=</span> 5 PTS
-                    </span>
-                    <span className="border-r-2 border-orange-50 h-4"></span>
-                    <span className="flex items-center gap-1.5">
-                      <HeartHandshake size={16} className="text-green-600" /> <span className="text-gray-400">=</span> 3 PTS
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-12">
-                  {rankedFriends.length > 0 ? (
-                    <>
-                      <div className="flex items-end justify-center gap-2 md:gap-8 mb-16 pt-12 md:pt-20">
-                        {rankedFriends[1] && (
-                          <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                            <div className="relative mb-3 md:mb-6">
-                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-300 z-20">
-                                 <Crown size={28} className="fill-current drop-shadow-sm" />
-                              </div>
-                              <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg bg-white ring-4 ring-gray-50">
-                                {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[1].avatar]?.emoji}</div>}
-                              </div>
-                              <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-gray-300 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">2</div>
-                            </div>
-                            <div className="bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                              <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[1].nickname || rankedFriends[1].name}</p>
-                              <div className="bg-gray-100 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-gray-500 shadow-inner flex items-center gap-1">
-                                 <Zap size={10} className="fill-current" />
-                                 {calculatePTS(rankedFriends[1])} <span className="text-[8px] opacity-60">PTS</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {rankedFriends[0] && (
-                          <div className="flex flex-col items-center w-2/5 md:w-80 animate-scale-up z-10">
-                            <div className="relative mb-4 md:mb-8">
-                              <div className="absolute -top-8 md:-top-16 left-1/2 -translate-x-1/2 text-yellow-400 animate-bounce"><Crown size={32} className="md:w-16 md:h-16 fill-current" /></div>
-                              <div className="w-24 h-24 md:w-44 md:h-44 rounded-full overflow-hidden border-4 md:border-8 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] bg-white ring-4 md:ring-8 ring-yellow-50">
-                                {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-3xl md:text-7xl">{avatars[rankedFriends[0].avatar]?.emoji}</div>}
-                              </div>
-                              <div className="absolute -top-2 -right-1 md:-top-4 md:-right-4 bg-yellow-400 text-white w-8 h-8 md:w-14 md:h-14 rounded-full flex items-center justify-center font-black text-sm md:text-2xl border-2 md:border-4 border-white shadow-md">1</div>
-                            </div>
-                            <div className="bg-white p-4 md:p-8 rounded-t-[2.5rem] border-t-8 border-x-8 border-yellow-100 shadow-[0_-15px_30px_rgba(250,204,21,0.1)] w-full text-center flex flex-col items-center relative">
-                              <div className="absolute inset-x-0 -top-1 h-1 bg-yellow-400 rounded-full mx-8"></div>
-                              <p className="text-xs md:text-lg font-black text-gray-800 text-center truncate w-full mb-1 uppercase tracking-tight">{rankedFriends[0].nickname || rankedFriends[0].name}</p>
-                              <div className="bg-yellow-400 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-[10px] md:text-sm font-black text-white shadow-lg flex items-center gap-1.5">
-                                 <Zap size={14} className="fill-current" />
-                                 {calculatePTS(rankedFriends[0])} <span className="text-[9px] opacity-80 uppercase">PTS</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {rankedFriends[2] && (
-                          <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                            <div className="relative mb-3 md:mb-6">
-                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-orange-400 z-20">
-                                 <Crown size={28} className="fill-current drop-shadow-sm" />
-                              </div>
-                              <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white ring-4 ring-orange-50">
-                                {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[2].avatar]?.emoji}</div>}
-                              </div>
-                              <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-orange-400 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">3</div>
-                            </div>
-                            <div className="bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-orange-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                              <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[2].nickname || rankedFriends[2].name}</p>
-                              <div className="bg-orange-50 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-orange-600 shadow-inner flex items-center gap-1">
-                                 <Zap size={10} className="fill-current" />
-                                 {calculatePTS(rankedFriends[2])} <span className="text-[8px] opacity-60">PTS</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="max-w-4xl mx-auto space-y-3 pb-10">
-                        <div className="text-center md:text-left mb-6">
-                           <h4 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.3em] bg-white/50 backdrop-blur-sm w-fit px-4 py-1 rounded-full border border-white/50 shadow-sm mx-auto md:mx-0">Peringkat Lainnya</h4>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {rankedFriends.slice(3, 15).map((friend, index) => {
-                            const actualRank = index + 4;
-                            const pts = calculatePTS(friend);
-                            return (
-                              <div key={friend.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 md:p-4 flex items-center shadow-sm border border-orange-50 hover:border-orange-200 transition-all group hover:-translate-y-1">
-                                <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-50 rounded-xl flex items-center justify-center font-black text-xs md:text-sm text-gray-400 mr-3 shrink-0 group-hover:bg-orange-50 group-hover:text-orange-400 transition-colors">{actualRank}</div>
-                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white shadow-sm mr-3 shrink-0">
-                                   {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-lg md:text-2xl">{avatars[friend.avatar]?.emoji}</div>}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-black text-gray-800 text-xs md:text-sm truncate uppercase tracking-tight group-hover:text-orange-600 transition-colors">{friend.nickname || friend.name}</p>
-                                  <p className="text-[9px] font-bold text-gray-400 hidden md:block italic">"{friend.name}"</p>
-                                </div>
-                                <div className="bg-blue-50 px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shrink-0 ml-2 shadow-sm border border-blue-100">
-                                   <Zap size={14} className="text-blue-500 fill-blue-100" />
-                                   <span className="text-[10px] md:text-xs font-black text-blue-600">{pts} <span className="opacity-50 font-bold">PTS</span></span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-10 text-center text-gray-300 italic font-bold">Belum ada peringkat...</div>
-                  )}
-                </div>
-            </div>
-          </div>
-        )}
-
         {/* --- ACTIVITY PAGE --- */}
         {activeTab === 'activity' && (
           <div className="space-y-8 max-w-4xl mx-auto pb-10 animate-fade-in">
@@ -1206,13 +1205,16 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
-              {/* Jadwal Pelajaran */}
-              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group cursor-default">
+              {/* Jadwal Pelajaran (CLICKABLE NOW) */}
+              <button onClick={() => setShowScheduleView(true)} className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group text-left relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><CalendarCheck size={80} className="text-blue-500" /></div>
                  <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform"><CalendarDays size={28} /></div>
                  <h3 className="text-xl font-black text-gray-800 mb-2">Jadwal Pelajaran</h3>
                  <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Cek mata pelajaran hari ini biar nggak salah bawa buku!</p>
-                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
-              </div>
+                 <div className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-blue-600 transition-colors">
+                    Lihat Jadwal <ArrowRight size={16} />
+                 </div>
+              </button>
 
               {/* Bagi Kelompok */}
               <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-purple-200 hover:border-purple-400 transition-all group cursor-default">
