@@ -26,7 +26,9 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown, Blocks
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, 
+  ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, 
+  Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -596,11 +598,10 @@ export default function App() {
       </button>
       
       {/* MENU BARU: ACTIVITY */}
-      <div className="flex flex-col items-center gap-1 text-gray-300 relative">
-        <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-gray-400 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black uppercase whitespace-nowrap">Soon</div>
-        <div className="p-2 rounded-xl"><Blocks size={22} /></div>
+      <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' ? 'text-indigo-500' : 'text-gray-400'}`}>
+        <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' ? 'bg-indigo-50 scale-110' : ''}`}><Blocks size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Activity</span>
-      </div>
+      </button>
 
       {userRole !== 'viewer' && (
         <button onClick={() => setActiveTab('form')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'form' ? 'text-pink-500' : 'text-gray-400'}`}>
@@ -617,7 +618,7 @@ export default function App() {
 
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
+          <div className="bg-white rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-12 w-[90%] max-w-sm text-center border-4 border-green-200 animate-scale-up">
             <div className="relative mx-auto bg-green-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-shake-hand"><HeartHandshake size={64} className="text-green-500" /></div></div>
             <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Terima Kasih!</h3>
             <p className="text-gray-500">Kamu sudah bilang terima kasih ke <br/><span className="text-green-600 font-bold text-xl">"{thanksMessage.name}"</span></p>
@@ -627,7 +628,7 @@ export default function App() {
 
       {starMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-sm px-4 w-full text-center border-4 border-yellow-300 animate-scale-up">
+          <div className="bg-white rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-12 w-[90%] max-w-sm text-center border-4 border-yellow-300 animate-scale-up">
             <div className="relative mx-auto bg-yellow-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-spin-slow"><Star size={64} className="text-yellow-500 fill-current" /></div></div>
             <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Bintang Terkirim!</h3>
             <p className="text-gray-500">Kamu memberikan Bintang untuk <br/><span className="text-yellow-600 font-bold text-xl">"{starMessage.name}"</span></p>
@@ -637,7 +638,7 @@ export default function App() {
 
       {restrictedMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-sm px-4 w-full text-center border-4 border-red-300 animate-scale-up">
+          <div className="bg-white rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-12 w-[90%] max-w-sm text-center border-4 border-red-300 animate-scale-up">
             <div className="relative mx-auto bg-red-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner">
               <div className="animate-bounce"><AlertCircle size={64} className="text-red-500" /></div>
             </div>
@@ -649,7 +650,7 @@ export default function App() {
 
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 max-w-sm w-full text-center border-4 border-orange-200 animate-scale-up">
+          <div className="bg-white rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-8 w-[90%] max-w-sm text-center border-4 border-orange-200 animate-scale-up">
             <div className="bg-orange-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
               <LogOut size={40} className="text-orange-500" />
             </div>
@@ -665,7 +666,7 @@ export default function App() {
 
       {showTestimonyModal && selectedFriend && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col border-4 border-purple-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-[95%] md:w-full max-w-md h-[80vh] md:max-h-[85vh] flex flex-col border-4 border-purple-200 animate-scale-up">
             <div className="p-4 border-b flex justify-between items-center bg-purple-50 rounded-t-2xl">
               <div className="flex items-center gap-3">
                 <div className="bg-white p-1 rounded-full w-10 h-10 overflow-hidden shadow-sm">
@@ -709,7 +710,7 @@ export default function App() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm px-4 w-full text-center border-4 border-pink-200">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-[90%] max-w-sm text-center border-4 border-pink-200">
             <div className="bg-pink-50 p-3 rounded-full inline-block mb-4"><CheckCircle size={40} className="text-pink-500 mx-auto" /></div>
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
             <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
@@ -723,7 +724,7 @@ export default function App() {
 
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
+            <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl w-[95%] md:w-full max-w-xl h-[85vh] md:max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-5 md:p-10 animate-scale-up">
               <div className="flex justify-between items-center mb-8">
                  <div className="flex items-center gap-3">
                     <div className="bg-orange-100 p-3 rounded-2xl text-orange-500 shadow-inner"><Settings size={24} /></div>
@@ -929,13 +930,13 @@ export default function App() {
             Peringkat
           </button>
           
-          <div className="relative group cursor-not-allowed">
-            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-gray-100 text-gray-400 font-black uppercase tracking-wider text-xs border border-transparent group-hover:border-gray-200 transition-all">
-               <Blocks size={18} />
-               Activity
-            </div>
-            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold shadow-sm animate-pulse">SOON</div>
-          </div>
+          <button 
+            onClick={() => setActiveTab('activity')} 
+            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'activity' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200 transform -translate-y-1' : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-500'}`}
+          >
+            <Blocks size={18} className={activeTab === 'activity' ? 'animate-bounce' : ''} />
+            Activity
+          </button>
 
           {userRole !== 'viewer' && (
             <button 
@@ -1072,6 +1073,7 @@ export default function App() {
           </div>
         )}
 
+        {/* --- PERINGKAT PAGE (RESTORED) --- */}
         {activeTab === 'ranking' && (
           <div className="min-h-[80vh] pattern-elegant py-10 rounded-[2rem] shadow-inner mb-10">
             <div className="max-w-6xl mx-auto space-y-6 animate-fade-in px-4">
@@ -1190,6 +1192,43 @@ export default function App() {
                     <div className="p-10 text-center text-gray-300 italic font-bold">Belum ada peringkat...</div>
                   )}
                 </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- ACTIVITY PAGE --- */}
+        {activeTab === 'activity' && (
+          <div className="space-y-8 max-w-4xl mx-auto pb-10 animate-fade-in">
+            <div className="text-center mb-8">
+              <div className="bg-indigo-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-600 shadow-lg border-2 border-white transform rotate-3"><Blocks size={32} /></div>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">Pusat Aktivitas</h2>
+              <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-2">Belajar Sambil Bermain</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+              {/* Jadwal Pelajaran */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group cursor-default">
+                 <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform"><CalendarDays size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Jadwal Pelajaran</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Cek mata pelajaran hari ini biar nggak salah bawa buku!</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
+
+              {/* Bagi Kelompok */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-purple-200 hover:border-purple-400 transition-all group cursor-default">
+                 <div className="bg-purple-50 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform"><Users size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Bagi Kelompok</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Bingung bagi kelompok? Biar sistem yang acak otomatis.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
+
+              {/* Quiz */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-orange-200 hover:border-orange-400 transition-all group cursor-default">
+                 <div className="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform"><BrainCircuit size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Kuis Seru</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Uji pengetahuanmu dengan kuis interaktif yang menantang.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
             </div>
           </div>
         )}
