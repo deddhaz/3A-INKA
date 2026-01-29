@@ -535,23 +535,25 @@ export default function App() {
                    </div>
                 </div>
                 
-                {/* School Icon with Error Balloon */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500 relative">
+                {/* School Icon - Kembali ke posisi semula */}
+                <div className="bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500 relative -mt-16 z-10 mb-4">
                   <School size={32} className="text-orange-500" />
-                  
-                  {loginError && (
-                    <div className="absolute -top-14 -right-16 md:-right-20 bg-red-500 text-white px-3 py-2 rounded-2xl text-[10px] md:text-xs font-black animate-bounce shadow-xl whitespace-nowrap z-50">
-                      Opps! Kode salah ❌
-                      <div className="absolute top-full left-4 border-8 border-transparent border-t-red-500"></div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
+
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
+              
               <form onSubmit={handleLogin} className="w-full space-y-4">
+                {/* Pesan Error di atas kolom input */}
+                {loginError && (
+                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest text-center animate-fade-in -mb-2">
+                    Opps! kode salah ❌
+                  </p>
+                )}
+                
                 <input 
                   type="password" 
                   value={accessCode} 
@@ -560,7 +562,11 @@ export default function App() {
                   placeholder="Kode Rahasia..." 
                   className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} 
                 />
-                <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Masuk Kelas<ArrowRight size={20} /></button>
+                
+                <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">
+                  Masuk Kelas
+                  <ArrowRight size={20} />
+                </button>
               </form>
             </div>
           </div>
