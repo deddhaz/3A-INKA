@@ -731,15 +731,16 @@ export default function App() {
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-blue-50 scale-110' : ''}`}><Home size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Home</span>
       </button>
-      <button onClick={() => setActiveTab('ranking')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'ranking' ? 'text-orange-500' : 'text-gray-400'}`}>
-        <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
-        <span className="text-[10px] font-bold uppercase">Peringkat</span>
-      </button>
       
       {/* MENU BARU: ACTIVITY */}
       <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' || activeTab === 'schedule' ? 'text-indigo-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' || activeTab === 'schedule' ? 'bg-indigo-50 scale-110' : ''}`}><Blocks size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Activity</span>
+      </button>
+
+      <button onClick={() => setActiveTab('ranking')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'ranking' ? 'text-orange-500' : 'text-gray-400'}`}>
+        <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
+        <span className="text-[10px] font-bold uppercase">Peringkat</span>
       </button>
 
       {userRole !== 'viewer' && (
@@ -1172,19 +1173,19 @@ export default function App() {
           </button>
           
           <button 
-            onClick={() => setActiveTab('ranking')} 
-            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'ranking' ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-200 transform -translate-y-1' : 'text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}`}
-          >
-            <Trophy size={18} className={activeTab === 'ranking' ? 'animate-bounce' : ''} />
-            Peringkat
-          </button>
-          
-          <button 
             onClick={() => setActiveTab('activity')} 
             className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'activity' || activeTab === 'schedule' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200 transform -translate-y-1' : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-500'}`}
           >
             <Blocks size={18} className={activeTab === 'activity' || activeTab === 'schedule' ? 'animate-bounce' : ''} />
             Activity
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('ranking')} 
+            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'ranking' ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-200 transform -translate-y-1' : 'text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}`}
+          >
+            <Trophy size={18} className={activeTab === 'ranking' ? 'animate-bounce' : ''} />
+            Peringkat
           </button>
 
           {userRole !== 'viewer' && (
@@ -1584,7 +1585,7 @@ export default function App() {
                                 <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-orange-200 ring-2 ring-orange-100 relative overflow-hidden group">
                                     <div className="flex items-center gap-3">
                                         <div className="bg-orange-100 p-2 rounded-full text-orange-600">
-                                            <Flag size={20} />
+                                            <GraduationCap size={20} />
                                         </div>
                                         <div>
                                             <span className="text-xs md:text-sm font-black leading-tight text-gray-800 block">Upacara Bendera</span>
