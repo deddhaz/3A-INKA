@@ -26,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown, Activity
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -503,7 +503,7 @@ export default function App() {
           <Home size={80} strokeWidth={2.5} />
         </div>
         <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
-          Sabar ya...
+          Sabarya...
         </div>
       </div>
     );
@@ -585,7 +585,7 @@ export default function App() {
 
   // --- SUB-KOMPONEN NAVIGASI ---
   const BottomNav = () => (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 px-4 z-[100] md:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 px-2 z-[100] md:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
       <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}>
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-blue-50 scale-110' : ''}`}><Home size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Home</span>
@@ -594,6 +594,14 @@ export default function App() {
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Peringkat</span>
       </button>
+      
+      {/* MENU BARU: ACTIVITY */}
+      <div className="flex flex-col items-center gap-1 text-gray-300 relative">
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-gray-400 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black uppercase whitespace-nowrap">Soon</div>
+        <div className="p-2 rounded-xl"><Activity size={22} /></div>
+        <span className="text-[10px] font-bold uppercase">Activity</span>
+      </div>
+
       {userRole !== 'viewer' && (
         <button onClick={() => setActiveTab('form')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'form' ? 'text-pink-500' : 'text-gray-400'}`}>
           <div className={`p-2 rounded-xl transition-all ${activeTab === 'form' ? 'bg-pink-50 scale-110' : ''}`}><Plus size={22} /></div>
@@ -619,7 +627,7 @@ export default function App() {
 
       {starMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-yellow-300 animate-scale-up">
+          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-sm px-4 w-full text-center border-4 border-yellow-300 animate-scale-up">
             <div className="relative mx-auto bg-yellow-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner"><div className="animate-spin-slow"><Star size={64} className="text-yellow-500 fill-current" /></div></div>
             <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Bintang Terkirim!</h3>
             <p className="text-gray-500">Kamu memberikan Bintang untuk <br/><span className="text-yellow-600 font-bold text-xl">"{starMessage.name}"</span></p>
@@ -715,7 +723,7 @@ export default function App() {
 
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
+            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
               <div className="flex justify-between items-center mb-8">
                  <div className="flex items-center gap-3">
                     <div className="bg-orange-100 p-3 rounded-2xl text-orange-500 shadow-inner"><Settings size={24} /></div>
@@ -838,7 +846,7 @@ export default function App() {
               </div>
 
               <button onClick={() => setShowSettingsModal(false)} className="w-full mt-8 py-4 bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-orange-600 active:scale-[0.98] transition-all">Selesai</button>
-           </div>
+            </div>
         </div>
       )}
 
@@ -894,6 +902,14 @@ export default function App() {
         <div className="hidden md:flex justify-center gap-2 mt-6">
           <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
           <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
+          
+          {/* MENU DESKTOP ACTIVITY */}
+          <div className="relative px-6 py-2 rounded-full font-bold text-sm bg-orange-200/50 text-orange-100 cursor-not-allowed flex items-center gap-2">
+             <Activity size={16} />
+             Activity
+             <span className="bg-orange-600 text-[8px] px-1.5 py-0.5 rounded-full text-white animate-pulse">COMING SOON</span>
+          </div>
+
           {userRole !== 'viewer' && (
             <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
           )}
@@ -1042,17 +1058,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* VIEW: PODIUM DESKTOP & MOBILE */}
                 <div className="space-y-12">
                   {rankedFriends.length > 0 ? (
                     <>
-                      {/* Podium Section (Unified Responsive) */}
                       <div className="flex items-end justify-center gap-2 md:gap-8 mb-16 pt-12 md:pt-20">
-                        {/* Juara 2 */}
                         {rankedFriends[1] && (
                           <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                             <div className="relative mb-3 md:mb-6">
-                              {/* Icon Mahkota Juara 2 */}
                               <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-300 z-20">
                                  <Crown size={28} className="fill-current drop-shadow-sm" />
                               </div>
@@ -1071,7 +1083,6 @@ export default function App() {
                           </div>
                         )}
 
-                        {/* Juara 1 (Tengah & Lebih Besar) */}
                         {rankedFriends[0] && (
                           <div className="flex flex-col items-center w-2/5 md:w-80 animate-scale-up z-10">
                             <div className="relative mb-4 md:mb-8">
@@ -1092,11 +1103,9 @@ export default function App() {
                           </div>
                         )}
 
-                        {/* Juara 3 */}
                         {rankedFriends[2] && (
                           <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                             <div className="relative mb-3 md:mb-6">
-                              {/* Icon Mahkota Juara 3 */}
                               <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-orange-400 z-20">
                                  <Crown size={28} className="fill-current drop-shadow-sm" />
                               </div>
@@ -1116,7 +1125,6 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Sisanya dlm bentuk list (Mobile & Desktop) */}
                       <div className="max-w-4xl mx-auto space-y-3 pb-10">
                         <div className="text-center md:text-left mb-6">
                            <h4 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.3em] bg-white/50 backdrop-blur-sm w-fit px-4 py-1 rounded-full border border-white/50 shadow-sm mx-auto md:mx-0">Peringkat Lainnya</h4>
