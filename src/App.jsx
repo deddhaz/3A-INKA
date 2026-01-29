@@ -503,7 +503,7 @@ export default function App() {
           <Home size={80} strokeWidth={2.5} />
         </div>
         <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
-          Sabarya...
+          Sabar ya...
         </div>
       </div>
     );
