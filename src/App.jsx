@@ -26,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown, Activity
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown, Blocks
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -598,7 +598,7 @@ export default function App() {
       {/* MENU BARU: ACTIVITY */}
       <div className="flex flex-col items-center gap-1 text-gray-300 relative">
         <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-gray-400 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black uppercase whitespace-nowrap">Soon</div>
-        <div className="p-2 rounded-xl"><Activity size={22} /></div>
+        <div className="p-2 rounded-xl"><Blocks size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Activity</span>
       </div>
 
@@ -905,7 +905,7 @@ export default function App() {
           
           {/* MENU DESKTOP ACTIVITY */}
           <div className="relative px-6 py-2 rounded-full font-bold text-sm bg-orange-200/50 text-orange-100 cursor-not-allowed flex items-center gap-2">
-             <Activity size={16} />
+             <Blocks size={16} />
              Activity
              <span className="bg-orange-600 text-[8px] px-1.5 py-0.5 rounded-full text-white animate-pulse">COMING SOON</span>
           </div>
