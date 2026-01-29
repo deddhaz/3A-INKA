@@ -26,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -99,6 +99,7 @@ export default function App() {
   const [accessCode, setAccessCode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isMobileGrid, setIsMobileGrid] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -115,7 +116,7 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- STATE DATA GURU (DENGAN DEFAULT) ---
+  // --- STATE DATA GURU & KETUA (DENGAN DEFAULT) ---
   const [teacherData, setTeacherData] = useState({
     waliKelas: {
       name: "Ustazah Najwa",
@@ -125,7 +126,12 @@ export default function App() {
     asisten: {
       name: "Ustazah Dea",
       photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
-      role: "Asisten Wali Kelas"
+      role: "Asisten"
+    },
+    ketuaKelas: {
+      name: "Nama Ketua",
+      photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", 
+      role: "Ketua Kelas"
     }
   });
 
@@ -294,6 +300,7 @@ export default function App() {
     setAccessCode('');
     sessionStorage.removeItem('school_auth');
     sessionStorage.removeItem('user_role');
+    setShowLogoutConfirm(false);
   };
 
   const handleInputChange = (e) => {
@@ -336,7 +343,7 @@ export default function App() {
     });
   };
 
-  // --- UPLOAD KHUSUS GURU ---
+  // --- UPLOAD KHUSUS GURU & KETUA ---
   const handleTeacherPhotoUpload = (key, e) => {
     processFile(e.target.files[0], 400, (url) => {
       handleUpdateTeacher(key, 'photoUrl', url);
@@ -455,7 +462,7 @@ export default function App() {
     }
   };
 
-  // --- LOGIKA: UPDATE PROFIL GURU (ADMIN ONLY) ---
+  // --- LOGIKA: UPDATE PROFIL GURU & KETUA (ADMIN ONLY) ---
   const handleUpdateTeacher = async (key, field, value) => {
     if (userRole !== 'admin') return;
     const newTeacherData = {
@@ -567,7 +574,7 @@ export default function App() {
       <InstallPrompt />
       <BottomNav />
 
-      {/* Popups (Star, Thanks, Testimony, Confirm, Restricted) */}
+      {/* Popups (Star, Thanks, Testimony, Confirm, Logout Confirm, Restricted) */}
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
@@ -590,12 +597,29 @@ export default function App() {
 
       {restrictedMessage && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-red-300 animate-scale-up">
+          <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-sm px-4 w-full text-center border-4 border-red-300 animate-scale-up">
             <div className="relative mx-auto bg-red-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner">
               <div className="animate-bounce"><AlertCircle size={64} className="text-red-500" /></div>
             </div>
             <h3 className="text-xl font-extrabold text-gray-800 mb-2">Akses Terbatas</h3>
             <p className="text-red-600 font-bold">Hanya guru yang bisa memberikan bintang</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL KONFIRMASI LOGOUT */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[40px] shadow-2xl p-8 max-w-sm w-full text-center border-4 border-orange-200 animate-scale-up">
+            <div className="bg-orange-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <LogOut size={40} className="text-orange-500" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-800 mb-2">Mau Keluar?</h3>
+            <p className="text-gray-500 mb-8 font-medium">Apakah kamu yakin ingin keluar dari kelas?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-4 rounded-2xl border-2 border-gray-100 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Batal</button>
+              <button onClick={handleLogout} className="flex-1 py-4 rounded-2xl bg-orange-500 text-white font-black uppercase tracking-widest shadow-lg shadow-orange-100 hover:bg-orange-600 active:scale-95 transition-all">Ya, Keluar</button>
+            </div>
           </div>
         </div>
       )}
@@ -654,14 +678,14 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL SETTINGS GURU (ADMIN ONLY) */}
+      {/* MODAL SETTINGS GURU & KETUA (ADMIN ONLY) */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
               <div className="flex justify-between items-center mb-8">
                  <div className="flex items-center gap-3">
                     <div className="bg-orange-100 p-3 rounded-2xl text-orange-500 shadow-inner"><Settings size={24} /></div>
-                    <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tight">Pengaturan Guru</h2>
+                    <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tight">Pengaturan Kelas</h2>
                  </div>
                  <button onClick={() => setShowSettingsModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={24} /></button>
               </div>
@@ -681,7 +705,7 @@ export default function App() {
                      </div>
                      <div className="flex-1 w-full space-y-3">
                         <div className="space-y-1">
-                           <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Lengkap:</label>
+                           <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Wali Kelas:</label>
                            <input 
                              value={teacherData.waliKelas.name} 
                              onChange={(e) => handleUpdateTeacher('waliKelas', 'name', e.target.value)}
@@ -689,10 +713,6 @@ export default function App() {
                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
                            />
                         </div>
-                        <button type="button" className="w-full py-2.5 bg-white border-2 border-orange-100 rounded-xl text-[10px] font-black text-orange-500 uppercase flex items-center justify-center gap-2 hover:bg-orange-100 transition-colors relative overflow-hidden">
-                           <Upload size={14} /> Ganti Foto Wali Kelas
-                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
-                        </button>
                      </div>
                   </div>
                 </div>
@@ -711,7 +731,7 @@ export default function App() {
                      </div>
                      <div className="flex-1 w-full space-y-3">
                         <div className="space-y-1">
-                           <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Lengkap:</label>
+                           <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Asisten:</label>
                            <input 
                              value={teacherData.asisten.name} 
                              onChange={(e) => handleUpdateTeacher('asisten', 'name', e.target.value)}
@@ -719,22 +739,44 @@ export default function App() {
                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-blue-300 outline-none text-sm font-bold shadow-sm transition-all"
                            />
                         </div>
-                        <button type="button" className="w-full py-2.5 bg-white border-2 border-blue-100 rounded-xl text-[10px] font-black text-blue-500 uppercase flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors relative overflow-hidden">
-                           <Upload size={14} /> Ganti Foto Asisten
-                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
-                        </button>
+                     </div>
+                  </div>
+                </div>
+
+                {/* Ketua Kelas (BARU) */}
+                <div className="bg-purple-50/50 p-6 rounded-[2.5rem] border-2 border-purple-100 relative">
+                  <div className="absolute -top-3 left-6 bg-purple-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Ketua Kelas</div>
+                  
+                  <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
+                     <div className="relative group shrink-0">
+                        <img src={teacherData.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Ketua Kelas" />
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                           <Camera size={20} />
+                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('ketuaKelas', e)} className="hidden" />
+                        </label>
+                     </div>
+                     <div className="flex-1 w-full space-y-3">
+                        <div className="space-y-1">
+                           <label className="text-[9px] font-black uppercase text-purple-400 ml-1">Nama Ketua Kelas:</label>
+                           <input 
+                             value={teacherData.ketuaKelas?.name || ""} 
+                             onChange={(e) => handleUpdateTeacher('ketuaKelas', 'name', e.target.value)}
+                             placeholder="Nama Ketua Kelas..." 
+                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-purple-300 outline-none text-sm font-bold shadow-sm transition-all"
+                           />
+                        </div>
                      </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-10 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                 <p className="text-center text-[10px] text-gray-500 font-bold uppercase leading-relaxed italic">
-                    💡 Perubahan nama dan foto guru akan langsung sinkron secara real-time ke semua perangkat siswa yang membuka aplikasi ini.
+              <div className="mt-10 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200 text-center">
+                 <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed italic">
+                    💡 Perubahan informasi guru dan ketua kelas akan langsung terupdate di halaman utama semua siswa.
                  </p>
               </div>
 
-              <button onClick={() => setShowSettingsModal(false)} className="w-full mt-8 py-4 bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-orange-600 active:scale-[0.98] transition-all">Selesai & Simpan</button>
+              <button onClick={() => setShowSettingsModal(false)} className="w-full mt-8 py-4 bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-orange-600 active:scale-[0.98] transition-all">Selesai</button>
            </div>
         </div>
       )}
@@ -744,7 +786,7 @@ export default function App() {
         {/* Kontainer Tombol Header: Diubah menjadi flex-col untuk mobile (Settings di bawah Signout) */}
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
           <button 
-            onClick={handleLogout} 
+            onClick={() => setShowLogoutConfirm(true)} 
             className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
             aria-label="Logout"
           >
@@ -763,13 +805,35 @@ export default function App() {
 
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
         <p className="text-orange-100 text-sm font-bold uppercase tracking-widest mb-4">Kelas 6A SD Insan Karima</p>
-        <div className="flex justify-center gap-8 mb-4">
-           {Object.values(teacherData).map(t => (
-             <div key={t.name} className="flex flex-col items-center">
-               <img src={t.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover mb-2" alt={t.name} />
-               <span className="font-bold text-xs md:text-sm">{t.name}</span>
+        
+        {/* INFORMASI GURU & KETUA KELAS DI HEADER */}
+        <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
+           {/* Wali Kelas */}
+           <div className="flex flex-col items-center group">
+             <div className="relative mb-2">
+               <img src={teacherData.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
+               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">WALI KELAS</div>
              </div>
-           ))}
+             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.waliKelas.name}</span>
+           </div>
+
+           {/* Asisten */}
+           <div className="flex flex-col items-center group">
+             <div className="relative mb-2">
+               <img src={teacherData.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
+               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">ASISTEN</div>
+             </div>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.asisten.name}</span>
+           </div>
+
+           {/* Ketua Kelas (BARU) */}
+           <div className="flex flex-col items-center group">
+             <div className="relative mb-2">
+               <img src={teacherData.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
+               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
+             </div>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{teacherData.ketuaKelas?.name || "Belum Ada"}</span>
+           </div>
         </div>
 
         {/* Desktop Nav Tabs */}
@@ -903,7 +967,7 @@ export default function App() {
                            </p>
                          )}
 
-                         {/* Pesan Semangat (BARU DIKEMBALIKAN) */}
+                         {/* Pesan Semangat */}
                          <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
                             <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
                             <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>
@@ -967,7 +1031,6 @@ export default function App() {
                             {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
                           <div className="flex-1">
-                            {/* Menghapus info nomor peringkat di sini sesuai permintaan */}
                             <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">
                               {friend.name}
                             </h4>
