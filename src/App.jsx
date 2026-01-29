@@ -282,6 +282,25 @@ export default function App() {
           Jumat: data.Jumat || ''
         });
         setHomeworkData(data.homework || {});
+
+        // --- RESET PR OTOMATIS (HARI SABTU) ---
+        const today = new Date();
+        const isSaturday = today.getDay() === 6; // 6 = Sabtu
+        const lastReset = data.lastReset?.toDate ? data.lastReset.toDate() : null;
+        
+        // Cek apakah sudah direset pada tanggal hari ini
+        const isResetDoneToday = lastReset && 
+          lastReset.getDate() === today.getDate() &&
+          lastReset.getMonth() === today.getMonth() &&
+          lastReset.getFullYear() === today.getFullYear();
+
+        // Jika hari Sabtu DAN belum direset hari ini, jalankan reset
+        if (isSaturday && !isResetDoneToday) {
+           updateDoc(scheduleRef, {
+             homework: {}, // Kosongkan PR
+             lastReset: serverTimestamp() // Tandai sudah direset
+           }).catch(err => console.log("Auto-reset PR skipped (permission/network):", err));
+        }
       }
     });
 
