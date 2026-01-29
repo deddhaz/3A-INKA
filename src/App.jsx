@@ -942,7 +942,7 @@ export default function App() {
               onClick={() => { setActiveTab('form'); resetForm(); }} 
               className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'form' ? 'bg-pink-500 text-white shadow-lg shadow-pink-200 transform -translate-y-1' : 'text-gray-400 hover:bg-pink-50 hover:text-pink-500'}`}
             >
-              <Plus size={18} className={activeTab === 'form' ? 'animate-spin-slow' : ''} />
+              <user-round-plus size={18} className={activeTab === 'form' ? 'animate-spin-slow' : ''} />
               Tambah Data
             </button>
           )}
