@@ -971,13 +971,13 @@ export default function App() {
                            <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
                              <span className={`flex items-center gap-1 text-[0.9em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
-                               {(rankNum <= 3) && <Trophy size={15} className="fill-current" />}
+                               {(rankNum <= 3) && <Crown size={15} className="fill-current" />}
                                {ordinalRank}
                              </span>
                            </h4>
                         </div>
                         <div className="absolute top-2 left-2 bg-white/90 px-2.5 py-1.5 rounded-full shadow-md flex items-center gap-1.5 z-20 border-2 border-yellow-200 backdrop-blur-sm">
-                          <Medal size={16} className="text-yellow-600 fill-yellow-50" />
+                          <Zap size={16} className="text-yellow-600 fill-yellow-50" />
                           <span className="text-xs font-black text-yellow-700">{totalPTS} <span className="text-[9px] font-normal">PTS</span></span>
                         </div>
                         {userRole !== 'viewer' && (
@@ -1024,130 +1024,132 @@ export default function App() {
         )}
 
         {activeTab === 'ranking' && (
-          <div className="max-w-6xl mx-auto space-y-6 animate-fade-in pb-10">
-              <div className="text-center mb-8">
-                <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
-                <h3 className="text-2xl md:text-3xl font-black text-gray-800 text-center uppercase tracking-tight">Peringkat Kelas</h3>
-                <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2 text-center opacity-70">Siswa Teladan dengan Poin Tertinggi</p>
+          <div className="min-h-[80vh] pattern-elegant py-10 rounded-[3rem] shadow-inner mb-10">
+            <div className="max-w-6xl mx-auto space-y-6 animate-fade-in px-4">
+                <div className="text-center mb-12">
+                  <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg border-2 border-white"><Trophy size={32} /></div>
+                  <h3 className="text-2xl md:text-3xl font-black text-gray-800 text-center uppercase tracking-tight drop-shadow-sm">Peringkat Kelas</h3>
+                  <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2 text-center opacity-70">Siswa Teladan dengan Poin Tertinggi</p>
 
-                <div className="mt-6 mx-auto w-fit bg-white/80 backdrop-blur-sm px-5 py-3 rounded-2xl border-2 border-orange-100 shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
-                  <span className="flex items-center gap-1.5">
-                    <Star size={16} className="fill-current text-yellow-500 animate-pulse" /> <span className="text-gray-400">=</span> 5 PTS
-                  </span>
-                  <span className="border-r-2 border-orange-50 h-4"></span>
-                  <span className="flex items-center gap-1.5">
-                    <HeartHandshake size={16} className="text-green-600" /> <span className="text-gray-400">=</span> 3 PTS
-                  </span>
+                  <div className="mt-6 mx-auto w-fit bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl border-2 border-orange-100 shadow-md text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
+                    <span className="flex items-center gap-1.5">
+                      <Star size={16} className="fill-current text-yellow-500 animate-pulse" /> <span className="text-gray-400">=</span> 5 PTS
+                    </span>
+                    <span className="border-r-2 border-orange-50 h-4"></span>
+                    <span className="flex items-center gap-1.5">
+                      <HeartHandshake size={16} className="text-green-600" /> <span className="text-gray-400">=</span> 3 PTS
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* VIEW: PODIUM DESKTOP & MOBILE */}
-              <div className="space-y-12 px-2">
-                {rankedFriends.length > 0 ? (
-                  <>
-                    {/* Podium Section (Unified Responsive) */}
-                    <div className="flex items-end justify-center gap-2 md:gap-8 mb-16 pt-12 md:pt-20">
-                      {/* Juara 2 */}
-                      {rankedFriends[1] && (
-                        <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                          <div className="relative mb-3 md:mb-6">
-                            {/* Icon Mahkota Juara 2 */}
-                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-300 z-20">
-                               <Crown size={28} className="fill-current drop-shadow-sm" />
+                {/* VIEW: PODIUM DESKTOP & MOBILE */}
+                <div className="space-y-12">
+                  {rankedFriends.length > 0 ? (
+                    <>
+                      {/* Podium Section (Unified Responsive) */}
+                      <div className="flex items-end justify-center gap-2 md:gap-8 mb-16 pt-12 md:pt-20">
+                        {/* Juara 2 */}
+                        {rankedFriends[1] && (
+                          <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                            <div className="relative mb-3 md:mb-6">
+                              {/* Icon Mahkota Juara 2 */}
+                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-300 z-20">
+                                 <Crown size={28} className="fill-current drop-shadow-sm" />
+                              </div>
+                              <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg bg-white ring-4 ring-gray-50">
+                                {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[1].avatar]?.emoji}</div>}
+                              </div>
+                              <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-gray-300 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">2</div>
                             </div>
-                            <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg bg-white ring-4 ring-gray-50">
-                              {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[1].avatar]?.emoji}</div>}
+                            <div className="bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
+                              <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[1].nickname || rankedFriends[1].name}</p>
+                              <div className="bg-gray-100 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-gray-500 shadow-inner flex items-center gap-1">
+                                 <Zap size={10} className="fill-current" />
+                                 {calculatePTS(rankedFriends[1])} <span className="text-[8px] opacity-60">PTS</span>
+                              </div>
                             </div>
-                            <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-gray-300 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">2</div>
                           </div>
-                          <div className="bg-white p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[1].nickname || rankedFriends[1].name}</p>
-                            <div className="bg-gray-100 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-gray-500 shadow-inner flex items-center gap-1">
-                               <Zap size={10} className="fill-current" />
-                               {calculatePTS(rankedFriends[1])} <span className="text-[8px] opacity-60">PTS</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                        )}
 
-                      {/* Juara 1 (Tengah & Lebih Besar) */}
-                      {rankedFriends[0] && (
-                        <div className="flex flex-col items-center w-2/5 md:w-80 animate-scale-up z-10">
-                          <div className="relative mb-4 md:mb-8">
-                            <div className="absolute -top-8 md:-top-16 left-1/2 -translate-x-1/2 text-yellow-400 animate-bounce"><Crown size={32} className="md:w-16 md:h-16 fill-current" /></div>
-                            <div className="w-24 h-24 md:w-44 md:h-44 rounded-full overflow-hidden border-4 md:border-8 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] bg-white ring-4 md:ring-8 ring-yellow-50">
-                              {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-3xl md:text-7xl">{avatars[rankedFriends[0].avatar]?.emoji}</div>}
+                        {/* Juara 1 (Tengah & Lebih Besar) */}
+                        {rankedFriends[0] && (
+                          <div className="flex flex-col items-center w-2/5 md:w-80 animate-scale-up z-10">
+                            <div className="relative mb-4 md:mb-8">
+                              <div className="absolute -top-8 md:-top-16 left-1/2 -translate-x-1/2 text-yellow-400 animate-bounce"><Crown size={32} className="md:w-16 md:h-16 fill-current" /></div>
+                              <div className="w-24 h-24 md:w-44 md:h-44 rounded-full overflow-hidden border-4 md:border-8 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] bg-white ring-4 md:ring-8 ring-yellow-50">
+                                {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-3xl md:text-7xl">{avatars[rankedFriends[0].avatar]?.emoji}</div>}
+                              </div>
+                              <div className="absolute -top-2 -right-1 md:-top-4 md:-right-4 bg-yellow-400 text-white w-8 h-8 md:w-14 md:h-14 rounded-full flex items-center justify-center font-black text-sm md:text-2xl border-2 md:border-4 border-white shadow-md">1</div>
                             </div>
-                            <div className="absolute -top-2 -right-1 md:-top-4 md:-right-4 bg-yellow-400 text-white w-8 h-8 md:w-14 md:h-14 rounded-full flex items-center justify-center font-black text-sm md:text-2xl border-2 md:border-4 border-white shadow-md">1</div>
-                          </div>
-                          <div className="bg-white p-4 md:p-8 rounded-t-[2.5rem] border-t-8 border-x-8 border-yellow-100 shadow-[0_-15px_30px_rgba(250,204,21,0.1)] w-full text-center flex flex-col items-center relative">
-                            <div className="absolute inset-x-0 -top-1 h-1 bg-yellow-400 rounded-full mx-8"></div>
-                            <p className="text-xs md:text-lg font-black text-gray-800 text-center truncate w-full mb-1 uppercase tracking-tight">{rankedFriends[0].nickname || rankedFriends[0].name}</p>
-                            <div className="bg-yellow-400 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-[10px] md:text-sm font-black text-white shadow-lg flex items-center gap-1.5">
-                               <Zap size={14} className="fill-current" />
-                               {calculatePTS(rankedFriends[0])} <span className="text-[9px] opacity-80 uppercase">PTS</span>
+                            <div className="bg-white p-4 md:p-8 rounded-t-[2.5rem] border-t-8 border-x-8 border-yellow-100 shadow-[0_-15px_30px_rgba(250,204,21,0.1)] w-full text-center flex flex-col items-center relative">
+                              <div className="absolute inset-x-0 -top-1 h-1 bg-yellow-400 rounded-full mx-8"></div>
+                              <p className="text-xs md:text-lg font-black text-gray-800 text-center truncate w-full mb-1 uppercase tracking-tight">{rankedFriends[0].nickname || rankedFriends[0].name}</p>
+                              <div className="bg-yellow-400 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-[10px] md:text-sm font-black text-white shadow-lg flex items-center gap-1.5">
+                                 <Zap size={14} className="fill-current" />
+                                 {calculatePTS(rankedFriends[0])} <span className="text-[9px] opacity-80 uppercase">PTS</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {/* Juara 3 */}
-                      {rankedFriends[2] && (
-                        <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                          <div className="relative mb-3 md:mb-6">
-                            {/* Icon Mahkota Juara 3 */}
-                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-orange-400 z-20">
-                               <Crown size={28} className="fill-current drop-shadow-sm" />
+                        {/* Juara 3 */}
+                        {rankedFriends[2] && (
+                          <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                            <div className="relative mb-3 md:mb-6">
+                              {/* Icon Mahkota Juara 3 */}
+                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-orange-400 z-20">
+                                 <Crown size={28} className="fill-current drop-shadow-sm" />
+                              </div>
+                              <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white ring-4 ring-orange-50">
+                                {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[2].avatar]?.emoji}</div>}
+                              </div>
+                              <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-orange-400 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">3</div>
                             </div>
-                            <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white ring-4 ring-orange-50">
-                              {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[2].avatar]?.emoji}</div>}
+                            <div className="bg-white/90 backdrop-blur-sm p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-orange-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
+                              <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[2].nickname || rankedFriends[2].name}</p>
+                              <div className="bg-orange-50 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-orange-600 shadow-inner flex items-center gap-1">
+                                 <Zap size={10} className="fill-current" />
+                                 {calculatePTS(rankedFriends[2])} <span className="text-[8px] opacity-60">PTS</span>
+                              </div>
                             </div>
-                            <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-orange-400 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">3</div>
                           </div>
-                          <div className="bg-white p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-orange-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[2].nickname || rankedFriends[2].name}</p>
-                            <div className="bg-orange-50 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-orange-600 shadow-inner flex items-center gap-1">
-                               <Zap size={10} className="fill-current" />
-                               {calculatePTS(rankedFriends[2])} <span className="text-[8px] opacity-60">PTS</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Sisanya dlm bentuk list (Mobile & Desktop) */}
-                    <div className="max-w-4xl mx-auto space-y-3 pb-10">
-                      <div className="text-center md:text-left mb-6">
-                         <h4 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-[0.3em]">Peringkat Lainnya</h4>
+                        )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {rankedFriends.slice(3, 15).map((friend, index) => {
-                          const actualRank = index + 4;
-                          const pts = calculatePTS(friend);
-                          return (
-                            <div key={friend.id} className="bg-white rounded-2xl p-3 md:p-4 flex items-center shadow-sm border border-orange-50 hover:border-orange-200 transition-all group hover:-translate-y-1">
-                              <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-50 rounded-xl flex items-center justify-center font-black text-xs md:text-sm text-gray-400 mr-3 shrink-0 group-hover:bg-orange-50 group-hover:text-orange-400 transition-colors">{actualRank}</div>
-                              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white shadow-sm mr-3 shrink-0">
-                                 {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-lg md:text-2xl">{avatars[friend.avatar]?.emoji}</div>}
+
+                      {/* Sisanya dlm bentuk list (Mobile & Desktop) */}
+                      <div className="max-w-4xl mx-auto space-y-3 pb-10">
+                        <div className="text-center md:text-left mb-6">
+                           <h4 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.3em] bg-white/50 backdrop-blur-sm w-fit px-4 py-1 rounded-full border border-white/50 shadow-sm mx-auto md:mx-0">Peringkat Lainnya</h4>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {rankedFriends.slice(3, 15).map((friend, index) => {
+                            const actualRank = index + 4;
+                            const pts = calculatePTS(friend);
+                            return (
+                              <div key={friend.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 md:p-4 flex items-center shadow-sm border border-orange-50 hover:border-orange-200 transition-all group hover:-translate-y-1">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-50 rounded-xl flex items-center justify-center font-black text-xs md:text-sm text-gray-400 mr-3 shrink-0 group-hover:bg-orange-50 group-hover:text-orange-400 transition-colors">{actualRank}</div>
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white shadow-sm mr-3 shrink-0">
+                                   {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-lg md:text-2xl">{avatars[friend.avatar]?.emoji}</div>}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-black text-gray-800 text-xs md:text-sm truncate uppercase tracking-tight group-hover:text-orange-600 transition-colors">{friend.nickname || friend.name}</p>
+                                  <p className="text-[9px] font-bold text-gray-400 hidden md:block italic">"{friend.name}"</p>
+                                </div>
+                                <div className="bg-blue-50 px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shrink-0 ml-2 shadow-sm border border-blue-100">
+                                   <Zap size={14} className="text-blue-500 fill-blue-100" />
+                                   <span className="text-[10px] md:text-xs font-black text-blue-600">{pts} <span className="opacity-50 font-bold">PTS</span></span>
+                                </div>
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-black text-gray-800 text-xs md:text-sm truncate uppercase tracking-tight group-hover:text-orange-600 transition-colors">{friend.nickname || friend.name}</p>
-                                <p className="text-[9px] font-bold text-gray-400 hidden md:block italic">"{friend.name}"</p>
-                              </div>
-                              <div className="bg-blue-50 px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shrink-0 ml-2 shadow-sm border border-blue-100">
-                                 <Zap size={14} className="text-blue-500 fill-blue-100" />
-                                 <span className="text-[10px] md:text-xs font-black text-blue-600">{pts} <span className="opacity-50 font-bold">PTS</span></span>
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-10 text-center text-gray-300 italic font-bold">Belum ada peringkat...</div>
-                )}
-              </div>
+                    </>
+                  ) : (
+                    <div className="p-10 text-center text-gray-300 italic font-bold">Belum ada peringkat...</div>
+                  )}
+                </div>
+            </div>
           </div>
         )}
 
@@ -1239,6 +1241,12 @@ export default function App() {
         .animate-spin-slow { animation: spin-slow 10s linear infinite; }
         .animate-float { animation: float 6s ease-in-out infinite; }
         .pattern-dots { background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 15px 15px; }
+        .pattern-elegant {
+          background-color: #fffbeb;
+          background-image: radial-gradient(#fde68a 0.75px, transparent 0.75px), radial-gradient(#fde68a 0.75px, #fffbeb 0.75px);
+          background-size: 30px 30px;
+          background-position: 0 0, 15px 15px;
+        }
         body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
