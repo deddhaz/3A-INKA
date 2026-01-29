@@ -535,7 +535,7 @@ export default function App() {
                    </div>
                 </div>
                 
-                {/* School Icon - Kembali ke posisi semula */}
+                {/* School Icon */}
                 <div className="bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500 relative -mt-16 z-10 mb-4">
                   <School size={32} className="text-orange-500" />
                 </div>
@@ -547,17 +547,25 @@ export default function App() {
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Ayo Masuk ke Kelasmu</p>
               
               <form onSubmit={handleLogin} className="w-full space-y-4">
-                {/* Pesan Error di atas kolom input */}
-                {loginError && (
-                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest text-center animate-fade-in -mb-2">
-                    Opps! kode salah ❌
-                  </p>
-                )}
+                {/* Balon Pop-up Error di atas kolom input */}
+                <div className="relative h-6">
+                  {loginError && (
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 animate-scale-up-balloon z-50">
+                      <div className="bg-red-500 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5 whitespace-nowrap border-2 border-white">
+                        Opps! kode salah ❌
+                      </div>
+                      <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-red-500 mx-auto -mt-0.5"></div>
+                    </div>
+                  )}
+                </div>
                 
                 <input 
                   type="password" 
                   value={accessCode} 
-                  onChange={(e) => setAccessCode(e.target.value)} 
+                  onChange={(e) => {
+                    setAccessCode(e.target.value);
+                    if (loginError) setLoginError(false);
+                  }} 
                   onFocus={() => setLoginError(false)}
                   placeholder="Kode Rahasia..." 
                   className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} 
@@ -1132,11 +1140,13 @@ export default function App() {
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scale-up { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes scale-up-balloon { from { opacity: 0; transform: translateX(-50%) scale(0.5); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
         @keyframes shake-hand { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
         .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
         .animate-scale-up { animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .animate-scale-up-balloon { animation: scale-up-balloon 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         .animate-shake-hand { animation: shake-hand 0.6s ease-in-out infinite; }
         .animate-spin-slow { animation: spin-slow 10s linear infinite; }
         .animate-float { animation: float 6s ease-in-out infinite; }
