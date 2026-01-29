@@ -920,7 +920,8 @@ export default function App() {
 
                   // Hitung peringkat teman saat ini
                   const rankIndex = rankedFriends.findIndex(f => f.id === friend.id);
-                  const ordinalRank = getOrdinal(rankIndex + 1);
+                  const rankNum = rankIndex + 1;
+                  const ordinalRank = getOrdinal(rankNum);
 
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
@@ -936,8 +937,11 @@ export default function App() {
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
-                             {/* Badge Ordinal Elegant */}
-                             <span className="text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm">
+                             {/* Badge Ordinal Elegant dengan Ikon Piala Khusus 1, 2, 3 */}
+                             <span className={`flex items-center gap-1 text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
+                               {rankNum === 1 && <Trophy size={10} className="fill-current" />}
+                               {rankNum === 2 && <Trophy size={10} className="fill-current" />}
+                               {rankNum === 3 && <Trophy size={10} className="fill-current" />}
                                {ordinalRank}
                              </span>
                            </h4>
@@ -1007,11 +1011,13 @@ export default function App() {
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
-                {/* Deskripsi Poin PTS */}
-                <div className="mt-4 bg-orange-100/50 p-3 rounded-2xl border border-orange-200 inline-block">
-                  <p className="text-[10px] md:text-xs font-bold text-orange-600 uppercase tracking-wider">
-                    Sistem PTS: 1 Bintang = 5 Poin | 1 Terima Kasih = 3 Poin
-                  </p>
+                {/* Deskripsi Poin PTS dengan Ikon Visual Baru */}
+                <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm">
+                  <div className="flex items-center gap-4 text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider">
+                     <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
+                     <span className="border-r border-orange-200 h-4"></span>
+                     <span className="flex items-center gap-1.5"><HeartHandshake size={16} className="text-green-600" /> = 3 PTS</span>
+                  </div>
                 </div>
              </div>
 
