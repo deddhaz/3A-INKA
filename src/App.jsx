@@ -414,7 +414,7 @@ export default function App() {
     }
   };
 
-  const handleConfirmSave = async () => {
+  const handleConfirmSave = async (e) => {
     if (!user) return;
     setIsSubmitting(true);
     const dataToSave = {
@@ -732,8 +732,15 @@ export default function App() {
 
       {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        {/* Kontainer Tombol Header yang diperbaiki responsivitasnya */}
-        <div className="absolute top-4 right-4 flex gap-3 z-50">
+        {/* Kontainer Tombol Header: Diubah menjadi flex-col untuk mobile (Settings di bawah Signout) */}
+        <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
+          <button 
+            onClick={handleLogout} 
+            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
+            aria-label="Logout"
+          >
+            <LogOut size={22} />
+          </button>
           {userRole === 'admin' && (
             <button 
               onClick={() => setShowSettingsModal(true)} 
@@ -743,13 +750,6 @@ export default function App() {
               <Settings size={22} />
             </button>
           )}
-          <button 
-            onClick={handleLogout} 
-            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
-            aria-label="Logout"
-          >
-            <LogOut size={22} />
-          </button>
         </div>
 
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">Solahudin Al-Ayubi</h1>
@@ -894,13 +894,7 @@ export default function App() {
                             </p>
                          </div>
 
-                         {isMobileGrid ? (
-                            <div className="flex justify-center gap-4 mt-1">
-                               <Rocket size={16} className={friend.dream ? "text-blue-400" : "text-gray-100"} />
-                               <Gamepad2 size={16} className={friend.hobby ? "text-green-400" : "text-gray-100"} />
-                               <Utensils size={16} className={friend.food ? "text-orange-400" : "text-gray-100"} />
-                            </div>
-                         ) : (
+                         {isMobileGrid ? null : (
                             <div className="space-y-2 text-left bg-gray-50/80 p-5 rounded-[2rem] text-xs md:text-sm mb-4 w-full border border-gray-100 shadow-inner">
                                <p className="flex items-center gap-3"><Rocket size={16} className="text-blue-400 shrink-0" /> <span><b>Cita-cita:</b> {friend.dream || '-'}</span></p>
                                <p className="flex items-center gap-3"><Gamepad2 size={16} className="text-green-400 shrink-0" /> <span><b>Hobi:</b> {friend.hobby || '-'}</span></p>
@@ -932,6 +926,12 @@ export default function App() {
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
+                {/* Deskripsi Poin PTS */}
+                <div className="mt-4 bg-orange-100/50 p-3 rounded-2xl border border-orange-200 inline-block">
+                  <p className="text-[10px] md:text-xs font-bold text-orange-600 uppercase tracking-wider">
+                    Sistem PTS: 1 Bintang = 5 Poin | 1 Terima Kasih = 3 Poin
+                  </p>
+                </div>
              </div>
 
              <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-orange-100">
@@ -950,7 +950,10 @@ export default function App() {
                             {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</h4>
+                            {/* Tambahan Info Rangking di samping nama */}
+                            <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">
+                              {friend.name} <span className="text-[10px] text-orange-400 ml-1 font-bold">(Peringkat {index + 1})</span>
+                            </h4>
                           </div>
                           <div className="flex flex-col items-end gap-1.5">
                             <div className="flex items-center gap-1.5 bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shrink-0 shadow-sm">
