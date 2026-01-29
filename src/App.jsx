@@ -30,7 +30,7 @@ import {
   ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, 
   Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit,
   CalendarCheck, Clock, ArrowLeft, FileText, CheckSquare, Edit3, Bookmark,
-  TrendingUp, TrendingDown, Minus, GraduationCap
+  TrendingUp, TrendingDown, Minus, GraduationCap, CalendarOff, Flag
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -51,6 +51,27 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelas3_biodata_app';
 const COLLECTION_NAME = 'kelas3_biodata';
 const TESTIMONY_COLLECTION = 'testimonies';
 const SETTINGS_COLLECTION = 'settings';
+
+// --- DATA HARI LIBUR NASIONAL INDONESIA (ESTIMASI 2026) ---
+// Format Key: "D-M" (Tanggal-Bulan) tanpa tahun agar recurring, 
+// atau "D-M-YYYY" untuk spesifik tahun.
+const HOLIDAYS = {
+  "1-1": "Tahun Baru Masehi",
+  "17-2": "Tahun Baru Imlek",
+  "19-3": "Hari Raya Nyepi",
+  "20-3": "Idul Fitri 1447H", 
+  "21-3": "Cuti Bersama Idul Fitri",
+  "1-5": "Hari Buruh Internasional",
+  "14-5": "Kenaikan Isa Almasih",
+  "31-5": "Hari Raya Waisak",
+  "1-6": "Hari Lahir Pancasila",
+  "27-6": "Idul Adha 1447H",
+  "17-7": "Tahun Baru Islam 1448H",
+  "17-8": "Hari Kemerdekaan RI",
+  "25-9": "Maulid Nabi Muhammad SAW",
+  "25-12": "Hari Raya Natal",
+  // Tambahkan tanggal spesifik lainnya jika diperlukan
+};
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -131,25 +152,35 @@ export default function App() {
     return n + "th";
   };
 
-  // --- LOGIKA: HITUNG TANGGAL UNTUK JADWAL ---
-  const getDateForDay = (dayName) => {
+  // --- LOGIKA: GET RAW DATE UNTUK PENGECEKAN HARI ---
+  const getRawDateForDay = (dayName) => {
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const targetIndex = days.indexOf(dayName);
     const today = new Date();
     const currentDayIndex = today.getDay(); // 0 = Sunday
     
-    // Hitung selisih hari
     let diff = targetIndex - currentDayIndex;
-    
-    // Jika hari ini Sabtu (6), tampilkan jadwal minggu depan
-    if (currentDayIndex === 6) {
-        diff += 7;
-    }
+    if (currentDayIndex === 6) { diff += 7; } // Jika Sabtu, lihat minggu depan
     
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + diff);
-    
-    return targetDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    return targetDate;
+  };
+
+  // --- LOGIKA: HITUNG TANGGAL FORMAT STRING ---
+  const getDateForDay = (dayName) => {
+    const date = getRawDateForDay(dayName);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  // --- LOGIKA: CEK HARI LIBUR ---
+  const checkHoliday = (dayName) => {
+    const date = getRawDateForDay(dayName);
+    const d = date.getDate();
+    const m = date.getMonth() + 1; // January is 0!
+    // Cek format Tanggal-Bulan (contoh: 17-8)
+    const key = `${d}-${m}`;
+    return HOLIDAYS[key] || null;
   };
 
   // --- LOGIKA: FILTER PENCARIAN ---
@@ -1294,6 +1325,7 @@ export default function App() {
         {/* --- RANKING PAGE (Restored with Podium) --- */}
         {activeTab === 'ranking' && (
           <div className="max-w-3xl mx-auto pb-24 animate-fade-in px-4">
+             {/* ...existing code... */}
              <div className="text-center mb-12 pt-8 relative">
                 <div className="relative inline-block">
                    <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-500 via-orange-500 to-pink-500 uppercase tracking-[0.2em] drop-shadow-sm filter">
@@ -1515,22 +1547,44 @@ export default function App() {
                      const borderColors = ['border-pink-200', 'border-orange-200', 'border-yellow-200', 'border-green-200', 'border-blue-200'];
                      const subjects = scheduleData[day] ? scheduleData[day].split('\n').filter(s => s.trim() !== '') : [];
                      const dateStr = getDateForDay(day);
+                     
+                     // --- CEK LIBUR NASIONAL ---
+                     const holidayName = checkHoliday(day);
+                     const isHoliday = !!holidayName;
 
                      return (
-                        <div key={day} className={`rounded-2xl md:rounded-3xl overflow-hidden border-2 ${borderColors[idx]} shadow-lg flex flex-col bg-white`}>
-                           <div className={`${colors[idx]} py-3 md:py-4 text-center relative overflow-hidden`}>
+                        <div key={day} className={`rounded-2xl md:rounded-3xl overflow-hidden border-2 ${isHoliday ? 'border-red-300 shadow-xl scale-105 z-10' : borderColors[idx]} shadow-lg flex flex-col bg-white transition-all`}>
+                           <div className={`${isHoliday ? 'bg-red-500' : colors[idx]} py-3 md:py-4 text-center relative overflow-hidden`}>
                               <div className="absolute top-0 right-0 p-2 opacity-20 transform rotate-12"><CalendarDays size={40} className="text-white" /></div>
                               <h3 className="text-white font-black uppercase tracking-widest text-sm md:text-base relative z-10">{day}</h3>
                               <p className="text-white/90 text-[10px] md:text-xs font-medium relative z-10 mt-0.5">{dateStr}</p>
                            </div>
-                           <div className={`flex-1 p-3 md:p-5 ${lightColors[idx]} flex flex-col gap-3`}>
+                           <div className={`flex-1 p-3 md:p-5 ${isHoliday ? 'bg-red-50' : lightColors[idx]} flex flex-col gap-3 relative`}>
                               
+                              {/* --- TAMPILAN LIBUR NASIONAL --- */}
+                              {isHoliday ? (
+                                <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+                                    <div className="animate-bounce mb-2">
+                                        {holidayName.includes('Kemerdekaan') ? (
+                                            <Flag size={48} className="text-red-500 fill-red-100" />
+                                        ) : (
+                                            <CalendarOff size={48} className="text-red-500 fill-red-100" />
+                                        )}
+                                    </div>
+                                    <h4 className="text-red-600 font-black uppercase text-sm mb-1 tracking-wider">Libur Nasional</h4>
+                                    <p className="text-gray-800 font-bold text-xs md:text-sm bg-white px-3 py-1 rounded-lg border border-red-200 shadow-sm">{holidayName}</p>
+                                    <div className="mt-4 bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase shadow-md animate-pulse">
+                                        Selamat Berlibur!
+                                    </div>
+                                </div>
+                              ) : null}
+
                               {/* --- FITUR UPACARA KHUSUS HARI SENIN --- */}
-                              {day === 'Senin' && (
+                              {day === 'Senin' && !isHoliday && (
                                 <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-orange-200 ring-2 ring-orange-100 relative overflow-hidden group">
                                     <div className="flex items-center gap-3">
                                         <div className="bg-orange-100 p-2 rounded-full text-orange-600">
-                                            <GraduationCap size={20} />
+                                            <flag size={20} />
                                         </div>
                                         <div>
                                             <span className="text-xs md:text-sm font-black leading-tight text-gray-800 block">Upacara Bendera</span>
@@ -1552,7 +1606,7 @@ export default function App() {
                                     return (
                                        <div key={i} className={`bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border transition-all relative overflow-hidden group ${hasHomework ? 'border-red-200 ring-1 ring-red-100' : 'border-gray-100 hover:border-blue-200'}`}>
                                           {/* Warning Badge */}
-                                          {hasHomework && (
+                                          {hasHomework && !isHoliday && (
                                               <div className="absolute top-0 right-0">
                                                   <div className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl shadow-sm animate-pulse flex items-center gap-1">
                                                       <AlertCircle size={10} /> ADA PR!
@@ -1573,7 +1627,7 @@ export default function App() {
                                                     </div>
                                                 )}
                                              </div>
-                                             {userRole === 'admin' && (
+                                             {userRole === 'admin' && !isHoliday && (
                                                 <button 
                                                   onClick={() => {
                                                      setCurrentHomeworkEdit({ day, index: i, subject: sub, topic: hw?.topic || '', page: hw?.page || '', task: hw?.task || '' });
@@ -1587,7 +1641,7 @@ export default function App() {
                                           </div>
                                           
                                           {/* Homework Display */}
-                                          {hasHomework ? (
+                                          {hasHomework && !isHoliday ? (
                                              <div className="mt-2 pt-2 border-t border-dashed border-red-100 space-y-2 bg-red-50/30 rounded-lg p-2">
                                                 {hw.topic && (
                                                    <div>
@@ -1617,7 +1671,7 @@ export default function App() {
                                                    </div>
                                                 )}
                                              </div>
-                                          ) : (
+                                          ) : !isHoliday && (
                                              <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-300 italic pl-1">
                                                 <Smile size={12} /> <span>Aman, tidak ada PR</span>
                                              </div>
@@ -1626,10 +1680,12 @@ export default function App() {
                                     );
                                  })
                               ) : (
-                                 <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2 opacity-60">
-                                    <Clock size={24} />
-                                    <span className="text-xs font-bold italic">Libur / Kosong</span>
-                                 </div>
+                                 !isHoliday && (
+                                     <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2 opacity-60">
+                                        <Clock size={24} />
+                                        <span className="text-xs font-bold italic">Libur / Kosong</span>
+                                     </div>
+                                 )
                               )}
                            </div>
                         </div>
