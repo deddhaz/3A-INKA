@@ -370,7 +370,7 @@ export default function App() {
     }
     
     const storageKey = `starred_${friend.id}`;
-    const isAlreadyStarred = localStorage.getItem(storageKey);
+    const isAlready starred = localStorage.getItem(storageKey);
 
     try {
       const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, friend.id);
@@ -518,28 +518,18 @@ export default function App() {
     }
   };
 
-  // --- LOADING SCREEN (ANIMATIF) ---
+  // --- LOADING SCREEN (SIMPEL & ELEGAN) ---
   if (loading || settingsLoading) {
     return (
       <div className="min-h-screen bg-yellow-50 flex flex-col items-center justify-center p-4">
-        <div className="relative">
-          {/* Ring luar statis */}
-          <div className="w-24 h-24 border-8 border-orange-100 rounded-full shadow-inner"></div>
-          {/* Ring berputar */}
-          <div className="absolute top-0 left-0 w-24 h-24 border-8 border-transparent border-t-orange-500 border-r-orange-400 rounded-full animate-spin"></div>
-          {/* Ikon memantul di tengah */}
-          <div className="absolute inset-0 flex items-center justify-center text-orange-500 animate-bounce">
-            <School size={32} />
-          </div>
+        {/* Rumah yang memantul */}
+        <div className="animate-bounce text-orange-500 mb-6 drop-shadow-sm">
+          <Home size={80} strokeWidth={2.5} />
         </div>
         
-        <div className="mt-8 text-center space-y-3">
-          <h2 className="text-2xl font-black text-orange-600 animate-pulse uppercase tracking-tight">
-            Sedang Memuat Kelas
-          </h2>
-          <div className="bg-orange-500 text-white px-4 py-1 rounded-full text-xs font-black shadow-md inline-block animate-bounce">
-            Sabar ya...
-          </div>
+        {/* Hanya teks Sabar ya... */}
+        <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
+          Sabar ya...
         </div>
       </div>
     );
@@ -573,10 +563,10 @@ export default function App() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
                   <School size={32} className="text-orange-500" />
                 </div>
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU</div>
               </div>
-              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
+              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
+              <p className="text-xs font-bold text-gray-500 tracking-widest mb-6 text-center">Ayo masuk ke kelasmu</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Masuk Kelas<ArrowRight size={20} /></button>
@@ -902,7 +892,7 @@ export default function App() {
                />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
            </div>
         </div>
 
