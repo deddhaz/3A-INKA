@@ -153,6 +153,15 @@ export default function App() {
     return (friend.stars || 0) * 5 + (friend.thanks || 0) * 3;
   };
 
+  // --- LOGIKA: FORMAT NOMOR ORDINAL (1st, 2nd, 3rd, dst) ---
+  const getOrdinal = (n) => {
+    let j = n % 10, k = n % 100;
+    if (j === 1 && k !== 11) return n + "st";
+    if (j === 2 && k !== 12) return n + "nd";
+    if (j === 3 && k !== 13) return n + "rd";
+    return n + "th";
+  };
+
   // --- LOGIKA: FILTER PENCARIAN ---
   const filteredFriends = useMemo(() => {
     if (!searchQuery.trim()) return friends;
@@ -845,6 +854,10 @@ export default function App() {
                   const testimonyCount = allTestimonies.filter(t => t.friendId === friend.id).length;
                   const totalPTS = calculatePTS(friend);
 
+                  // Hitung peringkat teman saat ini
+                  const rankIndex = rankedFriends.findIndex(f => f.id === friend.id);
+                  const ordinalRank = getOrdinal(rankIndex + 1);
+
                   return (
                     <div key={friend.id} className={`bg-white shadow-lg border-b-8 border-blue-200 flex flex-col hover:border-blue-400 transition-all ${isMobileGrid ? 'rounded-2xl' : 'rounded-3xl'}`}>
                       <div className={`${isMobileGrid ? 'h-24' : 'h-32 md:h-44'} relative`}>
@@ -857,8 +870,12 @@ export default function App() {
                         </div>
 
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
-                           <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'}`}>
+                           <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
+                             {/* Badge Ordinal Elegant */}
+                             <span className="text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm">
+                               {ordinalRank}
+                             </span>
                            </h4>
                         </div>
 
@@ -950,9 +967,9 @@ export default function App() {
                             {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
                           <div className="flex-1">
-                            {/* Tambahan Info Rangking di samping nama */}
+                            {/* Menghapus info nomor peringkat di sini sesuai permintaan */}
                             <h4 className="font-black text-gray-800 group-hover:text-orange-600 transition-colors">
-                              {friend.name} <span className="text-[10px] text-orange-400 ml-1 font-bold">(Peringkat {index + 1})</span>
+                              {friend.name}
                             </h4>
                           </div>
                           <div className="flex flex-col items-end gap-1.5">
