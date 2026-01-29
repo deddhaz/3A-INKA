@@ -29,7 +29,8 @@ import {
   Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, 
   ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, 
   Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit,
-  CalendarCheck, Clock, ArrowLeft, FileText, CheckSquare, Edit3, Bookmark
+  CalendarCheck, Clock, ArrowLeft, FileText, CheckSquare, Edit3, Bookmark,
+  TrendingUp, TrendingDown, Minus
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -1247,13 +1248,16 @@ export default function App() {
         {/* --- RANKING PAGE (Restored with Podium) --- */}
         {activeTab === 'ranking' && (
           <div className="max-w-3xl mx-auto pb-24 animate-fade-in px-4">
-             <div className="text-center mb-8 pt-4">
+             <div className="text-center mb-8 pt-4 relative">
                <div className="relative inline-block">
-                 <Trophy size={56} className="text-yellow-400 drop-shadow-md animate-bounce" />
-                 <Sparkles size={24} className="absolute -top-2 -right-4 text-yellow-300 animate-pulse" />
+                 <Trophy size={56} className="text-yellow-400 drop-shadow-md" />
                </div>
-               <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight mt-2">Papan Juara</h2>
-               <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em]">Rajin Pangkal Pandai!</p>
+               <div className="relative inline-block mt-2">
+                  <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight relative z-10">Peringkat</h2>
+                  <Star className="absolute -top-2 -right-6 text-yellow-400 fill-yellow-400 w-6 h-6 animate-pulse" />
+                  <Star className="absolute -bottom-1 -left-6 text-orange-400 fill-orange-400 w-4 h-4 animate-bounce" style={{ animationDuration: '2s' }} />
+                  <Sparkles className="absolute top-1/2 -translate-y-1/2 -right-10 text-pink-400 w-5 h-5 animate-spin-slow" />
+               </div>
              </div>
 
              {/* PODIUM DISPLAY */}
@@ -1264,7 +1268,7 @@ export default function App() {
                      {rankedFriends[1] ? (
                        <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
                           <div className="relative mb-3 group">
-                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-gray-300 overflow-hidden shadow-lg bg-gray-100">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-gray-300 overflow-hidden shadow-lg bg-gray-100 relative">
                                 {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? (
                                   <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" />
                                 ) : (
@@ -1273,11 +1277,17 @@ export default function App() {
                                   </div>
                                 )}
                              </div>
+                             {/* Silver Crown */}
+                             <Crown size={30} className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-400 fill-gray-200" />
                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-gray-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#2</div>
                           </div>
                           <div className="w-full bg-gradient-to-b from-gray-200 to-gray-300 h-32 md:h-44 rounded-t-2xl border-t-4 border-gray-100 flex flex-col justify-end p-2 text-center shadow-lg relative">
-                             <div className="font-bold text-xs md:text-sm text-gray-700 truncate w-full mb-1">{rankedFriends[1].nickname || rankedFriends[1].name.split(' ')[0]}</div>
-                             <div className="bg-white/60 rounded-lg py-1 px-1 mb-2 backdrop-blur-sm">
+                             <div className="font-bold text-xs md:text-sm text-gray-700 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[1].nickname || rankedFriends[1].name.split(' ')[0]}
+                                <TrendingUp size={14} className="text-green-500 inline" />
+                             </div>
+                             <div className="bg-white/60 rounded-lg py-1 px-1 mb-2 backdrop-blur-sm flex items-center justify-center gap-1">
+                                <Zap size={12} className="text-gray-600 fill-current" />
                                 <span className="font-black text-gray-600 text-[10px] md:text-xs">{calculatePTS(rankedFriends[1])} PTS</span>
                              </div>
                           </div>
@@ -1290,8 +1300,7 @@ export default function App() {
                      {rankedFriends[0] && (
                        <div className="w-full flex flex-col items-center animate-slide-up">
                           <div className="relative mb-3 scale-110 group">
-                             <Crown size={36} className="absolute -top-10 left-1/2 -translate-x-1/2 text-yellow-500 fill-yellow-400 drop-shadow-md animate-bounce" />
-                             <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-[5px] border-yellow-400 overflow-hidden shadow-xl bg-yellow-100 ring-4 ring-yellow-400/20">
+                             <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-[5px] border-yellow-400 overflow-hidden shadow-xl bg-yellow-100 ring-4 ring-yellow-400/20 relative">
                                 {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? (
                                   <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" />
                                 ) : (
@@ -1300,12 +1309,18 @@ export default function App() {
                                   </div>
                                 )}
                              </div>
+                             {/* Gold Crown - Adjusted Position */}
+                             <Crown size={36} className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-500 fill-yellow-400 drop-shadow-md animate-bounce" />
                              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white min-w-[36px] text-center">#1</div>
                           </div>
                           <div className="w-full bg-gradient-to-b from-yellow-300 to-yellow-500 h-44 md:h-56 rounded-t-[24px] border-t-4 border-yellow-200 flex flex-col justify-end p-3 text-center shadow-xl relative overflow-hidden">
                              <div className="absolute inset-0 pattern-elegant opacity-20"></div>
-                             <div className="relative z-10 font-black text-sm md:text-base text-yellow-900 truncate w-full mb-1">{rankedFriends[0].nickname || rankedFriends[0].name.split(' ')[0]}</div>
-                             <div className="relative z-10 bg-white/70 rounded-xl py-1.5 px-2 mb-4 backdrop-blur-md shadow-sm">
+                             <div className="relative z-10 font-black text-sm md:text-base text-yellow-900 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[0].nickname || rankedFriends[0].name.split(' ')[0]}
+                                <TrendingUp size={16} className="text-green-600 inline" />
+                             </div>
+                             <div className="relative z-10 bg-white/70 rounded-xl py-1.5 px-2 mb-4 backdrop-blur-md shadow-sm flex items-center justify-center gap-1">
+                                <Zap size={14} className="text-yellow-800 fill-current" />
                                 <span className="font-black text-yellow-800 text-xs md:text-sm">{calculatePTS(rankedFriends[0])} PTS</span>
                              </div>
                           </div>
@@ -1318,7 +1333,7 @@ export default function App() {
                      {rankedFriends[2] ? (
                        <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
                           <div className="relative mb-3 group">
-                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-amber-600 overflow-hidden shadow-lg bg-amber-100">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-amber-600 overflow-hidden shadow-lg bg-amber-100 relative">
                                 {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? (
                                   <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" />
                                 ) : (
@@ -1327,11 +1342,17 @@ export default function App() {
                                   </div>
                                 )}
                              </div>
+                             {/* Bronze Crown */}
+                             <Crown size={30} className="absolute -top-6 left-1/2 -translate-x-1/2 text-amber-700 fill-amber-600" />
                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-amber-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#3</div>
                           </div>
                           <div className="w-full bg-gradient-to-b from-amber-600 to-amber-700 h-24 md:h-36 rounded-t-2xl border-t-4 border-amber-500 flex flex-col justify-end p-2 text-center shadow-lg relative">
-                             <div className="font-bold text-xs md:text-sm text-amber-50 truncate w-full mb-1">{rankedFriends[2].nickname || rankedFriends[2].name.split(' ')[0]}</div>
-                             <div className="bg-black/20 rounded-lg py-1 px-1 mb-2">
+                             <div className="font-bold text-xs md:text-sm text-amber-50 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[2].nickname || rankedFriends[2].name.split(' ')[0]}
+                                <TrendingUp size={14} className="text-green-300 inline" />
+                             </div>
+                             <div className="bg-black/20 rounded-lg py-1 px-1 mb-2 flex items-center justify-center gap-1">
+                                <Zap size={12} className="text-amber-50 fill-current" />
                                 <span className="font-black text-amber-50 text-[10px] md:text-xs">{calculatePTS(rankedFriends[2])} PTS</span>
                              </div>
                           </div>
@@ -1363,14 +1384,17 @@ export default function App() {
                             )}
                          </div>
                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-gray-700 text-sm truncate group-hover:text-indigo-600">{friend.name}</h4>
+                            <h4 className="font-bold text-gray-700 text-sm truncate group-hover:text-indigo-600 flex items-center gap-1">
+                                {friend.name}
+                                <TrendingUp size={14} className="text-green-500 inline" />
+                            </h4>
                             <div className="flex items-center gap-2 text-[10px] text-gray-400">
                                <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
                                <span className="flex items-center gap-0.5"><HeartHandshake size={10} className="text-green-500" /> {friend.thanks || 0}</span>
                             </div>
                          </div>
-                         <div className="bg-indigo-100 px-3 py-1 rounded-full text-indigo-600 font-black text-[10px] whitespace-nowrap">
-                            {calculatePTS(friend)} PTS
+                         <div className="bg-indigo-100 px-3 py-1 rounded-full text-indigo-600 font-black text-[10px] whitespace-nowrap flex items-center gap-1">
+                            <Zap size={10} className="fill-current" /> {calculatePTS(friend)} PTS
                          </div>
                       </div>
                    ))}
