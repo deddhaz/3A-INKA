@@ -116,27 +116,7 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- STATE DATA KELAS & GURU (DENGAN DEFAULT) ---
-  const [schoolSettings, setSchoolSettings] = useState({
-    className: "Solahudin Al-Ayubi",
-    classDescription: "Kelas 6A SD Insan Karima",
-    waliKelas: {
-      name: "Ustazah Najwa",
-      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", 
-      role: "Wali Kelas"
-    },
-    asisten: {
-      name: "Ustazah Dea",
-      photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", 
-      role: "Asisten"
-    },
-    ketuaKelas: {
-      name: "Nama Ketua",
-      photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", 
-      role: "Ketua Kelas"
-    }
-  });
-
+  
   const avatars = {
     super_boy: { emoji: '🦸‍♂️', color: 'bg-blue-100', label: 'Super Boy' },
     super_girl: { emoji: '🦸‍♀️', color: 'bg-pink-100', label: 'Super Girl' },
