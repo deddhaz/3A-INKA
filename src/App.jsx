@@ -232,9 +232,9 @@ export default function App() {
         setSchoolSettings(prev => ({
           ...prev,
           ...data,
-          waliKelas: { ...data.waliKelas, photoUrl: data.waliKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher" },
-          asisten: { ...data.asisten, photoUrl: data.asisten?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant" },
-          ketuaKelas: { ...data.ketuaKelas, photoUrl: data.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader" }
+          waliKelas: { ...data.waliKelas, photoUrl: data.waliKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher", role: "Wali Kelas" },
+          asisten: { ...data.asisten, photoUrl: data.asisten?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant", role: "Asisten" },
+          ketuaKelas: { ...data.ketuaKelas, photoUrl: data.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", role: "Ketua Kelas" }
         }));
       } else {
         setSchoolSettings({
@@ -1240,6 +1240,89 @@ export default function App() {
                   );
                 })
               )}
+            </div>
+          </div>
+        )}
+
+        {/* --- RANKING PAGE (Restored) --- */}
+        {activeTab === 'ranking' && (
+          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-20">
+             {/* Header */}
+             <div className="text-center mb-8">
+               <Trophy size={64} className="mx-auto text-yellow-400 mb-2 drop-shadow-md animate-bounce" />
+               <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight">Papan Juara</h2>
+               <p className="text-gray-500 font-bold text-xs uppercase tracking-widest">Siapa Paling Rajin?</p>
+             </div>
+
+             {/* Ranking List */}
+             <div className="space-y-4">
+                {rankedFriends.map((friend, index) => (
+                   <div key={friend.id} className="bg-white p-4 rounded-3xl shadow-lg border-b-4 border-gray-100 flex items-center gap-4 transform hover:scale-[1.02] transition-transform">
+                      <div className={`font-black text-xl w-10 h-10 flex items-center justify-center rounded-full ${index === 0 ? 'bg-yellow-400 text-white' : index === 1 ? 'bg-gray-300 text-white' : index === 2 ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                         {index + 1}
+                      </div>
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-100">
+                         {friend.usePhoto && friend.photoUrl ? (
+                           <img src={friend.photoUrl} className="w-full h-full object-cover" />
+                         ) : (
+                           <div className={`${avatars[friend.avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-xl`}>
+                             {avatars[friend.avatar]?.emoji || '😐'}
+                           </div>
+                         )}
+                      </div>
+                      <div className="flex-1">
+                         <h3 className="font-bold text-gray-800">{friend.name}</h3>
+                         <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span className="flex items-center gap-1"><Star size={12} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
+                            <span className="flex items-center gap-1"><HeartHandshake size={12} className="text-green-500" /> {friend.thanks || 0}</span>
+                         </div>
+                      </div>
+                      <div className="text-right">
+                         <span className="text-2xl font-black text-blue-500">{calculatePTS(friend)}</span>
+                         <span className="text-[10px] font-bold text-gray-300 block">PTS</span>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {/* --- ACTIVITY PAGE (Restored) --- */}
+        {activeTab === 'activity' && (
+          <div className="space-y-8 max-w-4xl mx-auto pb-20 animate-fade-in">
+            <div className="text-center mb-8">
+              <div className="bg-indigo-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-600 shadow-lg border-2 border-white transform rotate-3"><Blocks size={32} /></div>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">Pusat Aktivitas</h2>
+              <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-2">Belajar Sambil Bermain</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+              {/* Jadwal Pelajaran (Links to 'schedule' tab) */}
+              <button onClick={() => setActiveTab('schedule')} className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group text-left relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><CalendarCheck size={80} className="text-blue-500" /></div>
+                 <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform"><CalendarDays size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Jadwal Pelajaran</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Cek mata pelajaran hari ini biar nggak salah bawa buku!</p>
+                 <div className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-blue-600 transition-colors">
+                    Lihat Jadwal <ArrowRight size={16} />
+                 </div>
+              </button>
+
+              {/* Bagi Kelompok */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-purple-200 hover:border-purple-400 transition-all group cursor-default">
+                 <div className="bg-purple-50 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform"><Users size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Bagi Kelompok</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Bingung bagi kelompok? Biar sistem yang acak otomatis.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
+
+              {/* Quiz */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-orange-200 hover:border-orange-400 transition-all group cursor-default">
+                 <div className="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform"><BrainCircuit size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Kuis Seru</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Uji pengetahuanmu dengan kuis interaktif yang menantang.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
             </div>
           </div>
         )}
