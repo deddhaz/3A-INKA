@@ -1480,11 +1480,21 @@ export default function App() {
                                  subjects.map((sub, i) => {
                                     const homeworkKey = `${day}-${i}`;
                                     const hw = homeworkData[homeworkKey];
+                                    const hasHomework = hw && (hw.topic || hw.page || hw.task);
                                     
                                     return (
-                                       <div key={i} className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-black/5 group hover:border-black/10 transition-all">
+                                       <div key={i} className={`bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border transition-all relative overflow-hidden group ${hasHomework ? 'border-red-200 ring-1 ring-red-100' : 'border-gray-100 hover:border-blue-200'}`}>
+                                          {/* Warning Badge */}
+                                          {hasHomework && (
+                                              <div className="absolute top-0 right-0">
+                                                  <div className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl shadow-sm animate-pulse flex items-center gap-1">
+                                                      <AlertCircle size={10} /> ADA PR!
+                                                  </div>
+                                              </div>
+                                          )}
+
                                           <div className="flex justify-between items-start gap-2 mb-2">
-                                             <span className="text-xs md:text-sm font-black text-gray-700 leading-tight">{sub}</span>
+                                             <span className={`text-xs md:text-sm font-black leading-tight ${hasHomework ? 'text-red-600' : 'text-gray-700'}`}>{sub}</span>
                                              {userRole === 'admin' && (
                                                 <button 
                                                   onClick={() => {
@@ -1499,30 +1509,39 @@ export default function App() {
                                           </div>
                                           
                                           {/* Homework Display */}
-                                          {hw && (hw.topic || hw.page || hw.task) ? (
-                                             <div className="mt-2 pt-2 border-t border-dashed border-gray-200 space-y-1.5">
+                                          {hasHomework ? (
+                                             <div className="mt-2 pt-2 border-t border-dashed border-red-100 space-y-2 bg-red-50/30 rounded-lg p-2">
                                                 {hw.topic && (
-                                                   <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-gray-500">
-                                                      <BookOpen size={12} className="text-purple-400 shrink-0" />
-                                                      <span className="font-bold">{hw.topic}</span>
+                                                   <div>
+                                                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-0.5">Topik</span>
+                                                      <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                                                         <BookOpen size={14} className="text-purple-500 shrink-0" />
+                                                         <span className="font-bold">{hw.topic}</span>
+                                                      </div>
                                                    </div>
                                                 )}
                                                 {hw.page && (
-                                                   <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-gray-500">
-                                                      <FileText size={12} className="text-orange-400 shrink-0" />
-                                                      <span className="font-medium bg-orange-50 px-1.5 py-0.5 rounded text-orange-600">{hw.page}</span>
+                                                   <div>
+                                                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-0.5">Halaman</span>
+                                                      <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                                                         <FileText size={14} className="text-orange-500 shrink-0" />
+                                                         <span className="font-bold bg-white px-2 py-0.5 rounded border border-orange-100 shadow-sm text-orange-600">{hw.page}</span>
+                                                      </div>
                                                    </div>
                                                 )}
                                                 {hw.task && (
-                                                   <div className="flex items-start gap-1.5 text-[10px] md:text-xs text-gray-500 bg-gray-50 p-2 rounded-lg mt-1">
-                                                      <CheckSquare size={12} className="text-green-500 shrink-0 mt-0.5" />
-                                                      <span className="italic leading-relaxed">{hw.task}</span>
+                                                   <div>
+                                                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-0.5">Tugas Tambahan</span>
+                                                      <div className="flex items-start gap-1.5 text-xs text-gray-600 bg-white p-2 rounded-lg border border-red-100 shadow-sm">
+                                                         <CheckSquare size={14} className="text-green-500 shrink-0 mt-0.5" />
+                                                         <span className="italic leading-relaxed">{hw.task}</span>
+                                                      </div>
                                                    </div>
                                                 )}
                                              </div>
                                           ) : (
-                                             <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-300 italic">
-                                                <Smile size={12} /> <span>Tidak ada PR</span>
+                                             <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-300 italic pl-1">
+                                                <Smile size={12} /> <span>Aman, tidak ada PR</span>
                                              </div>
                                           )}
                                        </div>
