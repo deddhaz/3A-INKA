@@ -1029,11 +1029,26 @@ export default function App() {
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
-                <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
-                  <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
-                  <span className="border-r border-orange-200 h-4"></span>
-                  <span className="flex items-center gap-1.5"><HeartHandshake size={16} className="text-green-600" /> = 3 PTS</span>
-                </div>
+
+
+               
+               
+               <div className="mt-4 mx-auto w-fit bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
+  <span className="flex items-center gap-1.5">
+    <Star size={16} className="fill-current text-yellow-500" /> = 5 PTS
+  </span>
+  <span className="border-r border-orange-200 h-4"></span>
+  <span className="flex items-center gap-1.5">
+    <HeartHandshake size={16} className="text-green-600" /> = 3 PTS
+  </span>
+</div>
+
+
+
+
+
+               
+                
              </div>
              <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-orange-100">
                 {rankedFriends.length === 0 ? <div className="p-10 text-center text-gray-400 italic font-bold">Data belum tersedia...</div> : (
