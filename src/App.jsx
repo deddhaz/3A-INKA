@@ -970,8 +970,8 @@ export default function App() {
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
-                             <span className={`flex items-center gap-1 text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
-                               {(rankNum <= 3) && <Trophy size={10} className="fill-current" />}
+                             <span className={`flex items-center gap-1 text-[1.3em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
+                               {(rankNum <= 3) && <Trophy size={30} className="fill-current" />}
                                {ordinalRank}
                              </span>
                            </h4>
