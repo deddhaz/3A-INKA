@@ -29,7 +29,7 @@ import {
   Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, 
   ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, 
   Settings, UserCircle, Type, Crown, Blocks, CalendarDays, Users, BrainCircuit,
-  CalendarCheck, Clock
+  CalendarCheck, Clock, ArrowLeft, FileText, CheckSquare, Edit3, Bookmark
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -79,12 +79,14 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- JADWAL PELAJARAN STATE ---
+  // --- JADWAL PELAJARAN & PR STATE ---
   const [scheduleData, setScheduleData] = useState({
     Senin: '', Selasa: '', Rabu: '', Kamis: '', Jumat: ''
   });
-  const [showScheduleModal, setShowScheduleModal] = useState(false); // Untuk Admin Input
-  const [showScheduleView, setShowScheduleView] = useState(false);   // Untuk User Lihat
+  const [homeworkData, setHomeworkData] = useState({}); // Stores PR info
+  const [showScheduleModal, setShowScheduleModal] = useState(false); // Admin edit text jadwal
+  const [showHomeworkModal, setShowHomeworkModal] = useState(false); // Admin edit PR
+  const [currentHomeworkEdit, setCurrentHomeworkEdit] = useState(null); // { day, index, subject, ...data }
 
   // --- STATE DATA KELAS & GURU ---
   const [schoolSettings, setSchoolSettings] = useState({
@@ -246,10 +248,18 @@ export default function App() {
       setSettingsLoading(false); 
     });
 
-    // Listener Jadwal Pelajaran
+    // Listener Jadwal Pelajaran & PR
     const unsubscribeSchedule = onSnapshot(scheduleRef, (snapshot) => {
       if (snapshot.exists()) {
-        setScheduleData(snapshot.data());
+        const data = snapshot.data();
+        setScheduleData({
+          Senin: data.Senin || '',
+          Selasa: data.Selasa || '',
+          Rabu: data.Rabu || '',
+          Kamis: data.Kamis || '',
+          Jumat: data.Jumat || ''
+        });
+        setHomeworkData(data.homework || {});
       }
     });
 
@@ -495,17 +505,43 @@ export default function App() {
     }
   };
 
-  const handleSaveSchedule = async (e) => {
+  const handleSaveScheduleText = async (e) => {
     e.preventDefault();
     if (userRole !== 'admin') return;
-
     try {
       const scheduleRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'schedule');
-      await setDoc(scheduleRef, scheduleData);
+      await setDoc(scheduleRef, { ...scheduleData, homework: homeworkData }); // Maintain existing homework
       setShowScheduleModal(false);
     } catch (error) {
       console.error("Gagal update jadwal:", error);
       alert("Gagal menyimpan jadwal.");
+    }
+  };
+
+  const handleSaveHomework = async (e) => {
+    e.preventDefault();
+    if (userRole !== 'admin' || !currentHomeworkEdit) return;
+
+    const { day, index, topic, page, task } = currentHomeworkEdit;
+    const key = `${day}-${index}`;
+    
+    const updatedHomework = {
+      ...homeworkData,
+      [key]: { topic, page, task }
+    };
+
+    try {
+      const scheduleRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'schedule');
+      // We only update the 'homework' field
+      await updateDoc(scheduleRef, { homework: updatedHomework });
+      
+      // Update local state immediately for better UX
+      setHomeworkData(updatedHomework);
+      setShowHomeworkModal(false);
+      setCurrentHomeworkEdit(null);
+    } catch (error) {
+       console.error("Gagal simpan PR:", error);
+       alert("Gagal menyimpan PR.");
     }
   };
 
@@ -629,8 +665,8 @@ export default function App() {
       </button>
       
       {/* MENU BARU: ACTIVITY */}
-      <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' ? 'text-indigo-500' : 'text-gray-400'}`}>
-        <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' ? 'bg-indigo-50 scale-110' : ''}`}><Blocks size={22} /></div>
+      <button onClick={() => setActiveTab('activity')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'activity' || activeTab === 'schedule' ? 'text-indigo-500' : 'text-gray-400'}`}>
+        <div className={`p-2 rounded-xl transition-all ${activeTab === 'activity' || activeTab === 'schedule' ? 'bg-indigo-50 scale-110' : ''}`}><Blocks size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Activity</span>
       </button>
 
@@ -753,7 +789,7 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL INPUT JADWAL (ADMIN ONLY) --- */}
+      {/* --- MODAL INPUT JADWAL TEKS (ADMIN ONLY) --- */}
       {showScheduleModal && (
         <div className="fixed inset-0 z-[450] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl w-[95%] md:w-full max-w-lg overflow-y-auto border-4 border-blue-200 p-5 md:p-8 animate-scale-up max-h-[90vh]">
@@ -765,7 +801,7 @@ export default function App() {
                  <button onClick={() => setShowScheduleModal(false)} className="bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={24} /></button>
               </div>
 
-              <form onSubmit={handleSaveSchedule} className="space-y-4">
+              <form onSubmit={handleSaveScheduleText} className="space-y-4">
                 {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map(day => (
                   <div key={day} className="space-y-1">
                     <label className="text-xs font-black uppercase text-gray-500 ml-1 block">{day}</label>
@@ -786,47 +822,60 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL LIHAT JADWAL (VIEW ONLY) --- */}
-      {showScheduleView && (
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border-8 border-blue-100 p-2 md:p-6 animate-scale-up relative">
-            <button onClick={() => setShowScheduleView(false)} className="absolute top-4 right-4 bg-gray-100 p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors z-10"><X size={24} /></button>
-            
-            <div className="text-center mb-8 mt-4">
-              <h2 className="text-2xl md:text-4xl font-black text-blue-600 uppercase tracking-tight mb-2 flex items-center justify-center gap-3">
-                <CalendarCheck size={32} className="md:w-10 md:h-10" /> Jadwal Pelajaran
-              </h2>
-              <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.3em]">Jangan Lupa Bawa Bukunya Ya!</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-               {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map((day, idx) => {
-                 const colors = ['bg-pink-500', 'bg-orange-500', 'bg-yellow-400', 'bg-green-500', 'bg-blue-500'];
-                 const lightColors = ['bg-pink-50', 'bg-orange-50', 'bg-yellow-50', 'bg-green-50', 'bg-blue-50'];
-                 const borderColors = ['border-pink-200', 'border-orange-200', 'border-yellow-200', 'border-green-200', 'border-blue-200'];
-                 const subjects = scheduleData[day] ? scheduleData[day].split('\n').filter(s => s.trim() !== '') : [];
-
-                 return (
-                   <div key={day} className={`rounded-2xl overflow-hidden border-2 ${borderColors[idx]} shadow-lg flex flex-col h-full bg-white transform hover:-translate-y-1 transition-transform duration-300`}>
-                      <div className={`${colors[idx]} py-3 text-center`}>
-                        <h3 className="text-white font-black uppercase tracking-widest text-sm">{day}</h3>
-                      </div>
-                      <div className={`flex-1 p-4 ${lightColors[idx]} flex flex-col gap-2 items-center justify-center min-h-[150px]`}>
-                        {subjects.length > 0 ? (
-                          subjects.map((sub, i) => (
-                            <div key={i} className="bg-white w-full py-2 px-3 rounded-xl text-center shadow-sm border border-black/5">
-                              <span className="text-xs md:text-sm font-bold text-gray-700 block truncate">{sub}</span>
-                            </div>
-                          ))
-                        ) : (
-                          <span className="text-gray-400 italic text-xs font-bold">Libur / Kosong</span>
-                        )}
-                      </div>
-                   </div>
-                 )
-               })}
-            </div>
-          </div>
+      {/* --- MODAL INPUT PR (ADMIN ONLY) --- */}
+      {showHomeworkModal && currentHomeworkEdit && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+           <div className="bg-white rounded-[2rem] shadow-2xl w-[95%] max-w-sm md:max-w-md overflow-hidden border-4 border-indigo-200 animate-scale-up">
+              <div className="bg-indigo-50 p-6 border-b border-indigo-100 flex justify-between items-center">
+                 <div>
+                    <h3 className="text-lg font-black text-indigo-600 uppercase tracking-tight flex items-center gap-2"><Edit3 size={18} /> Input PR</h3>
+                    <p className="text-xs font-bold text-gray-400">{currentHomeworkEdit.day} • {currentHomeworkEdit.subject}</p>
+                 </div>
+                 <button onClick={() => setShowHomeworkModal(false)} className="bg-white p-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleSaveHomework} className="p-6 space-y-4">
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Topik / Bab</label>
+                    <div className="relative">
+                       <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                       <input 
+                         value={currentHomeworkEdit.topic} 
+                         onChange={(e) => setCurrentHomeworkEdit({...currentHomeworkEdit, topic: e.target.value})}
+                         placeholder="Contoh: Pecahan Campuran" 
+                         className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-100 focus:border-indigo-300 outline-none text-sm font-bold transition-all"
+                       />
+                    </div>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Halaman Buku</label>
+                    <div className="relative">
+                       <FileText size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                       <input 
+                         value={currentHomeworkEdit.page} 
+                         onChange={(e) => setCurrentHomeworkEdit({...currentHomeworkEdit, page: e.target.value})}
+                         placeholder="Contoh: Hal. 45 - 46" 
+                         className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-100 focus:border-indigo-300 outline-none text-sm font-bold transition-all"
+                       />
+                    </div>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Tugas Tambahan</label>
+                    <div className="relative">
+                       <CheckSquare size={16} className="absolute left-4 top-4 text-gray-300" />
+                       <textarea 
+                         value={currentHomeworkEdit.task} 
+                         onChange={(e) => setCurrentHomeworkEdit({...currentHomeworkEdit, task: e.target.value})}
+                         placeholder="Catatan tambahan untuk murid..." 
+                         rows={3}
+                         className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-100 focus:border-indigo-300 outline-none text-sm font-bold transition-all resize-none"
+                       />
+                    </div>
+                 </div>
+                 <button type="submit" className="w-full bg-indigo-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 mt-2">
+                    <Bookmark size={18} /> Simpan PR
+                 </button>
+              </form>
+           </div>
         </div>
       )}
 
@@ -966,7 +1015,7 @@ export default function App() {
         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-pink-400 rounded-full blur-3xl opacity-20 mix-blend-overlay animate-float" style={{ animationDelay: '2s' }}></div>
 
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
-          {/* MENU KHUSUS ADMIN: INPUT JADWAL */}
+          {/* MENU KHUSUS ADMIN: INPUT JADWAL TEKS */}
           {userRole === 'admin' && (
             <button 
               onClick={() => setShowScheduleModal(true)} 
@@ -1054,9 +1103,9 @@ export default function App() {
           
           <button 
             onClick={() => setActiveTab('activity')} 
-            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'activity' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200 transform -translate-y-1' : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-500'}`}
+            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'activity' || activeTab === 'schedule' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200 transform -translate-y-1' : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-500'}`}
           >
-            <Blocks size={18} className={activeTab === 'activity' ? 'animate-bounce' : ''} />
+            <Blocks size={18} className={activeTab === 'activity' || activeTab === 'schedule' ? 'animate-bounce' : ''} />
             Activity
           </button>
 
@@ -1195,44 +1244,98 @@ export default function App() {
           </div>
         )}
 
-        {/* --- ACTIVITY PAGE --- */}
-        {activeTab === 'activity' && (
-          <div className="space-y-8 max-w-4xl mx-auto pb-10 animate-fade-in">
-            <div className="text-center mb-8">
-              <div className="bg-indigo-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-600 shadow-lg border-2 border-white transform rotate-3"><Blocks size={32} /></div>
-              <h2 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">Pusat Aktivitas</h2>
-              <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-2">Belajar Sambil Bermain</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
-              {/* Jadwal Pelajaran (CLICKABLE NOW) */}
-              <button onClick={() => setShowScheduleView(true)} className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group text-left relative overflow-hidden">
-                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><CalendarCheck size={80} className="text-blue-500" /></div>
-                 <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform"><CalendarDays size={28} /></div>
-                 <h3 className="text-xl font-black text-gray-800 mb-2">Jadwal Pelajaran</h3>
-                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Cek mata pelajaran hari ini biar nggak salah bawa buku!</p>
-                 <div className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-blue-600 transition-colors">
-                    Lihat Jadwal <ArrowRight size={16} />
+        {/* --- SCHEDULE PAGE (FULL PAGE) --- */}
+        {activeTab === 'schedule' && (
+           <div className="space-y-6 pb-20 animate-fade-in">
+              <div className="flex items-center justify-between mb-8 px-2">
+                 <button onClick={() => setActiveTab('activity')} className="flex items-center gap-2 text-gray-400 font-bold uppercase text-xs hover:text-blue-500 transition-colors">
+                    <ArrowLeft size={18} /> Kembali
+                 </button>
+                 <div className="flex items-center gap-2">
+                    <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><CalendarCheck size={20} /></div>
+                    <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight">Jadwal & PR</h2>
                  </div>
-              </button>
-
-              {/* Bagi Kelompok */}
-              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-purple-200 hover:border-purple-400 transition-all group cursor-default">
-                 <div className="bg-purple-50 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform"><Users size={28} /></div>
-                 <h3 className="text-xl font-black text-gray-800 mb-2">Bagi Kelompok</h3>
-                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Bingung bagi kelompok? Biar sistem yang acak otomatis.</p>
-                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+                 <div className="w-10"></div> {/* Spacer */}
               </div>
 
-              {/* Quiz */}
-              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-orange-200 hover:border-orange-400 transition-all group cursor-default">
-                 <div className="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform"><BrainCircuit size={28} /></div>
-                 <h3 className="text-xl font-black text-gray-800 mb-2">Kuis Seru</h3>
-                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Uji pengetahuanmu dengan kuis interaktif yang menantang.</p>
-                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
+                 {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map((day, idx) => {
+                     const colors = ['bg-pink-500', 'bg-orange-500', 'bg-yellow-400', 'bg-green-500', 'bg-blue-500'];
+                     const lightColors = ['bg-pink-50', 'bg-orange-50', 'bg-yellow-50', 'bg-green-50', 'bg-blue-50'];
+                     const borderColors = ['border-pink-200', 'border-orange-200', 'border-yellow-200', 'border-green-200', 'border-blue-200'];
+                     const subjects = scheduleData[day] ? scheduleData[day].split('\n').filter(s => s.trim() !== '') : [];
+
+                     return (
+                        <div key={day} className={`rounded-2xl md:rounded-3xl overflow-hidden border-2 ${borderColors[idx]} shadow-lg flex flex-col bg-white`}>
+                           <div className={`${colors[idx]} py-3 md:py-4 text-center relative overflow-hidden`}>
+                              <div className="absolute top-0 right-0 p-2 opacity-20 transform rotate-12"><CalendarDays size={40} className="text-white" /></div>
+                              <h3 className="text-white font-black uppercase tracking-widest text-sm md:text-base relative z-10">{day}</h3>
+                           </div>
+                           <div className={`flex-1 p-3 md:p-5 ${lightColors[idx]} flex flex-col gap-3`}>
+                              {subjects.length > 0 ? (
+                                 subjects.map((sub, i) => {
+                                    const homeworkKey = `${day}-${i}`;
+                                    const hw = homeworkData[homeworkKey];
+                                    
+                                    return (
+                                       <div key={i} className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-black/5 group hover:border-black/10 transition-all">
+                                          <div className="flex justify-between items-start gap-2 mb-2">
+                                             <span className="text-xs md:text-sm font-black text-gray-700 leading-tight">{sub}</span>
+                                             {userRole === 'admin' && (
+                                                <button 
+                                                  onClick={() => {
+                                                     setCurrentHomeworkEdit({ day, index: i, subject: sub, topic: hw?.topic || '', page: hw?.page || '', task: hw?.task || '' });
+                                                     setShowHomeworkModal(true);
+                                                  }}
+                                                  className="text-gray-300 hover:text-blue-500 p-1 -mt-1 -mr-1 transition-colors"
+                                                >
+                                                   <Edit3 size={14} />
+                                                </button>
+                                             )}
+                                          </div>
+                                          
+                                          {/* Homework Display */}
+                                          {hw && (hw.topic || hw.page || hw.task) ? (
+                                             <div className="mt-2 pt-2 border-t border-dashed border-gray-200 space-y-1.5">
+                                                {hw.topic && (
+                                                   <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-gray-500">
+                                                      <BookOpen size={12} className="text-purple-400 shrink-0" />
+                                                      <span className="font-bold">{hw.topic}</span>
+                                                   </div>
+                                                )}
+                                                {hw.page && (
+                                                   <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-gray-500">
+                                                      <FileText size={12} className="text-orange-400 shrink-0" />
+                                                      <span className="font-medium bg-orange-50 px-1.5 py-0.5 rounded text-orange-600">{hw.page}</span>
+                                                   </div>
+                                                )}
+                                                {hw.task && (
+                                                   <div className="flex items-start gap-1.5 text-[10px] md:text-xs text-gray-500 bg-gray-50 p-2 rounded-lg mt-1">
+                                                      <CheckSquare size={12} className="text-green-500 shrink-0 mt-0.5" />
+                                                      <span className="italic leading-relaxed">{hw.task}</span>
+                                                   </div>
+                                                )}
+                                             </div>
+                                          ) : (
+                                             <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-300 italic">
+                                                <Smile size={12} /> <span>Tidak ada PR</span>
+                                             </div>
+                                          )}
+                                       </div>
+                                    );
+                                 })
+                              ) : (
+                                 <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2 opacity-60">
+                                    <Clock size={24} />
+                                    <span className="text-xs font-bold italic">Libur / Kosong</span>
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+                     )
+                 })}
               </div>
-            </div>
-          </div>
+           </div>
         )}
 
         {activeTab === 'form' && userRole !== 'viewer' && (
