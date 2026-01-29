@@ -540,11 +540,11 @@ export default function App() {
                   <School size={32} className="text-orange-500" />
                 </div>
 
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU APPS</div>
               </div>
 
-              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
+              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Ayo Masuk ke Kelasmu</p>
               
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 {/* Pesan Error di atas kolom input */}
@@ -879,7 +879,7 @@ export default function App() {
                <img src={schoolSettings.ketuaKelas?.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
            </div>
         </div>
 
