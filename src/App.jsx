@@ -503,7 +503,7 @@ export default function App() {
           <Home size={80} strokeWidth={2.5} />
         </div>
         <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
-          Sabar ya...
+          Sabarya...
         </div>
       </div>
     );
@@ -1051,14 +1051,21 @@ export default function App() {
                       {rankedFriends[1] && (
                         <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                           <div className="relative mb-3 md:mb-6">
+                            {/* Icon Mahkota Juara 2 */}
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-300 z-20">
+                               <Crown size={28} className="fill-current drop-shadow-sm" />
+                            </div>
                             <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg bg-white ring-4 ring-gray-50">
                               {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[1].avatar]?.emoji}</div>}
                             </div>
                             <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-gray-300 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">2</div>
                           </div>
                           <div className="bg-white p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-gray-200 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[1].name.split(' ')[0]}</p>
-                            <div className="bg-gray-100 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-gray-500 shadow-inner">{calculatePTS(rankedFriends[1])} <span className="text-[8px] opacity-60">PTS</span></div>
+                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[1].nickname || rankedFriends[1].name}</p>
+                            <div className="bg-gray-100 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-gray-500 shadow-inner flex items-center gap-1">
+                               <Zap size={10} className="fill-current" />
+                               {calculatePTS(rankedFriends[1])} <span className="text-[8px] opacity-60">PTS</span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1075,8 +1082,11 @@ export default function App() {
                           </div>
                           <div className="bg-white p-4 md:p-8 rounded-t-[2.5rem] border-t-8 border-x-8 border-yellow-100 shadow-[0_-15px_30px_rgba(250,204,21,0.1)] w-full text-center flex flex-col items-center relative">
                             <div className="absolute inset-x-0 -top-1 h-1 bg-yellow-400 rounded-full mx-8"></div>
-                            <p className="text-xs md:text-lg font-black text-gray-800 text-center truncate w-full mb-1 uppercase tracking-tight">{rankedFriends[0].name.split(' ')[0]}</p>
-                            <div className="bg-yellow-400 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-[10px] md:text-sm font-black text-white shadow-lg">{calculatePTS(rankedFriends[0])} <span className="text-[9px] opacity-80 uppercase">PTS</span></div>
+                            <p className="text-xs md:text-lg font-black text-gray-800 text-center truncate w-full mb-1 uppercase tracking-tight">{rankedFriends[0].nickname || rankedFriends[0].name}</p>
+                            <div className="bg-yellow-400 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-[10px] md:text-sm font-black text-white shadow-lg flex items-center gap-1.5">
+                               <Zap size={14} className="fill-current" />
+                               {calculatePTS(rankedFriends[0])} <span className="text-[9px] opacity-80 uppercase">PTS</span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1085,14 +1095,21 @@ export default function App() {
                       {rankedFriends[2] && (
                         <div className="flex flex-col items-center w-1/3 md:w-64 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                           <div className="relative mb-3 md:mb-6">
+                            {/* Icon Mahkota Juara 3 */}
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-orange-400 z-20">
+                               <Crown size={28} className="fill-current drop-shadow-sm" />
+                            </div>
                             <div className="w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white ring-4 ring-orange-50">
                               {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl md:text-5xl">{avatars[rankedFriends[2].avatar]?.emoji}</div>}
                             </div>
                             <div className="absolute -top-2 -right-1 md:-top-3 md:-right-3 bg-orange-400 text-white w-6 h-6 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-[10px] md:text-lg border-2 md:border-4 border-white shadow-sm">3</div>
                           </div>
                           <div className="bg-white p-3 md:p-6 rounded-t-3xl border-t-4 border-x-4 border-orange-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] w-full text-center flex flex-col items-center">
-                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[2].name.split(' ')[0]}</p>
-                            <div className="bg-orange-50 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-orange-600 shadow-inner">{calculatePTS(rankedFriends[2])} <span className="text-[8px] opacity-60">PTS</span></div>
+                            <p className="text-[10px] md:text-sm font-black text-gray-800 text-center truncate w-full mb-1 uppercase">{rankedFriends[2].nickname || rankedFriends[2].name}</p>
+                            <div className="bg-orange-50 px-3 py-1 rounded-full text-[9px] md:text-xs font-black text-orange-600 shadow-inner flex items-center gap-1">
+                               <Zap size={10} className="fill-current" />
+                               {calculatePTS(rankedFriends[2])} <span className="text-[8px] opacity-60">PTS</span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1114,11 +1131,11 @@ export default function App() {
                                  {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-lg md:text-2xl">{avatars[friend.avatar]?.emoji}</div>}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-black text-gray-800 text-xs md:text-sm truncate uppercase tracking-tight group-hover:text-orange-600 transition-colors">{friend.name}</p>
-                                <p className="text-[9px] font-bold text-gray-400 hidden md:block">"{friend.nickname}"</p>
+                                <p className="font-black text-gray-800 text-xs md:text-sm truncate uppercase tracking-tight group-hover:text-orange-600 transition-colors">{friend.nickname || friend.name}</p>
+                                <p className="text-[9px] font-bold text-gray-400 hidden md:block italic">"{friend.name}"</p>
                               </div>
                               <div className="bg-blue-50 px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shrink-0 ml-2 shadow-sm border border-blue-100">
-                                 <Medal size={14} className="text-blue-500 fill-blue-100" />
+                                 <Zap size={14} className="text-blue-500 fill-blue-100" />
                                  <span className="text-[10px] md:text-xs font-black text-blue-600">{pts} <span className="opacity-50 font-bold">PTS</span></span>
                               </div>
                             </div>
