@@ -1272,6 +1272,209 @@ export default function App() {
           </div>
         )}
 
+        {/* --- RANKING PAGE (Restored with Podium) --- */}
+        {activeTab === 'ranking' && (
+          <div className="max-w-3xl mx-auto pb-24 animate-fade-in px-4">
+             <div className="text-center mb-12 pt-8 relative">
+                <div className="relative inline-block">
+                   <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-500 via-orange-500 to-pink-500 uppercase tracking-[0.2em] drop-shadow-sm filter">
+                     Peringkat
+                   </h2>
+                   {/* Decorative Elements replacing the Trophy */}
+                   <Star className="absolute -top-6 -right-8 text-yellow-400 fill-yellow-400 w-8 h-8 animate-bounce" />
+                   <Sparkles className="absolute top-1/2 -translate-y-1/2 -left-10 text-pink-400 w-6 h-6 animate-spin-slow" />
+                   <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-1.5 bg-gradient-to-r from-transparent via-orange-300 to-transparent rounded-full opacity-50"></div>
+                </div>
+             </div>
+
+             {/* PODIUM DISPLAY */}
+             {rankedFriends.length > 0 ? (
+               <div className="flex justify-center items-end mb-12 min-h-[300px] px-2 gap-2 md:gap-6 relative">
+                  {/* PODIUM 2 (Left) */}
+                  <div className="w-1/3 max-w-[130px] flex flex-col items-center z-10 order-1 md:order-1">
+                     {rankedFriends[1] ? (
+                       <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                          <div className="relative mb-3 group">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-gray-300 overflow-hidden shadow-lg bg-gray-100 relative">
+                                {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? (
+                                  <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[1].avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-2xl`}>
+                                    {avatars[rankedFriends[1].avatar]?.emoji || '🥈'}
+                                  </div>
+                                )}
+                             </div>
+                             {/* Silver Crown */}
+                             <Crown size={30} className="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-400 fill-gray-200" />
+                             <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-gray-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#2</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-gray-200 to-gray-300 h-32 md:h-44 rounded-t-2xl border-t-4 border-gray-100 flex flex-col justify-end p-2 text-center shadow-lg relative">
+                             <div className="font-bold text-xs md:text-sm text-gray-700 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[1].nickname || rankedFriends[1].name.split(' ')[0]}
+                                <TrendingUp size={14} className="text-green-500 inline" />
+                             </div>
+                             <div className="bg-white/60 rounded-lg py-1 px-1 mb-2 backdrop-blur-sm flex items-center justify-center gap-1">
+                                <Zap size={12} className="text-gray-600 fill-current" />
+                                <span className="font-black text-gray-600 text-[10px] md:text-xs">{calculatePTS(rankedFriends[1])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     ) : <div className="w-full h-32 md:h-44 bg-gray-50/50 rounded-t-2xl border-t-2 border-dashed border-gray-200"></div>}
+                  </div>
+
+                  {/* PODIUM 1 (Center) */}
+                  <div className="w-1/3 max-w-[150px] flex flex-col items-center z-20 order-2 -mt-10">
+                     {rankedFriends[0] && (
+                       <div className="w-full flex flex-col items-center animate-slide-up">
+                          <div className="relative mb-3 scale-110 group">
+                             <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-[5px] border-yellow-400 overflow-hidden shadow-xl bg-yellow-100 ring-4 ring-yellow-400/20 relative">
+                                {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? (
+                                  <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[0].avatar]?.color || 'bg-yellow-100'} w-full h-full flex items-center justify-center text-4xl`}>
+                                    {avatars[rankedFriends[0].avatar]?.emoji || '🥇'}
+                                  </div>
+                                )}
+                             </div>
+                             {/* Gold Crown - Adjusted Position */}
+                             <Crown size={36} className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-500 fill-yellow-400 drop-shadow-md animate-bounce" />
+                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white min-w-[36px] text-center">#1</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-yellow-300 to-yellow-500 h-44 md:h-56 rounded-t-[24px] border-t-4 border-yellow-200 flex flex-col justify-end p-3 text-center shadow-xl relative overflow-hidden">
+                             <div className="absolute inset-0 pattern-elegant opacity-20"></div>
+                             <div className="relative z-10 font-black text-sm md:text-base text-yellow-900 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[0].nickname || rankedFriends[0].name.split(' ')[0]}
+                                <TrendingUp size={16} className="text-green-600 inline" />
+                             </div>
+                             <div className="relative z-10 bg-white/70 rounded-xl py-1.5 px-2 mb-4 backdrop-blur-md shadow-sm flex items-center justify-center gap-1">
+                                <Zap size={14} className="text-yellow-800 fill-current" />
+                                <span className="font-black text-yellow-800 text-xs md:text-sm">{calculatePTS(rankedFriends[0])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     )}
+                  </div>
+
+                  {/* PODIUM 3 (Right) */}
+                  <div className="w-1/3 max-w-[130px] flex flex-col items-center z-10 order-3">
+                     {rankedFriends[2] ? (
+                       <div className="w-full flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                          <div className="relative mb-3 group">
+                             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-amber-600 overflow-hidden shadow-lg bg-amber-100 relative">
+                                {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? (
+                                  <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className={`${avatars[rankedFriends[2].avatar]?.color || 'bg-amber-100'} w-full h-full flex items-center justify-center text-2xl`}>
+                                    {avatars[rankedFriends[2].avatar]?.emoji || '🥉'}
+                                  </div>
+                                )}
+                             </div>
+                             {/* Bronze Crown */}
+                             <Crown size={30} className="absolute -top-6 left-1/2 -translate-x-1/2 text-amber-700 fill-amber-600" />
+                             <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-amber-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md border-2 border-white min-w-[30px] text-center">#3</div>
+                          </div>
+                          <div className="w-full bg-gradient-to-b from-amber-600 to-amber-700 h-24 md:h-36 rounded-t-2xl border-t-4 border-amber-500 flex flex-col justify-end p-2 text-center shadow-lg relative">
+                             <div className="font-bold text-xs md:text-sm text-amber-50 truncate w-full mb-1 flex items-center justify-center gap-1">
+                                {rankedFriends[2].nickname || rankedFriends[2].name.split(' ')[0]}
+                                <TrendingUp size={14} className="text-green-300 inline" />
+                             </div>
+                             <div className="bg-black/20 rounded-lg py-1 px-1 mb-2 flex items-center justify-center gap-1">
+                                <Zap size={12} className="text-amber-50 fill-current" />
+                                <span className="font-black text-amber-50 text-[10px] md:text-xs">{calculatePTS(rankedFriends[2])} PTS</span>
+                             </div>
+                          </div>
+                       </div>
+                     ) : <div className="w-full h-24 md:h-36 bg-gray-50/50 rounded-t-2xl border-t-2 border-dashed border-gray-200"></div>}
+                  </div>
+               </div>
+             ) : (
+                <div className="text-center py-12 opacity-50"><p className="font-bold text-gray-400">Belum ada data peringkat.</p></div>
+             )}
+
+             {/* LIST SISANYA */}
+             <div className="bg-white rounded-[2rem] p-6 shadow-xl border-4 border-indigo-50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200"></div>
+                <h3 className="font-black text-gray-400 text-center uppercase tracking-widest text-[10px] mb-6 flex items-center justify-center gap-2">
+                   <Star size={12} /> Pejuang Bintang Lainnya <Star size={12} />
+                </h3>
+                <div className="space-y-3">
+                   {rankedFriends.slice(3).map((friend, idx) => (
+                      <div key={friend.id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-indigo-50 transition-colors group border border-transparent hover:border-indigo-100">
+                         <div className="font-black text-gray-300 text-sm w-6 text-center group-hover:text-indigo-400">{idx + 4}</div>
+                         <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-100 group-hover:scale-110 transition-transform">
+                            {friend.usePhoto && friend.photoUrl ? (
+                              <img src={friend.photoUrl} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className={`${avatars[friend.avatar]?.color || 'bg-gray-200'} w-full h-full flex items-center justify-center text-lg`}>
+                                {avatars[friend.avatar]?.emoji || '😐'}
+                              </div>
+                            )}
+                         </div>
+                         <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-gray-700 text-sm truncate group-hover:text-indigo-600 flex items-center gap-1">
+                                {friend.name}
+                                <TrendingUp size={14} className="text-green-500 inline" />
+                            </h4>
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                               <span className="flex items-center gap-0.5"><Star size={10} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
+                               <span className="flex items-center gap-0.5"><HeartHandshake size={10} className="text-green-500" /> {friend.thanks || 0}</span>
+                            </div>
+                         </div>
+                         <div className="bg-indigo-100 px-3 py-1 rounded-full text-indigo-600 font-black text-[10px] whitespace-nowrap flex items-center gap-1">
+                            <Zap size={10} className="fill-current" /> {calculatePTS(friend)} PTS
+                         </div>
+                      </div>
+                   ))}
+                   {rankedFriends.length <= 3 && rankedFriends.length > 0 && (
+                      <div className="text-center py-4 text-xs text-gray-400 italic bg-gray-50 rounded-xl">
+                         Semua sudah di podium! Semangat terus! 🚀
+                      </div>
+                   )}
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* --- ACTIVITY PAGE (Restored) --- */}
+        {activeTab === 'activity' && (
+          <div className="space-y-8 max-w-4xl mx-auto pb-20 animate-fade-in">
+            <div className="text-center mb-8">
+              <div className="bg-indigo-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-600 shadow-lg border-2 border-white transform rotate-3"><Blocks size={32} /></div>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">Pusat Aktivitas</h2>
+              <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-2">Belajar Sambil Bermain</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+              {/* Jadwal Pelajaran (Links to 'schedule' tab) */}
+              <button onClick={() => setActiveTab('schedule')} className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-blue-200 hover:border-blue-400 transition-all group text-left relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><CalendarCheck size={80} className="text-blue-500" /></div>
+                 <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform"><CalendarDays size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Jadwal Pelajaran</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Cek mata pelajaran hari ini biar nggak salah bawa buku!</p>
+                 <div className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-blue-600 transition-colors">
+                    Lihat Jadwal <ArrowRight size={16} />
+                 </div>
+              </button>
+
+              {/* Bagi Kelompok */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-purple-200 hover:border-purple-400 transition-all group cursor-default">
+                 <div className="bg-purple-50 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform"><Users size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Bagi Kelompok</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Bingung bagi kelompok? Biar sistem yang acak otomatis.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
+
+              {/* Quiz */}
+              <div className="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-orange-200 hover:border-orange-400 transition-all group cursor-default">
+                 <div className="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform"><BrainCircuit size={28} /></div>
+                 <h3 className="text-xl font-black text-gray-800 mb-2">Kuis Seru</h3>
+                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">Uji pengetahuanmu dengan kuis interaktif yang menantang.</p>
+                 <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider cursor-not-allowed">Segera Hadir</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* --- SCHEDULE PAGE (FULL PAGE) --- */}
         {activeTab === 'schedule' && (
            <div className="space-y-6 pb-20 animate-fade-in">
