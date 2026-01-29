@@ -118,7 +118,6 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // --- STATE DATA KELAS & GURU ---
-  // Ditambahkan URL default dicebear untuk mencegah flicker gambar kosong
   const [schoolSettings, setSchoolSettings] = useState({
     className: "",
     classDescription: "",
@@ -261,7 +260,6 @@ export default function App() {
         setSchoolSettings(prev => ({
           ...prev,
           ...data,
-          // Pastikan jika URL kosong, tetap menggunakan fallback dicebear
           waliKelas: { ...data.waliKelas, photoUrl: data.waliKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher" },
           asisten: { ...data.asisten, photoUrl: data.asisten?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant" },
           ketuaKelas: { ...data.ketuaKelas, photoUrl: data.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader" }
@@ -520,13 +518,28 @@ export default function App() {
     }
   };
 
-  // --- LOADING SCREEN ---
+  // --- LOADING SCREEN (ANIMATIF) ---
   if (loading || settingsLoading) {
     return (
-      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
-        <div className="flex flex-col items-center animate-pulse">
-          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-          <div className="text-xl font-bold text-orange-500 uppercase tracking-widest">Sabar ya...</div>
+      <div className="min-h-screen bg-yellow-50 flex flex-col items-center justify-center p-4">
+        <div className="relative">
+          {/* Ring luar statis */}
+          <div className="w-24 h-24 border-8 border-orange-100 rounded-full shadow-inner"></div>
+          {/* Ring berputar */}
+          <div className="absolute top-0 left-0 w-24 h-24 border-8 border-transparent border-t-orange-500 border-r-orange-400 rounded-full animate-spin"></div>
+          {/* Ikon memantul di tengah */}
+          <div className="absolute inset-0 flex items-center justify-center text-orange-500 animate-bounce">
+            <School size={32} />
+          </div>
+        </div>
+        
+        <div className="mt-8 text-center space-y-3">
+          <h2 className="text-2xl font-black text-orange-600 animate-pulse uppercase tracking-tight">
+            Sedang Memuat Kelas
+          </h2>
+          <div className="bg-orange-500 text-white px-4 py-1 rounded-full text-xs font-black shadow-md inline-block animate-bounce">
+            Sabar ya...
+          </div>
         </div>
       </div>
     );
@@ -560,10 +573,10 @@ export default function App() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
                   <School size={32} className="text-orange-500" />
                 </div>
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU</div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
               </div>
-              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
-              <p className="text-xs font-bold text-gray-500 tracking-widest mb-6 text-center">Silahkan masuk ke kelasmu</p>
+              <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Assalamualaikum!</h2>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Masuk ke Kelas 6A</p>
               <form onSubmit={handleLogin} className="w-full space-y-4">
                 <input type="password" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Kode Rahasia..." className={`w-full px-4 py-3.5 rounded-2xl border-2 ${loginError ? 'border-red-400 bg-red-50' : 'border-gray-200'} focus:outline-none focus:border-blue-400 text-center font-black tracking-[0.2em] transition-all`} />
                 <button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(194,120,57)] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">Masuk Kelas<ArrowRight size={20} /></button>
@@ -889,7 +902,7 @@ export default function App() {
                />
                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
              </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
+             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name || "Belum Ada"}</span>
            </div>
         </div>
 
