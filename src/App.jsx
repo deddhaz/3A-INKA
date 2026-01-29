@@ -93,6 +93,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [settingsLoading, setSettingsLoading] = useState(true); // State baru untuk handle flicker
   const [activeTab, setActiveTab] = useState('home'); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState('user'); 
@@ -106,7 +107,7 @@ export default function App() {
   const [currentEditId, setCurrentEditId] = useState(null);
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
-  const [restrictedMessage, setRestrictedMessage] = useState(false); // Pop-up untuk non-admin
+  const [restrictedMessage, setRestrictedMessage] = useState(false); 
   
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
@@ -116,7 +117,15 @@ export default function App() {
   const [isSavingTestimony, setIsSavingTestimony] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  
+  // --- STATE DATA KELAS & GURU (DIKOSONGKAN UNTUK CEGAH FLICKER) ---
+  const [schoolSettings, setSchoolSettings] = useState({
+    className: "",
+    classDescription: "",
+    waliKelas: { name: "", photoUrl: "", role: "Wali Kelas" },
+    asisten: { name: "", photoUrl: "", role: "Asisten" },
+    ketuaKelas: { name: "", photoUrl: "", role: "Ketua Kelas" }
+  });
+
   const avatars = {
     super_boy: { emoji: '🦸‍♂️', color: 'bg-blue-100', label: 'Super Boy' },
     super_girl: { emoji: '🦸‍♀️', color: 'bg-pink-100', label: 'Super Girl' },
@@ -141,7 +150,7 @@ export default function App() {
     return (friend.stars || 0) * 5 + (friend.thanks || 0) * 3;
   };
 
-  // --- LOGIKA: FORMAT NOMOR ORDINAL (1st, 2nd, 3rd, dst) ---
+  // --- LOGIKA: FORMAT NOMOR ORDINAL ---
   const getOrdinal = (n) => {
     let j = n % 10, k = n % 100;
     if (j === 1 && k !== 11) return n + "st";
@@ -195,11 +204,16 @@ export default function App() {
 
   useEffect(() => {
     if (!user || !isAuthenticated) {
-      if (!isAuthenticated) setLoading(false);
+      if (!isAuthenticated) {
+        setLoading(false);
+        setSettingsLoading(false);
+      }
       return;
     }
 
     setLoading(true);
+    setSettingsLoading(true);
+
     const dataRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
     const testimonyRef = collection(db, 'artifacts', appId, 'public', 'data', TESTIMONY_COLLECTION);
     const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', SETTINGS_COLLECTION, 'class_info');
@@ -239,11 +253,21 @@ export default function App() {
       (error) => console.error("Gagal mengambil testimoni:", error)
     );
 
-    // Listener Data Pengaturan Kelas
+    // Listener Data Pengaturan Kelas (Menghentikan Flicker)
     const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
       if (snapshot.exists()) {
         setSchoolSettings(prev => ({ ...prev, ...snapshot.data() }));
+      } else {
+        // Jika dokumen tidak ada, set default agar tidak kosong selamanya
+        setSchoolSettings({
+          className: "Solahudin Al-Ayubi",
+          classDescription: "Kelas 6A SD Insan Karima",
+          waliKelas: { name: "Ustazah Najwa", photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust1.jpeg", role: "Wali Kelas" },
+          asisten: { name: "Ustazah Dea", photoUrl: "https://raw.githubusercontent.com/deddhaz/library/refs/heads/main/ust2.jpeg", role: "Asisten" },
+          ketuaKelas: { name: "Nama Ketua", photoUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=leader", role: "Ketua Kelas" }
+        });
       }
+      setSettingsLoading(false); // Selesai memuat pengaturan
     });
 
     return () => {
@@ -325,7 +349,6 @@ export default function App() {
     });
   };
 
-  // --- UPLOAD KHUSUS GURU & KETUA ---
   const handleTeacherPhotoUpload = (key, e) => {
     processFile(e.target.files[0], 400, (url) => {
       handleUpdateSchoolSettings(key, 'photoUrl', url);
@@ -444,19 +467,16 @@ export default function App() {
     }
   };
 
-  // --- LOGIKA: UPDATE PENGATURAN SEKOLAH / KELAS (ADMIN ONLY) ---
   const handleUpdateSchoolSettings = async (key, field, value) => {
     if (userRole !== 'admin') return;
     
     let updatedData = {};
     if (field) {
-        // Update nested object (seperti waliKelas.name)
         updatedData = {
           ...schoolSettings,
           [key]: { ...schoolSettings[key], [field]: value }
         };
     } else {
-        // Update direct field (seperti className)
         updatedData = {
           ...schoolSettings,
           [key]: value
@@ -491,6 +511,18 @@ export default function App() {
       } catch (error) { console.error("Gagal menghapus:", error); }
     }
   };
+
+  // --- LOADING SCREEN (Mencegah Flicker) ---
+  if (loading || settingsLoading) {
+    return (
+      <div className="min-h-screen bg-yellow-50 flex items-center justify-center">
+        <div className="flex flex-col items-center animate-pulse">
+          <div className="w-16 h-16 border-8 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+          <div className="text-xl font-bold text-orange-500 uppercase tracking-widest">Memuat Kelas...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -558,7 +590,6 @@ export default function App() {
       <InstallPrompt />
       <BottomNav />
 
-      {/* Popups (Star, Thanks, Testimony, Confirm, Logout Confirm, Restricted) */}
       {thanksMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-w-sm w-full text-center border-4 border-green-200 animate-scale-up">
@@ -591,7 +622,6 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL KONFIRMASI LOGOUT */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 max-w-sm w-full text-center border-4 border-orange-200 animate-scale-up">
@@ -662,7 +692,6 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL SETTINGS KELAS (ADMIN ONLY) */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto border-4 border-orange-200 p-6 md:p-10 animate-scale-up">
@@ -675,7 +704,6 @@ export default function App() {
               </div>
 
               <div className="space-y-10">
-                {/* Identitas Kelas (BARU) */}
                 <div className="bg-gray-50 p-6 rounded-[2.5rem] border-2 border-gray-100 relative">
                   <div className="absolute -top-3 left-6 bg-gray-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Identitas Kelas</div>
                   <div className="space-y-4 mt-2">
@@ -706,7 +734,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Wali Kelas */}
                 <div className="bg-orange-50/50 p-6 rounded-[2.5rem] border-2 border-orange-100 relative">
                   <div className="absolute -top-3 left-6 bg-orange-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Wali Kelas</div>
                   
@@ -732,7 +759,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Asisten */}
                 <div className="bg-blue-50/50 p-6 rounded-[2.5rem] border-2 border-blue-100 relative">
                   <div className="absolute -top-3 left-6 bg-blue-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Asisten</div>
                   
@@ -758,7 +784,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Ketua Kelas */}
                 <div className="bg-purple-50/50 p-6 rounded-[2.5rem] border-2 border-purple-100 relative">
                   <div className="absolute -top-3 left-6 bg-purple-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Ketua Kelas</div>
                   
@@ -796,9 +821,7 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER */}
       <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
-        {/* Kontainer Tombol Header */}
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
           <button 
             onClick={() => setShowLogoutConfirm(true)} 
@@ -818,13 +841,10 @@ export default function App() {
           )}
         </div>
 
-        {/* Identitas Kelas Fleksibel */}
         <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">{schoolSettings.className}</h1>
         <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-4">{schoolSettings.classDescription}</p>
         
-        {/* INFORMASI GURU & KETUA KELAS DI HEADER */}
         <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
-           {/* Wali Kelas */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
                <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
@@ -833,7 +853,6 @@ export default function App() {
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
            </div>
 
-           {/* Asisten */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
                <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
@@ -842,7 +861,6 @@ export default function App() {
              <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
            </div>
 
-           {/* Ketua Kelas */}
            <div className="flex flex-col items-center group">
              <div className="relative mb-2">
                <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
@@ -852,7 +870,6 @@ export default function App() {
            </div>
         </div>
 
-        {/* Desktop Nav Tabs */}
         <div className="hidden md:flex justify-center gap-2 mt-6">
           <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
           <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
@@ -861,8 +878,6 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4">
-        
-        {/* TAB: UTAMA (Galeri) */}
         {activeTab === 'home' && (
           <div className="space-y-6">
             <div className="hidden md:flex justify-center mb-10">
@@ -934,7 +949,6 @@ export default function App() {
                   const testimonyCount = allTestimonies.filter(t => t.friendId === friend.id).length;
                   const totalPTS = calculatePTS(friend);
 
-                  // Hitung peringkat teman saat ini
                   const rankIndex = rankedFriends.findIndex(f => f.id === friend.id);
                   const rankNum = rankIndex + 1;
                   const ordinalRank = getOrdinal(rankNum);
@@ -953,7 +967,6 @@ export default function App() {
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-2 pointer-events-none z-10">
                            <h4 className={`font-black text-white text-center leading-tight [text-shadow:_0_1px_2px_rgba(0,0,0,0.8),_0_0_1px_rgba(0,0,0,1)] ${isMobileGrid ? 'text-xs mt-1' : 'text-xl md:text-2xl mt-2'} flex items-center justify-center gap-2`}>
                              {isMobileGrid ? (friend.nickname || friend.name) : friend.name}
-                             {/* Badge Ordinal Elegant dengan Ikon Piala Khusus 1, 2, 3 */}
                              <span className={`flex items-center gap-1 text-[0.45em] bg-white/30 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/40 font-black tracking-tighter shadow-sm ${rankNum === 1 ? 'text-yellow-300' : rankNum === 2 ? 'text-gray-200' : rankNum === 3 ? 'text-amber-400' : 'text-white'}`}>
                                {rankNum === 1 && <Trophy size={10} className="fill-current" />}
                                {rankNum === 2 && <Trophy size={10} className="fill-current" />}
@@ -987,7 +1000,6 @@ export default function App() {
                            </p>
                          )}
 
-                         {/* Pesan Semangat */}
                          <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
                             <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
                             <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>
@@ -1020,14 +1032,12 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: PERINGKAT */}
         {activeTab === 'ranking' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
              <div className="text-center mb-8">
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
                 <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
                 <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
-                {/* Deskripsi Poin PTS */}
                 <div className="mt-4 bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 inline-block shadow-sm">
                   <div className="flex items-center gap-4 text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider">
                      <span className="flex items-center gap-1.5"><Star size={16} className="fill-current text-yellow-500" /> = 5 PTS</span>
@@ -1076,16 +1086,12 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB: FORM */}
         {activeTab === 'form' && (
           <div className="space-y-8 max-w-2xl mx-auto pb-10">
-            {/* FORM BIODATA SISWA */}
             <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 border-2 border-pink-100 animate-scale-up relative">
               <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
               
               <form onSubmit={(e) => { e.preventDefault(); setShowConfirmModal(true); }} className="space-y-8">
-                
-                {/* Opsi Banner */}
                 <div className="space-y-3">
                   <label className="text-[11px] font-black uppercase text-purple-400 ml-1 tracking-widest">Desain Banner Kartu:</label>
                   <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
@@ -1117,7 +1123,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Opsi Foto Profil / Avatar */}
                 <div className="space-y-3">
                   <label className="text-[11px] font-black uppercase text-pink-400 ml-1 tracking-widest">Foto / Avatar Profil:</label>
                   <div className="bg-gray-50 p-5 rounded-[2rem] border-2 border-gray-100 text-center">
@@ -1206,7 +1211,7 @@ export default function App() {
       </main>
 
       <footer className="text-center mt-12 mb-28 opacity-50 text-[10px] md:text-xs tracking-widest uppercase font-black px-4 leading-relaxed">
-        {schoolSettings.className} — {schoolSettings.classDescription}<br/>
+        {schoolSettings.className || "Kelas"} — {schoolSettings.classDescription || "SD Insan Karima"}<br/>
         Dibuat oleh Hiro dan Abinya — 2026
       </footer>
 
