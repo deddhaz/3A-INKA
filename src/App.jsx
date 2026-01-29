@@ -26,7 +26,7 @@ import {
   Lock, Key, School, ArrowRight, CheckCircle, AlertCircle, 
   LayoutGrid, List, Pencil, RotateCcw, LogOut, HeartHandshake,
   MessageSquareQuote, Languages, Sparkles, MessageSquare, Send,
-  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type
+  Sun, Cloud, TreeDeciduous as Tree, Flower, Home, Trophy, Zap, ChevronRight, CornerUpLeft, Medal, Image as ImageIcon, Search, Settings, UserCircle, Type, Crown
 } from 'lucide-react';
 
 // --- KONFIGURASI FIREBASE ---
@@ -503,7 +503,7 @@ export default function App() {
           <Home size={80} strokeWidth={2.5} />
         </div>
         <div className="bg-orange-500 text-white px-8 py-2.5 rounded-full text-sm font-black shadow-lg shadow-orange-100 uppercase tracking-widest animate-pulse">
-          Sabar ya...
+          Sabarya...
         </div>
       </div>
     );
@@ -702,7 +702,7 @@ export default function App() {
       {showConfirmModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-sm px-4 w-full text-center border-4 border-pink-200">
-            <CheckCircle size={40} className="text-pink-500 mx-auto mb-4" />
+            <div className="bg-pink-50 p-3 rounded-full inline-block mb-4"><CheckCircle size={40} className="text-pink-500 mx-auto" /></div>
             <h3 className="text-2xl font-bold mb-2">Sudah Yakin?</h3>
             <p className="text-gray-500 mb-6">Pastikan datanya sudah benar ya.</p>
             <div className="flex gap-3 justify-center">
@@ -1024,49 +1024,119 @@ export default function App() {
         )}
 
         {activeTab === 'ranking' && (
-          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-10">
-             <div className="text-center mb-8">
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-10">
+              <div className="text-center mb-8">
                 <div className="bg-orange-100 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-lg"><Trophy size={32} /></div>
-                <h3 className="text-2xl font-black text-gray-800 text-center">Peringkat PTS</h3>
-                <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1 text-center">Peringkat Berdasarkan Total Poin Tertinggi</p>
+                <h3 className="text-2xl font-black text-gray-800 text-center uppercase tracking-tight">Peringkat Kelas</h3>
+                <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2 text-center opacity-70">Siswa Teladan dengan Poin Tertinggi</p>
 
+                <div className="mt-6 mx-auto w-fit bg-white/80 backdrop-blur-sm px-5 py-3 rounded-2xl border-2 border-orange-100 shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
+                  <span className="flex items-center gap-1.5">
+                    <Star size={16} className="fill-current text-yellow-500 animate-pulse" /> <span className="text-gray-400">=</span> 5 PTS
+                  </span>
+                  <span className="border-r-2 border-orange-50 h-4"></span>
+                  <span className="flex items-center gap-1.5">
+                    <HeartHandshake size={16} className="text-green-600" /> <span className="text-gray-400">=</span> 3 PTS
+                  </span>
+                </div>
+              </div>
 
-               
-               
-               <div className="mt-4 mx-auto w-fit bg-orange-100/50 px-5 py-3 rounded-2xl border border-orange-200 shadow-sm text-[10px] md:text-xs font-black text-orange-600 uppercase tracking-wider flex items-center gap-4">
-  <span className="flex items-center gap-1.5">
-    <Star size={16} className="fill-current text-yellow-500" /> = 5 PTS
-  </span>
-  <span className="border-r border-orange-200 h-4"></span>
-  <span className="flex items-center gap-1.5">
-    <HeartHandshake size={16} className="text-green-600" /> = 3 PTS
-  </span>
-</div>
+              {/* VIEW: MOBILE ELEGANT (Hanya Tampil di HP) */}
+              <div className="md:hidden space-y-8 px-2">
+                {rankedFriends.length > 0 ? (
+                  <>
+                    {/* Podium Section Mobile */}
+                    <div className="flex items-end justify-center gap-2 mb-10 pt-12">
+                      {/* Juara 2 */}
+                      {rankedFriends[1] && (
+                        <div className="flex flex-col items-center w-1/3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                          <div className="relative mb-3">
+                            <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg bg-white">
+                              {rankedFriends[1].usePhoto && rankedFriends[1].photoUrl ? <img src={rankedFriends[1].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl">{avatars[rankedFriends[1].avatar]?.emoji}</div>}
+                            </div>
+                            <div className="absolute -top-2 -right-1 bg-gray-300 text-white w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] border-2 border-white shadow-sm">2</div>
+                          </div>
+                          <p className="text-[10px] font-black text-gray-800 text-center truncate w-full mb-1">{rankedFriends[1].nickname || rankedFriends[1].name.split(' ')[0]}</p>
+                          <div className="bg-gray-100 px-2 py-0.5 rounded-lg text-[9px] font-black text-gray-500">{calculatePTS(rankedFriends[1])} PTS</div>
+                        </div>
+                      )}
 
+                      {/* Juara 1 (Tengah & Lebih Besar) */}
+                      {rankedFriends[0] && (
+                        <div className="flex flex-col items-center w-2/5 animate-scale-up z-10">
+                          <div className="relative mb-4">
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-400 animate-bounce"><Crown size={32} className="fill-current" /></div>
+                            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.3)] bg-white ring-4 ring-yellow-50">
+                              {rankedFriends[0].usePhoto && rankedFriends[0].photoUrl ? <img src={rankedFriends[0].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-3xl">{avatars[rankedFriends[0].avatar]?.emoji}</div>}
+                            </div>
+                            <div className="absolute -top-2 -right-1 bg-yellow-400 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-sm border-2 border-white shadow-md">1</div>
+                          </div>
+                          <p className="text-xs font-black text-gray-800 text-center truncate w-full mb-1">{rankedFriends[0].nickname || rankedFriends[0].name.split(' ')[0]}</p>
+                          <div className="bg-yellow-400 px-3 py-1 rounded-full text-[10px] font-black text-white shadow-md">{calculatePTS(rankedFriends[0])} PTS</div>
+                        </div>
+                      )}
 
+                      {/* Juara 3 */}
+                      {rankedFriends[2] && (
+                        <div className="flex flex-col items-center w-1/3 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                          <div className="relative mb-3">
+                            <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white">
+                              {rankedFriends[2].usePhoto && rankedFriends[2].photoUrl ? <img src={rankedFriends[2].photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl">{avatars[rankedFriends[2].avatar]?.emoji}</div>}
+                            </div>
+                            <div className="absolute -top-2 -right-1 bg-orange-400 text-white w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] border-2 border-white shadow-sm">3</div>
+                          </div>
+                          <p className="text-[10px] font-black text-gray-800 text-center truncate w-full mb-1">{rankedFriends[2].nickname || rankedFriends[2].name.split(' ')[0]}</p>
+                          <div className="bg-orange-50 px-2 py-0.5 rounded-lg text-[9px] font-black text-orange-600">{calculatePTS(rankedFriends[2])} PTS</div>
+                        </div>
+                      )}
+                    </div>
 
+                    {/* Sisanya dlm bentuk list kartu kecil mobile */}
+                    <div className="space-y-3 pb-10">
+                      {rankedFriends.slice(3, 15).map((friend, index) => {
+                        const actualRank = index + 4;
+                        const pts = calculatePTS(friend);
+                        return (
+                          <div key={friend.id} className="bg-white rounded-2xl p-3 flex items-center shadow-sm border border-orange-50 hover:border-orange-200 transition-all">
+                            <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center font-black text-xs text-gray-400 mr-3 shrink-0">{actualRank}</div>
+                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm mr-3 shrink-0">
+                               {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-lg">{avatars[friend.avatar]?.emoji}</div>}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-black text-gray-800 text-xs truncate uppercase tracking-tight">{friend.name}</p>
+                            </div>
+                            <div className="bg-blue-50 px-3 py-1 rounded-full flex items-center gap-1.5 shrink-0 ml-2">
+                               <Medal size={12} className="text-blue-500 fill-blue-100" />
+                               <span className="text-[10px] font-black text-blue-600">{pts} PTS</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-10 text-center text-gray-300 italic font-bold">Belum ada peringkat...</div>
+                )}
+              </div>
 
-
-               
-                
-             </div>
-             <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-orange-100">
-                {rankedFriends.length === 0 ? <div className="p-10 text-center text-gray-400 italic font-bold">Data belum tersedia...</div> : (
-                  <div className="divide-y divide-gray-50">
+              {/* VIEW: DESKTOP ORIGINAL (Tetap seperti sebelumnya) */}
+              <div className="hidden md:block bg-white rounded-[3rem] shadow-xl overflow-hidden border-4 border-orange-100">
+                {rankedFriends.length === 0 ? <div className="p-20 text-center text-gray-400 italic font-bold">Data belum tersedia...</div> : (
+                  <div className="divide-y divide-gray-100">
                     {rankedFriends.slice(0, 15).map((friend, index) => {
                       const totalPTS = calculatePTS(friend);
                       return (
-                        <div key={friend.id} className="flex items-center p-5 hover:bg-orange-50/50 transition-colors group">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black mr-4 ${index === 0 ? 'bg-yellow-400 text-white shadow-lg' : index === 1 ? 'bg-gray-300 text-white shadow-lg' : index === 2 ? 'bg-orange-300 text-white shadow-lg' : 'bg-gray-50 text-gray-400'}`}>{index + 1}</div>
-                          <div className="w-14 h-14 rounded-full overflow-hidden mr-4 border-2 border-white shadow-md shrink-0">
-                            {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-2xl">{avatars[friend.avatar]?.emoji}</div>}
+                        <div key={friend.id} className="flex items-center p-6 hover:bg-orange-50/50 transition-colors group">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black mr-6 text-xl ${index === 0 ? 'bg-yellow-400 text-white shadow-lg rotate-3' : index === 1 ? 'bg-gray-300 text-white shadow-lg -rotate-2' : index === 2 ? 'bg-orange-300 text-white shadow-lg rotate-2' : 'bg-gray-50 text-gray-300'}`}>{index + 1}</div>
+                          <div className="w-16 h-16 rounded-full overflow-hidden mr-6 border-4 border-white shadow-lg shrink-0">
+                            {friend.usePhoto && friend.photoUrl ? <img src={friend.photoUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-3xl">{avatars[friend.avatar]?.emoji}</div>}
                           </div>
-                          <div className="flex-1 font-black text-gray-800 group-hover:text-orange-600 transition-colors">{friend.name}</div>
-                          <div className="flex flex-col items-end gap-1.5 shrink-0">
-                            <div className="bg-yellow-50 px-4 py-1.5 rounded-full border-2 border-yellow-200 shadow-sm font-black text-yellow-700 flex items-center gap-1.5"><Medal size={16} className="text-yellow-600 fill-yellow-200" />{totalPTS} <span className="text-[10px] font-normal uppercase">PTS</span></div>
-                            <div className="flex gap-2.5 text-[10px] font-black text-gray-300 px-1">
-                               <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
-                               <span className="flex items-center gap-1"><HeartHandshake size={11} className="text-green-500" /> {friend.thanks || 0}</span>
+                          <div className="flex-1 font-black text-gray-800 text-lg group-hover:text-orange-600 transition-colors uppercase tracking-tight">{friend.name}</div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div className="bg-yellow-50 px-6 py-2 rounded-full border-2 border-yellow-200 shadow-sm font-black text-yellow-700 flex items-center gap-2"><Medal size={20} className="text-yellow-600 fill-yellow-200" />{totalPTS} <span className="text-xs font-normal uppercase opacity-60">Poin</span></div>
+                            <div className="flex gap-4 text-xs font-black text-gray-300 px-2">
+                               <span className="flex items-center gap-1.5"><Star size={14} className="text-yellow-400 fill-current" /> {friend.stars || 0}</span>
+                               <span className="flex items-center gap-1.5"><HeartHandshake size={14} className="text-green-500" /> {friend.thanks || 0}</span>
                             </div>
                           </div>
                         </div>
@@ -1074,7 +1144,7 @@ export default function App() {
                     })}
                   </div>
                 )}
-             </div>
+              </div>
           </div>
         )}
 
