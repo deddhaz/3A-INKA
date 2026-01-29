@@ -67,7 +67,7 @@ export default function App() {
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
   const [restrictedMessage, setRestrictedMessage] = useState({ show: false, text: '' }); 
-  
+   
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [testimonyInput, setTestimonyInput] = useState('');
@@ -683,8 +683,8 @@ export default function App() {
                   <div key={t.id} className="bg-white p-3 rounded-2xl shadow-sm border border-purple-50 animate-fade-in group">
                     <p className="text-sm text-gray-700 italic">"{t.message}"</p>
                     <div className="flex justify-between items-center mt-2">
-                       <span className="text-[10px] text-purple-600 font-extrabold uppercase">~ {t.authorName}</span>
-                       {userRole === 'admin' && <button onClick={() => handleDeleteTestimony(t.id)} className="text-red-300 hover:text-red-500 transition"><Trash2 size={12} /></button>}
+                        <span className="text-[10px] text-purple-600 font-extrabold uppercase">~ {t.authorName}</span>
+                        {userRole === 'admin' && <button onClick={() => handleDeleteTestimony(t.id)} className="text-red-300 hover:text-red-500 transition"><Trash2 size={12} /></button>}
                     </div>
                   </div>
                 ))
@@ -767,24 +767,24 @@ export default function App() {
                   <div className="absolute -top-3 left-6 bg-orange-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Wali Kelas</div>
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
-                     <div className="relative group shrink-0">
-                        <img src={schoolSettings.waliKelas.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Wali Kelas" />
-                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                           <Camera size={20} />
-                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="hidden" />
-                        </label>
-                     </div>
-                     <div className="flex-1 w-full space-y-3">
-                        <div className="space-y-1">
-                           <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Wali Kelas:</label>
-                           <input 
-                             value={schoolSettings.waliKelas.name} 
-                             onChange={(e) => handleUpdateSchoolSettings('waliKelas', 'name', e.target.value)}
-                             placeholder="Nama Wali Kelas..." 
-                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
-                           />
-                        </div>
-                     </div>
+                      <div className="relative group shrink-0">
+                         <img src={schoolSettings.waliKelas.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Wali Kelas" />
+                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                            <Camera size={20} />
+                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('waliKelas', e)} className="hidden" />
+                         </label>
+                      </div>
+                      <div className="flex-1 w-full space-y-3">
+                         <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase text-orange-400 ml-1">Nama Wali Kelas:</label>
+                            <input 
+                              value={schoolSettings.waliKelas.name} 
+                              onChange={(e) => handleUpdateSchoolSettings('waliKelas', 'name', e.target.value)}
+                              placeholder="Nama Wali Kelas..." 
+                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-orange-300 outline-none text-sm font-bold shadow-sm transition-all"
+                            />
+                         </div>
+                      </div>
                   </div>
                 </div>
 
@@ -792,24 +792,24 @@ export default function App() {
                   <div className="absolute -top-3 left-6 bg-blue-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Asisten</div>
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
-                     <div className="relative group shrink-0">
-                        <img src={schoolSettings.asisten.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Asisten" />
-                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                           <Camera size={20} />
-                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="hidden" />
-                        </label>
-                     </div>
-                     <div className="flex-1 w-full space-y-3">
-                        <div className="space-y-1">
-                           <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Asisten:</label>
-                           <input 
-                             value={schoolSettings.asisten.name} 
-                             onChange={(e) => handleUpdateSchoolSettings('asisten', 'name', e.target.value)}
-                             placeholder="Nama Asisten..." 
-                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-blue-300 outline-none text-sm font-bold shadow-sm transition-all"
-                           />
-                        </div>
-                     </div>
+                      <div className="relative group shrink-0">
+                         <img src={schoolSettings.asisten.photoUrl} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Asisten" />
+                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                            <Camera size={20} />
+                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('asisten', e)} className="hidden" />
+                         </label>
+                      </div>
+                      <div className="flex-1 w-full space-y-3">
+                         <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase text-blue-400 ml-1">Nama Asisten:</label>
+                            <input 
+                              value={schoolSettings.asisten.name} 
+                              onChange={(e) => handleUpdateSchoolSettings('asisten', 'name', e.target.value)}
+                              placeholder="Nama Asisten..." 
+                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-blue-300 outline-none text-sm font-bold shadow-sm transition-all"
+                            />
+                         </div>
+                      </div>
                   </div>
                 </div>
 
@@ -817,24 +817,24 @@ export default function App() {
                   <div className="absolute -top-3 left-6 bg-purple-400 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-md">Profil Ketua Kelas</div>
                   
                   <div className="flex flex-col md:flex-row gap-6 items-center mt-2">
-                     <div className="relative group shrink-0">
-                        <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Ketua Kelas" />
-                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                           <Camera size={20} />
-                           <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('ketuaKelas', e)} className="hidden" />
-                        </label>
-                     </div>
-                     <div className="flex-1 w-full space-y-3">
-                        <div className="space-y-1">
-                           <label className="text-[9px] font-black uppercase text-purple-400 ml-1">Nama Ketua Kelas:</label>
-                           <input 
-                             value={schoolSettings.ketuaKelas?.name || ""} 
-                             onChange={(e) => handleUpdateSchoolSettings('ketuaKelas', 'name', e.target.value)}
-                             placeholder="Nama Ketua Kelas..." 
-                             className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-purple-300 outline-none text-sm font-bold shadow-sm transition-all"
-                           />
-                        </div>
-                     </div>
+                      <div className="relative group shrink-0">
+                         <img src={schoolSettings.ketuaKelas?.photoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=leader"} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Ketua Kelas" />
+                         <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                            <Camera size={20} />
+                            <input type="file" accept="image/*" onChange={(e) => handleTeacherPhotoUpload('ketuaKelas', e)} className="hidden" />
+                         </label>
+                      </div>
+                      <div className="flex-1 w-full space-y-3">
+                         <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase text-purple-400 ml-1">Nama Ketua Kelas:</label>
+                            <input 
+                              value={schoolSettings.ketuaKelas?.name || ""} 
+                              onChange={(e) => handleUpdateSchoolSettings('ketuaKelas', 'name', e.target.value)}
+                              placeholder="Nama Ketua Kelas..." 
+                              className="w-full px-5 py-3 rounded-2xl border-2 border-white focus:border-purple-300 outline-none text-sm font-bold shadow-sm transition-all"
+                            />
+                         </div>
+                      </div>
                   </div>
                 </div>
               </div>
@@ -850,11 +850,16 @@ export default function App() {
         </div>
       )}
 
-      <header className="bg-orange-400 text-white p-6 shadow-lg rounded-b-[40px] mb-8 relative text-center">
+      <header className="bg-gradient-to-br from-orange-400 via-orange-500 to-pink-500 text-white p-8 pb-16 shadow-lg rounded-b-[3rem] mb-0 relative text-center overflow-hidden">
+        {/* Pattern & Decoration */}
+        <div className="absolute inset-0 opacity-10 pattern-dots pointer-events-none"></div>
+        <div className="absolute -top-24 -left-24 w-64 h-64 bg-yellow-300 rounded-full blur-3xl opacity-20 mix-blend-overlay animate-float"></div>
+        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-pink-400 rounded-full blur-3xl opacity-20 mix-blend-overlay animate-float" style={{ animationDelay: '2s' }}></div>
+
         <div className="absolute top-4 right-4 flex flex-col md:flex-row gap-3 z-50">
           <button 
             onClick={() => setShowLogoutConfirm(true)} 
-            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
+            className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center backdrop-blur-md"
             aria-label="Logout"
           >
             <LogOut size={22} />
@@ -862,7 +867,7 @@ export default function App() {
           {userRole === 'admin' && (
             <button 
               onClick={() => setShowSettingsModal(true)} 
-              className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center"
+              className="bg-white/20 p-3 rounded-full hover:bg-white/30 transition-all shadow-sm border border-white/20 active:scale-90 flex items-center justify-center backdrop-blur-md"
               aria-label="Settings"
             >
               <Settings size={22} />
@@ -870,51 +875,79 @@ export default function App() {
           )}
         </div>
 
-        <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">{schoolSettings.className}</h1>
-        <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-4">{schoolSettings.classDescription}</p>
-        
-        <div className="flex justify-center flex-wrap gap-4 md:gap-10 mb-4 px-2">
-           <div className="flex flex-col items-center group">
-             <div className="relative mb-2">
-               <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Wali" />
-               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">WALI KELAS</div>
-             </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
-           </div>
-
-           <div className="flex flex-col items-center group">
-             <div className="relative mb-2">
-               <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Asisten" />
-               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">ASISTEN</div>
-             </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
-           </div>
-
-           <div className="flex flex-col items-center group">
-             <div className="relative mb-2">
-               <img src={schoolSettings.ketuaKelas?.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-md object-cover" alt="Ketua" />
-               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap">KETUA KELAS</div>
-             </div>
-             <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
-           </div>
-        </div>
-
-        <div className="hidden md:flex justify-center gap-2 mt-6">
-          <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
-          <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
+        <div className="relative z-10">
+          <h1 className="text-2xl md:text-5xl font-extrabold mb-1 drop-shadow-md">{schoolSettings.className}</h1>
+          <p className="text-orange-100 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-6">{schoolSettings.classDescription}</p>
           
-          {/* MENU DESKTOP ACTIVITY */}
-          <div className="relative px-6 py-2 rounded-full font-bold text-sm bg-orange-200/50 text-orange-100 cursor-not-allowed flex items-center gap-2">
-             <Blocks size={16} />
-             Activity
-             <span className="bg-orange-600 text-[8px] px-1.5 py-0.5 rounded-full text-white animate-pulse">COMING SOON</span>
+          <div className="flex justify-center flex-wrap gap-4 md:gap-12 mb-2 px-2">
+             <div className="flex flex-col items-center group">
+               <div className="relative mb-2 transform group-hover:scale-105 transition-transform duration-300">
+                 <div className="absolute inset-0 bg-white rounded-full blur-md opacity-30"></div>
+                 <img src={schoolSettings.waliKelas.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg object-cover relative z-10" alt="Wali" />
+                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap z-20">WALI KELAS</div>
+               </div>
+               <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.waliKelas.name}</span>
+             </div>
+
+             <div className="flex flex-col items-center group">
+               <div className="relative mb-2 transform group-hover:scale-105 transition-transform duration-300">
+                 <div className="absolute inset-0 bg-white rounded-full blur-md opacity-30"></div>
+                 <img src={schoolSettings.asisten.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg object-cover relative z-10" alt="Asisten" />
+                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap z-20">ASISTEN</div>
+               </div>
+               <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.asisten.name}</span>
+             </div>
+
+             <div className="flex flex-col items-center group">
+               <div className="relative mb-2 transform group-hover:scale-105 transition-transform duration-300">
+                 <div className="absolute inset-0 bg-white rounded-full blur-md opacity-30"></div>
+                 <img src={schoolSettings.ketuaKelas?.photoUrl} className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-lg object-cover relative z-10" alt="Ketua" />
+                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-sm whitespace-nowrap z-20">KETUA KELAS</div>
+               </div>
+               <span className="font-bold text-[10px] md:text-sm mt-1">{schoolSettings.ketuaKelas?.name}</span>
+             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* NEW DESKTOP NAVIGATION - FLOATING BAR */}
+      <div className="hidden md:flex justify-center -mt-8 mb-10 relative z-20 px-4">
+        <div className="bg-white/90 backdrop-blur-xl p-2 rounded-full shadow-2xl border-4 border-white/50 flex gap-2 items-center ring-1 ring-black/5">
+          <button 
+            onClick={() => setActiveTab('home')} 
+            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'home' ? 'bg-orange-500 text-white shadow-lg shadow-orange-200 transform -translate-y-1' : 'text-gray-400 hover:bg-orange-50 hover:text-orange-500'}`}
+          >
+            <Home size={18} className={activeTab === 'home' ? 'animate-bounce' : ''} />
+            Home
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('ranking')} 
+            className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'ranking' ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-200 transform -translate-y-1' : 'text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}`}
+          >
+            <Trophy size={18} className={activeTab === 'ranking' ? 'animate-bounce' : ''} />
+            Peringkat
+          </button>
+          
+          <div className="relative group cursor-not-allowed">
+            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-gray-100 text-gray-400 font-black uppercase tracking-wider text-xs border border-transparent group-hover:border-gray-200 transition-all">
+               <Blocks size={18} />
+               Activity
+            </div>
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold shadow-sm animate-pulse">SOON</div>
           </div>
 
           {userRole !== 'viewer' && (
-            <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
+            <button 
+              onClick={() => { setActiveTab('form'); resetForm(); }} 
+              className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 font-black uppercase tracking-wider text-xs ${activeTab === 'form' ? 'bg-pink-500 text-white shadow-lg shadow-pink-200 transform -translate-y-1' : 'text-gray-400 hover:bg-pink-50 hover:text-pink-500'}`}
+            >
+              <Plus size={18} className={activeTab === 'form' ? 'animate-spin-slow' : ''} />
+              Tambah Data
+            </button>
           )}
         </div>
-      </header>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4">
         {activeTab === 'home' && (
@@ -1010,26 +1043,26 @@ export default function App() {
                       </div>
 
                       <div className={`${isMobileGrid ? 'pt-10 pb-4' : 'pt-16 pb-6'} px-4 text-center flex-1 flex flex-col items-center`}>
-                         {!isMobileGrid && <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">"{friend.nickname || friend.name}"</p>}
-                         <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
-                            <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
-                            <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>"{friend.message || 'Semangat terus ya teman-teman!'}"</p>
-                         </div>
-                         {!isMobileGrid && (
-                            <div className="space-y-2 text-left bg-gray-50/80 p-5 rounded-[2rem] text-xs md:text-sm mb-4 w-full border border-gray-100 shadow-inner">
-                               <p className="flex items-center gap-3"><Rocket size={16} className="text-blue-400 shrink-0" /> <span><b>Cita-cita:</b> {friend.dream || '-'}</span></p>
-                               <p className="flex items-center gap-3"><Gamepad2 size={16} className="text-green-400 shrink-0" /> <span><b>Hobi:</b> {friend.hobby || '-'}</span></p>
-                               <p className="flex items-center gap-3"><Utensils size={16} className="text-orange-400 shrink-0" /> <span><b>Makanan:</b> {friend.food || '-'}</span></p>
-                            </div>
-                         )}
-                         <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
-                           <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole === 'viewer' || userRole !== 'admin' ? 'cursor-not-allowed opacity-60' : ''}`}>
-                             <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
-                             <span className="text-xs font-black">{friend.stars || 0}</span>
-                           </button>
-                           <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'} ${userRole === 'viewer' ? 'cursor-not-allowed opacity-60' : ''}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
-                           <button onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} bg-white text-gray-400 border-gray-100 hover:text-purple-500 hover:border-purple-100 active:scale-95 shadow-sm`}><MessageSquare size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{testimonyCount}</span></button>
-                         </div>
+                          {!isMobileGrid && <p className="text-blue-500 font-black text-[10px] md:text-xs uppercase mb-4 tracking-[0.2em] opacity-80 mt-1">"{friend.nickname || friend.name}"</p>}
+                          <div className={`w-full bg-purple-50 p-3 rounded-2xl mb-4 border border-purple-100 relative group/msg ${isMobileGrid ? 'mt-2' : ''}`}>
+                             <MessageSquareQuote size={12} className="text-purple-300 absolute -top-1.5 -left-1.5 bg-white rounded-full p-0.5 shadow-sm" />
+                             <p className={`text-gray-600 italic font-medium leading-relaxed ${isMobileGrid ? 'text-[10px] line-clamp-2' : 'text-xs'}`}>"{friend.message || 'Semangat terus ya teman-teman!'}"</p>
+                          </div>
+                          {!isMobileGrid && (
+                             <div className="space-y-2 text-left bg-gray-50/80 p-5 rounded-[2rem] text-xs md:text-sm mb-4 w-full border border-gray-100 shadow-inner">
+                                <p className="flex items-center gap-3"><Rocket size={16} className="text-blue-400 shrink-0" /> <span><b>Cita-cita:</b> {friend.dream || '-'}</span></p>
+                                <p className="flex items-center gap-3"><Gamepad2 size={16} className="text-green-400 shrink-0" /> <span><b>Hobi:</b> {friend.hobby || '-'}</span></p>
+                                <p className="flex items-center gap-3"><Utensils size={16} className="text-orange-400 shrink-0" /> <span><b>Makanan:</b> {friend.food || '-'}</span></p>
+                             </div>
+                          )}
+                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
+                            <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole === 'viewer' || userRole !== 'admin' ? 'cursor-not-allowed opacity-60' : ''}`}>
+                              <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
+                              <span className="text-xs font-black">{friend.stars || 0}</span>
+                            </button>
+                            <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'} ${userRole === 'viewer' ? 'cursor-not-allowed opacity-60' : ''}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
+                            <button onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} bg-white text-gray-400 border-gray-100 hover:text-purple-500 hover:border-purple-100 active:scale-95 shadow-sm`}><MessageSquare size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{testimonyCount}</span></button>
+                          </div>
                       </div>
                     </div>
                   );
