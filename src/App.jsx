@@ -1248,16 +1248,16 @@ export default function App() {
         {/* --- RANKING PAGE (Restored with Podium) --- */}
         {activeTab === 'ranking' && (
           <div className="max-w-3xl mx-auto pb-24 animate-fade-in px-4">
-             <div className="text-center mb-8 pt-4 relative">
-               <div className="relative inline-block">
-                 <Trophy size={56} className="text-yellow-400 drop-shadow-md" />
-               </div>
-               <div className="relative inline-block mt-2">
-                  <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tight relative z-10">Peringkat</h2>
-                  <Star className="absolute -top-2 -right-6 text-yellow-400 fill-yellow-400 w-6 h-6 animate-pulse" />
-                  <Star className="absolute -bottom-1 -left-6 text-orange-400 fill-orange-400 w-4 h-4 animate-bounce" style={{ animationDuration: '2s' }} />
-                  <Sparkles className="absolute top-1/2 -translate-y-1/2 -right-10 text-pink-400 w-5 h-5 animate-spin-slow" />
-               </div>
+             <div className="text-center mb-12 pt-8 relative">
+                <div className="relative inline-block">
+                   <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-500 via-orange-500 to-pink-500 uppercase tracking-[0.2em] drop-shadow-sm filter">
+                     Peringkat
+                   </h2>
+                   {/* Decorative Elements replacing the Trophy */}
+                   <Star className="absolute -top-6 -right-8 text-yellow-400 fill-yellow-400 w-8 h-8 animate-bounce" />
+                   <Sparkles className="absolute top-1/2 -translate-y-1/2 -left-10 text-pink-400 w-6 h-6 animate-spin-slow" />
+                   <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-1.5 bg-gradient-to-r from-transparent via-orange-300 to-transparent rounded-full opacity-50"></div>
+                </div>
              </div>
 
              {/* PODIUM DISPLAY */}
