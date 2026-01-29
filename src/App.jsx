@@ -96,7 +96,7 @@ export default function App() {
   const [settingsLoading, setSettingsLoading] = useState(true); 
   const [activeTab, setActiveTab] = useState('home'); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState('user'); 
+  const [userRole, setUserRole] = useState('user'); // 'admin', 'user', 'viewer'
   const [accessCode, setAccessCode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -107,7 +107,7 @@ export default function App() {
   const [currentEditId, setCurrentEditId] = useState(null);
   const [thanksMessage, setThanksMessage] = useState({ show: false, name: '' });
   const [starMessage, setStarMessage] = useState({ show: false, name: '' });
-  const [restrictedMessage, setRestrictedMessage] = useState(false); 
+  const [restrictedMessage, setRestrictedMessage] = useState({ show: false, text: '' }); 
   
   const [showTestimonyModal, setShowTestimonyModal] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null);
@@ -288,6 +288,7 @@ export default function App() {
     const input = accessCode.toLowerCase().trim();
     const userCodes = ["insan karima", "inka", "sd insan karima", "3a"];
     const adminCodes = ["ustazah", "ustadzah", "ustadz", "ustad"]; 
+    const viewerCodes = ["tamu", "view", "visitor", "guest"];
 
     if (adminCodes.includes(input)) {
       setIsAuthenticated(true);
@@ -301,6 +302,12 @@ export default function App() {
       setLoginError(false);
       sessionStorage.setItem('school_auth', 'true');
       sessionStorage.setItem('user_role', 'user');
+    } else if (viewerCodes.includes(input)) {
+      setIsAuthenticated(true);
+      setUserRole('viewer');
+      setLoginError(false);
+      sessionStorage.setItem('school_auth', 'true');
+      sessionStorage.setItem('user_role', 'viewer');
     } else {
       setLoginError(true);
     }
@@ -363,9 +370,14 @@ export default function App() {
 
   const handleStar = async (friend) => {
     if (!user) return;
+    if (userRole === 'viewer') {
+      setRestrictedMessage({ show: true, text: 'Akun tamu tidak bisa memberikan bintang' });
+      setTimeout(() => setRestrictedMessage({ show: false, text: '' }), 2500);
+      return;
+    }
     if (userRole !== 'admin') {
-      setRestrictedMessage(true);
-      setTimeout(() => setRestrictedMessage(false), 2500);
+      setRestrictedMessage({ show: true, text: 'Hanya guru yang bisa memberikan bintang' });
+      setTimeout(() => setRestrictedMessage({ show: false, text: '' }), 2500);
       return;
     }
     
@@ -390,6 +402,11 @@ export default function App() {
 
   const handleThankYou = async (friend) => {
     if (!user) return;
+    if (userRole === 'viewer') {
+      setRestrictedMessage({ show: true, text: 'Akun tamu tidak bisa berinteraksi' });
+      setTimeout(() => setRestrictedMessage({ show: false, text: '' }), 2500);
+      return;
+    }
     const storageKey = `thanked_${friend.id}`;
     const isAlreadyThanked = localStorage.getItem(storageKey);
 
@@ -563,7 +580,7 @@ export default function App() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
                   <School size={32} className="text-orange-500" />
                 </div>
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU APP</div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU APPS</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Ayo Masuk ke Kelasmu</p>
@@ -589,10 +606,12 @@ export default function App() {
         <div className={`p-2 rounded-xl transition-all ${activeTab === 'ranking' ? 'bg-orange-50 scale-110' : ''}`}><Trophy size={22} /></div>
         <span className="text-[10px] font-bold uppercase">Peringkat</span>
       </button>
-      <button onClick={() => setActiveTab('form')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'form' ? 'text-pink-500' : 'text-gray-400'}`}>
-        <div className={`p-2 rounded-xl transition-all ${activeTab === 'form' ? 'bg-pink-50 scale-110' : ''}`}><Plus size={22} /></div>
-        <span className="text-[10px] font-bold uppercase">Tambah</span>
-      </button>
+      {userRole !== 'viewer' && (
+        <button onClick={() => setActiveTab('form')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'form' ? 'text-pink-500' : 'text-gray-400'}`}>
+          <div className={`p-2 rounded-xl transition-all ${activeTab === 'form' ? 'bg-pink-50 scale-110' : ''}`}><Plus size={22} /></div>
+          <span className="text-[10px] font-bold uppercase">Tambah</span>
+        </button>
+      )}
     </nav>
   );
 
@@ -621,14 +640,14 @@ export default function App() {
         </div>
       )}
 
-      {restrictedMessage && (
+      {restrictedMessage.show && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12 max-sm px-4 w-full text-center border-4 border-red-300 animate-scale-up">
             <div className="relative mx-auto bg-red-50 w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-inner">
               <div className="animate-bounce"><AlertCircle size={64} className="text-red-500" /></div>
             </div>
             <h3 className="text-xl font-extrabold text-gray-800 mb-2">Akses Terbatas</h3>
-            <p className="text-red-600 font-bold">Hanya guru yang bisa memberikan bintang</p>
+            <p className="text-red-600 font-bold">{restrictedMessage.text}</p>
           </div>
         </div>
       )}
@@ -677,13 +696,17 @@ export default function App() {
               )}
             </div>
             <div className="p-4 border-t bg-white rounded-b-2xl">
-              <form onSubmit={handleSaveTestimony} className="space-y-3">
-                <input required value={testimonyAuthor} onChange={(e) => setTestimonyAuthor(e.target.value)} placeholder="Nama Kamu..." className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 font-bold" maxLength={20} />
-                <div className="flex gap-2">
-                  <input required value={testimonyInput} onChange={(e) => setTestimonyInput(e.target.value)} placeholder="Tulis pesan..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
-                  <button type="submit" disabled={isSavingTestimony || !testimonyInput.trim() || !testimonyAuthor.trim()} className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 disabled:opacity-50 transition"><Send size={18} /></button>
-                </div>
-              </form>
+              {userRole !== 'viewer' ? (
+                <form onSubmit={handleSaveTestimony} className="space-y-3">
+                  <input required value={testimonyAuthor} onChange={(e) => setTestimonyAuthor(e.target.value)} placeholder="Nama Kamu..." className="w-full px-4 py-2 bg-purple-50 rounded-xl text-sm outline-none border border-purple-100 font-bold" maxLength={20} />
+                  <div className="flex gap-2">
+                    <input required value={testimonyInput} onChange={(e) => setTestimonyInput(e.target.value)} placeholder="Tulis pesan..." className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 transition" maxLength={80} />
+                    <button type="submit" disabled={isSavingTestimony || !testimonyInput.trim() || !testimonyAuthor.trim()} className="bg-purple-500 text-white p-2 rounded-full shadow-md hover:bg-purple-600 disabled:opacity-50 transition"><Send size={18} /></button>
+                  </div>
+                </form>
+              ) : (
+                <p className="text-center text-xs font-bold text-gray-400 py-2">Hanya siswa & guru yang bisa mengisi testimoni</p>
+              )}
             </div>
           </div>
         </div>
@@ -899,7 +922,9 @@ export default function App() {
         <div className="hidden md:flex justify-center gap-2 mt-6">
           <button onClick={() => setActiveTab('home')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'home' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Home</button>
           <button onClick={() => setActiveTab('ranking')} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'ranking' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Peringkat</button>
-          <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
+          {userRole !== 'viewer' && (
+            <button onClick={() => { setActiveTab('form'); resetForm(); }} className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeTab === 'form' ? 'bg-white text-orange-500 shadow-md' : 'bg-orange-500 text-white hover:bg-orange-600'}`}>Tambah Biodata</button>
+          )}
         </div>
       </header>
 
@@ -1007,10 +1032,12 @@ export default function App() {
                           <span className="text-xs font-black text-yellow-700">{totalPTS} <span className="text-[9px] font-normal">PTS</span></span>
                         </div>
 
-                        <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
-                           {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition backdrop-blur-sm"><Pencil size={14} /></button>}
-                           {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
-                        </div>
+                        {userRole !== 'viewer' && (
+                          <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
+                             {(owner || userRole === 'admin') && <button onClick={() => { setFormData(friend); setIsEditing(true); setCurrentEditId(friend.id); setActiveTab('form'); }} className="bg-white/90 p-1.5 rounded-full text-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition backdrop-blur-sm"><Pencil size={14} /></button>}
+                             {userRole === 'admin' && <button onClick={() => handleDelete(friend.id)} className="bg-white/90 p-1.5 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition backdrop-blur-sm"><Trash2 size={14} /></button>}
+                          </div>
+                        )}
 
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30">
                           <div className={`bg-white p-1 rounded-full shadow-xl ring-4 ring-white overflow-hidden flex items-center justify-center ${isMobileGrid ? 'w-14 h-14' : 'w-20 h-20 md:w-28 md:h-28'} transition-all`}>
@@ -1042,11 +1069,11 @@ export default function App() {
                          )}
 
                          <div className={`flex justify-center items-center w-full mt-auto ${isMobileGrid ? 'gap-2 pt-4' : 'gap-4 pt-6'}`}>
-                           <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole !== 'admin' ? 'cursor-not-allowed' : ''}`}>
+                           <button onClick={() => handleStar(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isS ? 'bg-yellow-400 text-white border-yellow-400 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-yellow-500 hover:border-yellow-100'} ${userRole === 'viewer' || userRole !== 'admin' ? 'cursor-not-allowed opacity-60' : ''}`}>
                              <Star size={isMobileGrid ? 14 : 18} className={isS ? 'fill-current' : ''} />
                              <span className="text-xs font-black">{friend.stars || 0}</span>
                            </button>
-                           <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
+                           <button onClick={() => handleThankYou(friend)} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} ${isT ? 'bg-green-500 text-white border-green-500 shadow-md scale-105' : 'bg-white text-gray-400 border-gray-100 hover:text-green-500 hover:border-green-100'} ${userRole === 'viewer' ? 'cursor-not-allowed opacity-60' : ''}`}><HeartHandshake size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{friend.thanks || 0}</span></button>
                            <button onClick={() => { setSelectedFriend(friend); setShowTestimonyModal(true); }} className={`flex items-center justify-center gap-1.5 rounded-full border-2 transition-all ${isMobileGrid ? 'px-2 py-1' : 'px-4 py-2'} bg-white text-gray-400 border-gray-100 hover:text-purple-500 hover:border-purple-100 active:scale-95 shadow-sm`}><MessageSquare size={isMobileGrid ? 14 : 18} /><span className="text-xs font-black">{testimonyCount}</span></button>
                          </div>
                       </div>
@@ -1112,7 +1139,7 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'form' && (
+        {activeTab === 'form' && userRole !== 'viewer' && (
           <div className="space-y-8 max-w-2xl mx-auto pb-10">
             <div className="bg-white rounded-[2.5rem] shadow-xl p-6 md:p-10 border-2 border-pink-100 animate-scale-up relative">
               <h2 className="text-xl md:text-3xl font-black text-pink-600 mb-8 text-center drop-shadow-sm">{isEditing ? '✏️ Update Biodata' : '✏️ Yuk Isi Biodatamu!'}</h2>
