@@ -1584,7 +1584,7 @@ export default function App() {
                                 <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-orange-200 ring-2 ring-orange-100 relative overflow-hidden group">
                                     <div className="flex items-center gap-3">
                                         <div className="bg-orange-100 p-2 rounded-full text-orange-600">
-                                            <flag size={20} />
+                                            <Flag size={20} />
                                         </div>
                                         <div>
                                             <span className="text-xs md:text-sm font-black leading-tight text-gray-800 block">Upacara Bendera</span>
