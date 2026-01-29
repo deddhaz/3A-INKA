@@ -560,7 +560,7 @@ export default function App() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 md:p-4 rounded-full border-4 border-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-500">
                   <School size={32} className="text-orange-500" />
                 </div>
-                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">SD INSAN KARIMA</div>
+                <div className="bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-black shadow-md z-20 transform -rotate-2">KELASERU</div>
               </div>
               <h2 className="text-2xl font-black text-gray-800 tracking-tight text-center mb-1">Halo Kawan!</h2>
               <p className="text-xs font-bold text-gray-500 tracking-widest mb-6 text-center">Silahkan masuk ke kelasmu</p>
